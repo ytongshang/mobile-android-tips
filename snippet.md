@@ -35,3 +35,57 @@
 
 
 ```
+#### EditText的焦点问题
+* 问题：有时个一个界面有editext的时候，我们希望它**不自动获得焦点**,但是editext调用clearFocus方法都没有用
+
+* 解决办法：在EditText的父级控件中找一个，设置成
+
+```
+android:focusable="true"  
+android:focusableInTouchMode="true"
+```
+
+* 有的时候，当EditText获得焦点与否，UI不同，这时个可以重载焦点的监听函数
+
+```
+mSearchInput.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+           @Override
+           public void onFocusChange(View v, boolean hasFocus) {
+               if (hasFocus) {
+                   mSearchLeft.setVisibility(View.VISIBLE);
+                   mSearchCenter.setVisibility(View.GONE);
+                   mSearchClear.setVisibility(View.VISIBLE);
+                   mSearchCancel.setVisibility(View.VISIBLE);
+               } else {
+                   mSearchLeft.setVisibility(View.GONE);
+                   mSearchCenter.setVisibility(View.VISIBLE);
+                   mSearchClear.setVisibility(View.GONE);
+                   mSearchCancel.setVisibility(View.GONE);
+               }
+           }
+       });
+```
+
+* 一旦有搜索之类的行为，要定义imeOptions,并且重载它的actionListener 
+
+```
+android:imeOptions="actionSearch"
+
+mSearchInput.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if (actionId == EditorInfo.IME_ACTION_SEARCH || actionId == EditorInfo.IME_ACTION_UNSPECIFIED) {
+                    String text = mSearchInput.getText().toString().trim();
+                    if (KasUtil.isEmpty(text)) {
+                        T.showShort(mContext, R.string.search_empty_hint);
+                        return false;
+                    }
+                    Message msg = mHandler.obtainMessage(MSG_SEARCH);
+                    msg.obj = text;
+                    mHandler.sendMessage(msg);
+                    return true;
+                }
+                return false;
+            }
+        });
+```
