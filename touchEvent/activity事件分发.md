@@ -12,7 +12,7 @@ public boolean dispatchTouchEvent(MotionEvent ev) {
     }
 ```
 
-*  onUserInteraction默认不执行任何动作，主要是在有Down事件，回调，我们可以自定义其行为
+*  onUserInteraction默认不执行任何动作，主要是在有Down事件，回调该函数，我们可以自定义其行为
 
 * getWindow().superDispatchTouchEvent(ev),通过调用到Activity所属Window的superDispatchTouchEvent，进而调用到Window的DecorView的superDispatchTouchEvent，进一步的又调用到ViewGroup的dispatchTouchEvent()。
 
