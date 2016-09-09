@@ -1,14 +1,15 @@
-#### EditText的焦点问题
-* 问题：有时个一个界面有editext的时候，我们希望它**不自动获得焦点**,但是editext调用clearFocus方法都没有用
+# EditText的焦点问题
 
-* 解决办法：在EditText的父级控件中找一个，设置成
+- 问题：有时个一个界面有editext的时候，我们希望它**不自动获得焦点**,但是editext调用clearFocus方法都没有用
+
+- 解决办法：在EditText的父级控件中找一个，设置成
 
 ```
 android:focusable="true"  
 android:focusableInTouchMode="true"
 ```
 
-* 有的时候，当EditText获得焦点与否，UI不同，这时个可以重载焦点的监听函数
+- 有的时候，当EditText获得焦点与否，UI不同，这时个可以重载焦点的监听函数
 
 ```
 mSearchInput.setOnFocusChangeListener(new View.OnFocusChangeListener() {
@@ -27,16 +28,16 @@ mSearchInput.setOnFocusChangeListener(new View.OnFocusChangeListener() {
        });
 ```
 
-#### EditText的listener
-* EditText的listener主要用到的有2个:
-```
-addTextWatcher()
-setOnEditorActionListener
-```
-* 一旦有搜索之类的行为，要定义imeOptions,并且重载它的actionListener,
-并且很多listener之类
-的代码都要注意返回是true,还是false，一般情况下返回true,表示处理了该事件，该事件不会再一次分发，
-否则的话会再次分发
+# EditText的listener
+
+- EditText的listener主要用到的有2个:
+
+  ```
+  addTextWatcher()
+  setOnEditorActionListener
+  ```
+
+- 一旦有搜索之类的行为，要定义imeOptions,并且重载它的actionListener, 并且很多listener之类 的代码都要注意返回是true,还是false，一般情况下返回true,表示处理了该事件，该事件不会再一次分发， 否则的话会再次分发
 
 ```
 android:imeOptions="actionSearch"
@@ -60,9 +61,9 @@ mSearchInput.setOnEditorActionListener(new TextView.OnEditorActionListener() {
         });
 ```
 
-#### 点击空白处，关闭软键盘
-* 原理：重载activity, viewGroup的事件分发，如果MotionEvent的位置在EditText之中，则不用关闭，
-否则的话闭闭软键盘
+# 点击空白处，关闭软键盘
+
+- 原理：重载activity, viewGroup的事件分发，如果MotionEvent的位置在EditText之中，则不用关闭， 否则的话闭闭软键盘
 
 ```
     public boolean dispatchTouchEvent(MotionEvent ev) {  
@@ -94,4 +95,4 @@ mSearchInput.setOnEditorActionListener(new TextView.OnEditorActionListener() {
        // 如果焦点不是EditText则忽略，这个发生在视图刚绘制完，第一个焦点不在EditView上，和用户用轨迹球选择其他的焦点  
        return false;  
    }
-```  
+```
