@@ -96,3 +96,23 @@ mSearchInput.setOnEditorActionListener(new TextView.OnEditorActionListener() {
        return false;  
    }
 ```
+
+#EditText删除最后一个字符
+
+- 有时候，比如表情栏要点一个图标，删除最后一个表情
+```
+public static void backspace(EditText editText) {
+    KeyEvent event = new KeyEvent(0, 0, 0, KeyEvent.KEYCODE_DEL, 0, 0, 0,
+            0, KeyEvent.KEYCODE_ENDCALL);
+    editText.dispatchKeyEvent(event);
+}
+```
+
+
+# 动态设置EditText的字数限制
+
+- 有时候，我们需要动态设置EditText的最大字数限制，代码如下：
+```
+InputFilter[] filters = {new InputFilter.LengthFilter(NAME_MAX_LENGTH)};
+mEtGroupName.setFilters(filters);
+```
