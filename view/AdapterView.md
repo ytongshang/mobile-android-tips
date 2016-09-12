@@ -25,4 +25,10 @@ public final void notifyItemRemoved(int position)
 public final void notifyItemRangeRemoved(int positionStart, int itemCount)
 ```
 
-# f
+# GridView长按显示一个popupWindow,长按结束关闭popupWindow
+
+- 最近做一个项目，GridView表情栏中，长按一个表情要显示一个有表情gif的popupWindow,长按结束时，则popupWindow隐藏掉
+
+- 长按显示popupWindow很好做，但长按结束，没有listener可以监听，开始想到的方法是，对GridView的item进行事件监听，使用GestureDetector对item进行触摸事件派发，但是后面发现GestureDetector.OnGestureListener的 **boolean onSingleTapUp(MotionEvent e)** 在长按结束会不会执行
+
+- 最后的实现方法是，在GridView的 **OnItemLongClickListener** 中显示popupWindow,并且重载其OnTouchListener，如果是ACTION_UP事件，则关闭popupWindow
