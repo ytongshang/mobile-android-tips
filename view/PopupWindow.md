@@ -26,6 +26,40 @@ public void showAsDropDown(View anchor, int xoff, int yoff, int gravity)
 - popupWindow如果在屏幕上显示不下，是被会剪裁的，所以有的时候，要特别注意其显示坐标的位置
 
 ```
+//popwindow
+int popWidth = (int) KasUtil.getRawSize(TypedValue.COMPLEX_UNIT_DIP, 73, mContext);
+int popHeight = (int) KasUtil.getRawSize(TypedValue.COMPLEX_UNIT_DIP, 80, mContext);
+
+//anchor
+int[] loc = new int[2];
+anchor.getLocationOnScreen(loc);
+int anchorX = loc[0];
+int anchorY = loc[1];
+
+//screen
+Point point = KasUtil.getScreenSize(mContext);
+int winWidth = point.x;
+
+//因为gridview是stretchMode="columnWidth",所以在大屏幕上有可能一个item的大小在大于popupwindow
+int x;
+if (popWidth >= anchor.getWidth()) {
+    x = anchorX - (popWidth - anchor.getWidth()) / 2;
+} else {
+    x = anchorX + (anchor.getWidth() - popWidth) / 2;
+}
+
+//因为popWindow如果跑到屏幕以外,会被剪切掉,所以做限定
+//加上一个边距,不要贴边显示
+if (x <= 0) {
+    x = (int) KasUtil.getRawSize(TypedValue.COMPLEX_UNIT_DIP, 8, mContext);
+}
+if (x >= winWidth - popWidth) {
+    x = winWidth - popWidth - (int) KasUtil.getRawSize(TypedValue.COMPLEX_UNIT_DIP, 8, mContext);
+}
+
+//不要被肥硕的大拇指挡住挡住。。。。。
+int y = anchorY - popHeight -
+    (int) KasUtil.getRawSize(TypedValue.COMPLEX_UNIT_DIP, 25, mContext);
 ```
 
 - 如果popupWindow有背景，则会在contentView外面包一层PopupViewContainer之后作为mPopupView，如果没有背景，则直接用contentView作为mPopupView。而这个PopupViewContainer是一个内部私有类，它继承了FrameLayout，在其中重写了Key和Touch事件的分发处理.由于PopupView本身并没有重写Key和Touch事件的处理，所以如果没有包这个外层容器类，点击Back键或者外部区域是不会导致弹框消失的

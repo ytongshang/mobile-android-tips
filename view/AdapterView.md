@@ -32,3 +32,22 @@ public final void notifyItemRangeRemoved(int positionStart, int itemCount)
 - 长按显示popupWindow很好做，但长按结束，没有listener可以监听，开始想到的方法是，对GridView的item进行事件监听，使用GestureDetector对item进行触摸事件派发，但是后面发现GestureDetector.OnGestureListener的 **boolean onSingleTapUp(MotionEvent e)** 在长按结束会不会执行
 
 - 最后的实现方法是，在GridView的 **OnItemLongClickListener** 中显示popupWindow,并且重载其OnTouchListener，如果是ACTION_UP事件，则关闭popupWindow
+```
+      gridView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+                showPopWindow(view, position);
+                return true;
+            }
+        });
+
+        gridView.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                if (event.getAction() == MotionEvent.ACTION_UP) {
+                    hidePopWindow();
+                }
+                return false;
+            }
+        });
+```
