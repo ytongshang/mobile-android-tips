@@ -2,7 +2,7 @@
 
 - 示例
 
-  ```
+  ```xml
   <TextView
     android:id="@+id/tv_marque"
     android:layout_width="fill_parent"
@@ -26,12 +26,11 @@
   5. 必须获取焦点，如果布局中有自动获取焦点的比如EditText的话，不会显示这种效果
   6. 因为焦点的问题，同一布局中只能有一个TextView有跑马灯的效果
 
-
 # 复制粘贴
 
 - 默认情况下，TextView是不能够选择的，如果要让其可以复制粘贴的话
 
-  ```
+  ```xml
   android:textIsSelectable="true"
   ```
 
@@ -39,7 +38,7 @@
 
 - 可以用Spannable实现
 
-```
+```java
 private void addStrikeSpan() {  
   SpannableString spanString = new SpannableString("删除线");  
   StrikethroughSpan span = new StrikethroughSpan();  
@@ -57,7 +56,7 @@ private void addUnderLineSpan() {
 
 - 还可以用以下代码实现
 
-```
+```java
 // 设置中划线并加清晰
 textView.getPaint().setFlags(Paint.STRIKE_THRU_TEXT_FLAG | Paint.ANTI_ALIAS_FLAG);
 textView.getPaint().setFlags(Paint.UNDERLINE_TEXT_FLAG);

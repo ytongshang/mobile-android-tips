@@ -6,7 +6,7 @@
 
 # dispatchTouchEvent
 
-```
+```java
 public boolean dispatchTouchEvent(MotionEvent event) {
         // If the event should be handled by accessibility focus first.
         if (event.isTargetAccessibilityFocus()) {
@@ -69,7 +69,7 @@ public boolean dispatchTouchEvent(MotionEvent event) {
 
 # onFilterTouchEventForSecurity()
 
-```
+```java
 public boolean onFilterTouchEventForSecurity(MotionEvent event) {
     //noinspection RedundantIfStatement
     if ((mViewFlags & FILTER_TOUCHES_WHEN_OBSCURED) != 0
@@ -87,7 +87,7 @@ public boolean onFilterTouchEventForSecurity(MotionEvent event) {
 
 # onTouchEvent
 
-```
+```java
 public boolean onTouchEvent(MotionEvent event) {
         final float x = event.getX();
         final float y = event.getY();

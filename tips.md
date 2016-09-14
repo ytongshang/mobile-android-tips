@@ -19,7 +19,7 @@
 
 - 在界面销毁的时候，比如fragment与activity的ondestroy方法中，要取消handler发送的消息
 
-  ```
+  ```java
   if (mHandler != null) {
     mHandler.removeCallbacksAndMessages(null);
     mHandler = null;

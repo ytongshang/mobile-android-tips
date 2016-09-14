@@ -2,7 +2,7 @@
 
 - 源码
 
-  ```
+  ```java
   public boolean dispatchTouchEvent(MotionEvent ev) {
         if (ev.getAction() == MotionEvent.ACTION_DOWN) {
             onUserInteraction();
@@ -22,7 +22,7 @@
 
 - activity的onTouchEvent
 
-  ```
+  ```java
   public boolean onTouchEvent(MotionEvent event) {
         if (mWindow.shouldCloseOnTouch(this, event)) {
             finish();
