@@ -51,7 +51,7 @@
                 final float secondY = MotionEventCompat.getY(event,secondaryIndex);
                 break;
             case MotionEvent.ACTION_POINTER_UP:
-                xxxxxx(涉及pointer id的转换，之后的文章会讲解)
+                xxxxxx
                 break;
             case MotionEvent.ACTION_UP:
             case MotionEvent.ACTION_CANCEL:
