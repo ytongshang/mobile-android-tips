@@ -61,13 +61,7 @@
     }
 ```
 
-- mInputEventConsistencyVerifier是调试用的，这里不用理会。重点看onFilterTouchEventForSecurity()部分
-
 - onFilterTouchEventForSecurity()表示是否要分发该触摸事件；如果该View不是位于顶部，并且有设置属性使该View不在顶部时不响应触摸事件，则不分发该触摸事件，即不会执行onTouch()与onTouchEvent()。 否则的话，则将事件分发给onTouch(), onTouchEvent()进行处理。
-
-- 如果将事件进行分发的话，会先尝试分发给onTouch()；然后才分发给onTouchEvent()
-
-# onFilterTouchEventForSecurity()
 
 ```java
 public boolean onFilterTouchEventForSecurity(MotionEvent event) {
@@ -80,6 +74,10 @@ public boolean onFilterTouchEventForSecurity(MotionEvent event) {
     return true;
 }
 ```
+
+- 如果将事件进行分发的话，会先尝试分发给onTouch()；然后才分发给onTouchEvent()
+
+# onFilterTouchEventForSecurity()
 
 - onFilterTouchEventForSecurity()返回true，表示可以分发该触摸事件；否则，不能分发该触摸事件。不能分发事件的情况，只有mViewFlags&FILTER_TOUCHES_WHEN_OBSCURED!=0，并且event.getFlags()&MotionEvent.FLAG_WINDOW_IS_OBSCURED!=0同时成立。
 - FILTER_TOUCHES_WHEN_OBSCURED是android:filterTouchesWhenObscured属性所对应的位。android:filterTouchesWhenObscured是true的话，则表示其他视图在该视图之上，导致该视图被隐藏时，该视图就不再响应触摸事件。
