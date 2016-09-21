@@ -51,15 +51,10 @@
 
     @Override
     public boolean onInterceptTouchEvent(MotionEvent event) {
-        try {
-            if (mNoFocus) {
-                return false;
-            }
-            return super.onInterceptTouchEvent(event);
-        } catch (Exception e) {
-
-        }
+      if (mNoFocus) {
         return false;
+      }
+      return super.onInterceptTouchEvent(event);
     }
 
     public void setNoFocus(boolean b) {

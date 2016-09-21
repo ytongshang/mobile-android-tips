@@ -34,7 +34,7 @@ mSearchInput.setOnFocusChangeListener(new View.OnFocusChangeListener() {
 
   ```java
   addTextWatcher()
-  setOnEditorActionListener
+  setOnEditorActionListener()
   ```
 
 - 一旦有搜索之类的行为，要定义imeOptions,并且重载它的actionListener, 并且很多listener之类 的代码都要注意返回是true,还是false，一般情况下返回true,表示处理了该事件，该事件不会再一次分发， 否则的话会再次分发
