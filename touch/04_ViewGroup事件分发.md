@@ -9,16 +9,18 @@
 ```java
   @Override
   public boolean dispatchTouchEvent(MotionEvent ev) {
-    // mInputEventConsistencyVerifier是调试用的，不会理会
+    // mInputEventConsistencyVerifier是调试用的
     if (mInputEventConsistencyVerifier != null) {
         mInputEventConsistencyVerifier.onTouchEvent(ev, 1);
     }
 
-    // 第1步：是否要分发该触摸事件
-    //
-    // onFilterTouchEventForSecurity()表示是否要分发该触摸事件。
-    // 如果该View不是位于顶部，并且有设置属性使该View不在顶部时不响应触摸事件，则不分发该触摸事件，即返回false。
-    // 否则，则对触摸事件进行分发，即返回true。
+    // If the event targets the accessibility focused view and this is it, start
+    // normal event dispatch. Maybe a descendant is what will handle the click.
+    if (ev.isTargetAccessibilityFocus() && isAccessibilityFocusedViewOrHost()) {
+        ev.setTargetAccessibilityFocus(false);
+    }
+
+    // 第1步：根据遮挡问题，判断是否分发该触摸事件
     boolean handled = false;
     if (onFilterTouchEventForSecurity(ev)) {
         final int action = ev.getAction();
@@ -26,7 +28,7 @@
 
         // 第2步：检测是否需要清空目标和状态
         //
-        // 如果是ACTION_DOWN(即按下事件)，则清空之前的触摸事件处理目标和状态。
+        // 如果是ACTION_DOWN，则清空之前的触摸事件处理目标和状态。
         // 这里的情况状态包括：
         // (01) 清空mFirstTouchTarget链表，并设置mFirstTouchTarget为null。
         //      mFirstTouchTarget是"接受触摸事件的View"所组成的单链表
@@ -40,24 +42,27 @@
 
         // 第3步：检查当前ViewGroup是否想要拦截触摸事件
         //
-        // 是的话，设置intercepted为true；否则intercepted为false。
-        // 如果是"按下事件(ACTION_DOWN)" 或者 mFirstTouchTarget不为null；就执行if代码块里面的内容。
-        // 否则的话，设置intercepted为true。
+        // 如果是ACTION_DOWN,也就是一个事件序列的开始，当然要重新判断当前ViewGroup是否拦截了事件
+        // 而如果mFirstTouchTarget为null的话，也就是说前面的down事件不是由子view去处理的，
+        // 所以以后的up,move等事件也不会交由子view去处理,所以就相当于直接拦截了事件，直接返回了true
         final boolean intercepted;
         if (actionMasked == MotionEvent.ACTION_DOWN || mFirstTouchTarget != null) {
             // 检查禁止拦截标记：FLAG_DISALLOW_INTERCEPT
-            // 如果调用了requestDisallowInterceptTouchEvent()标记的话，则FLAG_DISALLOW_INTERCEPT会为true。
-            // 例如，ViewPager在处理触摸事件的时候，就会调用requestDisallowInterceptTouchEvent()
-            //     ，禁止它的父类对触摸事件进行拦截
+            // 如果调用了requestDisallowInterceptTouchEvent()标记的话，则FLAG_DISALLOW_INTERCEPT会为true,不允许拦截
+            // 例如，ViewPager在处理scroll事件的时候，就会调用requestDisallowInterceptTouchEvent()，
+            // 禁止它的父类对触摸事件进行拦截
             final boolean disallowIntercept = (mGroupFlags & FLAG_DISALLOW_INTERCEPT) != 0;
             if (!disallowIntercept) {
-                // 如果禁止拦截标记为false的话，则调用onInterceptTouchEvent()；并返回拦截状态。
+                // 允许自身拦截的话，返回onInterceptTouchEvent()
                 intercepted = onInterceptTouchEvent(ev);
-                ev.setAction(action); // restore action in case it was changed
+                // restore action in case it was changed
+                ev.setAction(action);
             } else {
+                //不允许拦截的话，当然也就没有拦截
                 intercepted = false;
             }    
         } else {
+            //up, move事件，并且没有子view可以处理down,当然也没有子view处理up,move,直接相当于拦截掉了
             intercepted = true;
         }    
 
@@ -72,19 +77,18 @@
         // 第5步：将触摸事件分发给"当前ViewGroup的子View和子ViewGroup"
         //
         // 如果触摸"没有被取消"，同时也"没有被拦截"的话，则将触摸事件分发给它的子View和子ViewGroup。  
-        //     如果当前ViewGroup的孩子有接受触摸事件的话，则将该孩子添加到mFirstTouchTarget链表中。
+        // 如果当前ViewGroup的孩子有接受触摸事件的话，则将该孩子添加到mFirstTouchTarget链表中。
         final boolean split = (mGroupFlags & FLAG_SPLIT_MOTION_EVENTS) != 0;
+        // 首先清除了标识
         TouchTarget newTouchTarget = null;
         boolean alreadyDispatchedToNewTouchTarget = false;
+        //不是cancel事件，也没有被拦截掉
         if (!canceled && !intercepted) {
             if (actionMasked == MotionEvent.ACTION_DOWN
                     || (split && actionMasked == MotionEvent.ACTION_POINTER_DOWN)
                     || actionMasked == MotionEvent.ACTION_HOVER_MOVE) {
                 // 这是获取触摸事件的序号 以及 触摸事件的id信息。
-                // (01) 对于ACTION_DOWN，actionIndex肯定是0
-                // (02) 而getPointerId()是获取的该触摸事件的id，并将该id信息保存到idBitsToAssign中。
-                //    这个触摸事件的id是为多指触摸而添加的；对于单指触摸，getActionIndex()返回的肯定是0；
-                //    而对于多指触摸，第一个手指的id是0，第二个手指的id是1，第三个手指的id是2，...依次类推。
+                // 对于down事件，一般是0
                 final int actionIndex = ev.getActionIndex();
                 final int idBitsToAssign = split ? 1 << ev.getPointerId(actionIndex)
                         : TouchTarget.ALL_POINTER_IDS;
@@ -104,21 +108,20 @@
                     final View[] children = mChildren;
 
                     final boolean customOrder = isChildrenDrawingOrderEnabled();
+                    //倒序遍历，一般都是希望最上面的反馈
                     for (int i = childrenCount - 1; i >= 0; i--) {
                         final int childIndex = customOrder ?
                                 getChildDrawingOrder(childrenCount, i) : i;
                         final View child = children[childIndex];
-                        // 如果child可以接受触摸事件，
-                        // 并且触摸坐标(x,y)在child的可视范围之内的话；
-                        // 则继续往下执行。否则，调用continue。
-                        // child可接受触摸事件：是指child的是可见的(VISIBLE)；或者虽然不可见，但是位于动画状态。
+                        // 如果child不能够接受触摸事件，又或者触摸坐标(x,y)在child的可视范围之外
+                        // 就移到下一个child，继续循环查找
                         if (!canViewReceivePointerEvents(child)
                                 || !isTransformedTouchPointInView(x, y, child, null)) {
                             continue;
                         }
 
                         // getTouchTarget()的作用是查找child是否存在于mFirstTouchTarget的单链表中。
-                        // 是的话，返回对应的TouchTarget对象；否则，返回null。
+                        // 是的话，则更新相应的值
                         newTouchTarget = getTouchTarget(child);
                         if (newTouchTarget != null) {
                             newTouchTarget.pointerIdBits |= idBitsToAssign;
@@ -234,6 +237,8 @@
     return false;
   }
   ```
+
+- 当ViewGroup拦截了down事件，或者没有子view去处理down事件，后续的up,move事件就不会调用onInterceptTouchEvent()方法了，所以该方法并不是每次事件都会调用的
 
 # 总结
 
