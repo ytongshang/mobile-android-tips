@@ -1,3 +1,7 @@
+# 参考文档
+
+- [Android View 事件分发机制源码详解(ViewGroup篇)](http://blog.csdn.net/a553181867/article/details/51287844)
+
 # API
 
 - ViewGroup的触摸事件处理，很多继承于view,一方面它重载了dispatchTouchEvent,另外一个主要的区别在于新添加了函数onInterceptTouchEvent
@@ -9,7 +13,7 @@
 ```java
   @Override
   public boolean dispatchTouchEvent(MotionEvent ev) {
-    // mInputEventConsistencyVerifier是调试用的
+    // 调试用
     if (mInputEventConsistencyVerifier != null) {
         mInputEventConsistencyVerifier.onTouchEvent(ev, 1);
     }
@@ -20,15 +24,15 @@
         ev.setTargetAccessibilityFocus(false);
     }
 
-    // 第1步：根据遮挡问题，判断是否分发该触摸事件
     boolean handled = false;
+    // 第1步：根据遮挡情况，判断是否需要分发该触摸事件
     if (onFilterTouchEventForSecurity(ev)) {
         final int action = ev.getAction();
         final int actionMasked = action & MotionEvent.ACTION_MASK;
 
         // 第2步：检测是否需要清空目标和状态
         //
-        // 如果是ACTION_DOWN，则清空之前的触摸事件处理目标和状态。
+        // 如果是ACTION_DOWN，说明是一个新的触摸事件序列，则清空之前的触摸事件处理target和状态。
         // 这里的情况状态包括：
         // (01) 清空mFirstTouchTarget链表，并设置mFirstTouchTarget为null。
         //      mFirstTouchTarget是"接受触摸事件的View"所组成的单链表
@@ -43,8 +47,8 @@
         // 第3步：检查当前ViewGroup是否想要拦截触摸事件
         //
         // 如果是ACTION_DOWN,也就是一个事件序列的开始，当然要重新判断当前ViewGroup是否拦截了事件
-        // 而如果mFirstTouchTarget为null的话，也就是说前面的down事件不是由子view去处理的，
-        // 所以以后的up,move等事件也不会交由子view去处理,所以就相当于直接拦截了事件，直接返回了true
+        // 而如果不是ACTION_DOWN事件，并且mFirstTouchTarget为null的话，也就是说前面的ACTION_DOWN事件不是由子view去处理的，
+        // 因而以后的ACTION_UP,ACTION_MOVE等事件也不会交由子view去处理,所以就相当于直接拦截了事件，直接返回了true
         final boolean intercepted;
         if (actionMasked == MotionEvent.ACTION_DOWN || mFirstTouchTarget != null) {
             // 检查禁止拦截标记：FLAG_DISALLOW_INTERCEPT
@@ -71,19 +75,21 @@
         // (01) 对于ACTION_DOWN而言，mPrivateFlags的PFLAG_CANCEL_NEXT_UP_EVENT位肯定是0；因此，canceled=false。
         // (02) 当前的View或ViewGroup要被从父View中detach时，PFLAG_CANCEL_NEXT_UP_EVENT就会被设为true；
         //      此时，它就不再接受触摸事情。
-        final boolean canceled = resetCancelNextUpFlag(this)
-                || actionMasked == MotionEvent.ACTION_CANCEL;
+        final boolean canceled = resetCancelNextUpFlag(this)|| actionMasked == MotionEvent.ACTION_CANCEL;
+
+        final boolean split = (mGroupFlags & FLAG_SPLIT_MOTION_EVENTS) != 0;
+        TouchTarget newTouchTarget = null;
+        boolean alreadyDispatchedToNewTouchTarget = false;
 
         // 第5步：将触摸事件分发给"当前ViewGroup的子View和子ViewGroup"
         //
-        // 如果触摸"没有被取消"，同时也"没有被拦截"的话，则将触摸事件分发给它的子View和子ViewGroup。  
-        // 如果当前ViewGroup的孩子有接受触摸事件的话，则将该孩子添加到mFirstTouchTarget链表中。
-        final boolean split = (mGroupFlags & FLAG_SPLIT_MOTION_EVENTS) != 0;
-        // 首先清除了标识
-        TouchTarget newTouchTarget = null;
-        boolean alreadyDispatchedToNewTouchTarget = false;
-        //不是cancel事件，也没有被拦截掉
+        // 如果触摸"没有被取消"，同时也"没有被拦截"的话，则将触摸事件分发给它的子View和子ViewGroup。
+        // 整一个if(!canceled && !intercepted){ … }代码块所做的工作就是对ACTION_DOWN事件的特殊处理。
+        // 因为ACTION_DOWN事件是一个事件序列的开始，所以我们要先找到能够处理这个事件序列的一个子View，
+        // 如果一个子View能够消耗事件，那么mFirstTouchTarget会指向子View，
+        // 如果所有的子View都不能消耗事件，那么mFirstTouchTarget将为null
         if (!canceled && !intercepted) {
+            //MotionEvent.ACTION_HOVER_MOVE一般指鼠标事件，鼠标在view上面
             if (actionMasked == MotionEvent.ACTION_DOWN
                     || (split && actionMasked == MotionEvent.ACTION_POINTER_DOWN)
                     || actionMasked == MotionEvent.ACTION_HOVER_MOVE) {
@@ -114,7 +120,7 @@
                                 getChildDrawingOrder(childrenCount, i) : i;
                         final View child = children[childIndex];
                         // 如果child不能够接受触摸事件，又或者触摸坐标(x,y)在child的可视范围之外
-                        // 就移到下一个child，继续循环查找
+                        // 就继续循环查找可以分发事件的子View
                         if (!canViewReceivePointerEvents(child)
                                 || !isTransformedTouchPointInView(x, y, child, null)) {
                             continue;
@@ -131,15 +137,15 @@
                         // 重置child的mPrivateFlags变量中的PFLAG_CANCEL_NEXT_UP_EVENT位。
                         resetCancelNextUpFlag(child);
 
-                        // 调用dispatchTransformedTouchEvent()将触摸事件分发给child。
+                        // 将事件尝试分发给子View,如果找到了一个可以处理触摸事件的子View，就直接跳出循环，不用继续遍历
                         if (dispatchTransformedTouchEvent(ev, false, child, idBitsToAssign)) {
-                            // 如果child能够接受该触摸事件，即child消费或者拦截了该触摸事件的话；
-                            // 则调用addTouchTarget()将child添加到mFirstTouchTarget链表的表头，并返回表头对应的TouchTarget
-                            // 同时还设置alreadyDispatchedToNewTouchTarget为true。
                             mLastTouchDownTime = ev.getDownTime();
                             mLastTouchDownIndex = childIndex;
                             mLastTouchDownX = ev.getX();
                             mLastTouchDownY = ev.getY();
+                            // 如果child能够接受该触摸事件，即child消费或者拦截了该触摸事件的话；
+                            // 则调用addTouchTarget()将child添加到mFirstTouchTarget链表的表头，并返回表头对应的TouchTarget
+                            // 同时还设置alreadyDispatchedToNewTouchTarget为true。
                             newTouchTarget = addTouchTarget(child, idBitsToAssign);
                             alreadyDispatchedToNewTouchTarget = true;
                             break;
@@ -161,25 +167,24 @@
             }
         }
 
-        // 第6步：进一步的对触摸事件进行分发
+        // 第6步：进一步的对触摸事件进行分发,实际上是对拦截的了，取消了的，或其它非ACTION_DOWN事件的处理
         //
-        // (01) 如果mFirstTouchTarget为null，意味着还没有任何View来接受该触摸事件；
-        //   此时，将当前ViewGroup看作一个View；
-        //   将会调用"当前的ViewGroup的父类View的dispatchTouchEvent()"对触摸事件进行分发处理。
-        //   即，会将触摸事件交给当前ViewGroup的onTouch(), onTouchEvent()进行处理。
-        // (02) 如果mFirstTouchTarget不为null，意味着有ViewGroup的子View或子ViewGroup中，
-        //   有可以接受触摸事件的。那么，就将触摸事件分发给这些可以接受触摸事件的子View或子ViewGroup。
+
         if (mFirstTouchTarget == null) {
-            // 注意：这里的第3个参数是null
+            // 如果mFirstTouchTarget为null，意味着还没有任何View来接受该触摸事件；
+            // 此时，将当前ViewGroup看作一个View；
+            // 将会调用"当前的ViewGroup的父类View的dispatchTouchEvent()"对触摸事件进行分发处理。
+            // 注意：这里的第3个参数是null，也就是直接将事件交由这个ViewGroup处理
+            // 即，会将触摸事件交给当前ViewGroup的onTouch(), onTouchEvent()进行处理。
             handled = dispatchTransformedTouchEvent(ev, canceled, null,
                     TouchTarget.ALL_POINTER_IDS);
-        } else {
-            // Dispatch to touch targets, excluding the new touch target if we already
-            // dispatched to it.  Cancel touch targets if necessary.
+            // 如果mFirstTouchTarget不为null，说明ACTION_DOWN事件已经有子View处理了，
+            // 那么对于其它类型的事件，直接尝试分发给mFirstTouchTarget链表中的就可以了
             TouchTarget predecessor = null;
             TouchTarget target = mFirstTouchTarget;
             while (target != null) {
                 final TouchTarget next = target.next;
+                // 这里实际上区分开了ACTION_DOWN与其它类型的事件
                 if (alreadyDispatchedToNewTouchTarget && target == newTouchTarget) {
                     handled = true;
                 } else {
@@ -219,7 +224,7 @@
         }
     }
 
-    // mInputEventConsistencyVerifier是调试用的，不会理会
+    // 调试用
     if (!handled && mInputEventConsistencyVerifier != null) {
         mInputEventConsistencyVerifier.onUnhandledEvent(ev, 1);
     }
@@ -238,9 +243,14 @@
   }
   ```
 
-- 当ViewGroup拦截了down事件，或者没有子view去处理down事件，后续的up,move事件就不会调用onInterceptTouchEvent()方法了，所以该方法并不是每次事件都会调用的
+- 当ViewGroup拦截了down事件，或者没有子view去处理down事件，后续的up,move事件就不会调用 onInterceptTouchEvent()方法了，所以该方法并不是每次事件都会调用的
+
+# 图解
+
+![viewgroup事件分发](./../resources/viewgroup.png)
 
 # 总结
 
-- ViewGroup中的dispatchTouchEvent()会将触摸事件进行递归遍历传递。ViewGroup会遍历它的所有孩子，对每个孩子都递归的调用dispatchTouchEvent()来分发触摸事件。
-- 如果ViewGroup的某个孩子没有接受(消费或者拦截)ACTION_DOWN事件；那么，ACTION_MOVE和ACTION_UP等事件也一定不会分发给这个孩子
+- ACTION_DOWN事件为一个事件序列的开始，中间有若干个ACTION_MOVE,最后以ACTION_UP结束。
+- ViewGroup默认不拦截任何事件，所以事件能正常分发到子View处（如果子View符合条件的话），如果没有合适的子View或者子View不消耗ACTION_DOWN事件，那么接着事件会交由ViewGroup处理，并且同一事件序列之后的事件不会再分发给子View了。如果ViewGroup的onTouchEvent也返回false，即ViewGroup也不消耗事件的话，那么最后事件会交由Activity处理。即：逐层分发事件下去，如果都没有处理事件的View，那么事件会逐层向上返回。
+- 如果某一个View拦截了事件，那么同一个事件序列的其他所有事件都会交由这个View处理，此时不再调用View(ViewGroup)的onIntercept()方法去询问是否要拦截了
