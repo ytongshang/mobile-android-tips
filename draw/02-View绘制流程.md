@@ -24,6 +24,8 @@
   - AT_MOST,表示子视图最多只能是specSize中指定的大小，开发人员应该尽可能小得去设置这个视图，并且保证不会超过specSize。
   - UNSPECIFIED,表示开发人员可以将视图按照自己的意愿设置成任意的大小，没有任何限制
 
+- MeasureSpec中的specSize指定的是这个View在父容器中的layout_width或layout_height
+
 - View系统的绘制流程会从ViewRoot的performTraversals()方法中开始。
 
   ```java
@@ -45,7 +47,6 @@
   private static int getRootMeasureSpec(int windowSize, int rootDimension) {
         int measureSpec;
         switch (rootDimension) {
-
         case ViewGroup.LayoutParams.MATCH_PARENT:
             // Window can't resize. Force root view to be windowSize.
             measureSpec = MeasureSpec.makeMeasureSpec(windowSize, MeasureSpec.EXACTLY);
@@ -60,5 +61,31 @@
             break;
         }
         return measureSpec;
+    }
+  ```
+
+- View的测量从measure()方法开始，然后调用onMeasure()方法
+
+  ```java
+  protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        setMeasuredDimension(getDefaultSize(getSuggestedMinimumWidth(), widthMeasureSpec),
+                getDefaultSize(getSuggestedMinimumHeight(), heightMeasureSpec));
+    }
+
+  public static int getDefaultSize(int size, int measureSpec) {
+        int result = size;
+        int specMode = MeasureSpec.getMode(measureSpec);
+        int specSize = MeasureSpec.getSize(measureSpec);
+
+        switch (specMode) {
+        case MeasureSpec.UNSPECIFIED:
+            result = size;
+            break;
+        case MeasureSpec.AT_MOST:
+        case MeasureSpec.EXACTLY:
+            result = specSize;
+            break;
+        }
+        return result;
     }
   ```
