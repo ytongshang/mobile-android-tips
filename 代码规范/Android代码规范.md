@@ -1,4 +1,4 @@
-# java代码命名规范
+# Android代码规范
 
 Created by Rancune@126.com on 2016/10/21.
 
@@ -8,7 +8,7 @@ Created by Rancune@126.com on 2016/10/21.
 - 类名应当尽可能只包含字母，不要包含特殊字符（比如下划线等）。如果不是必要，最好不要包含数字
 - 尽量避免缩写，除非该缩写是众所周知的，比如HTML，URL
 - 如果类名称包含单词缩写，则单词缩写的每个字母均应大写
-- 具体类的命名规范
+- 常用类命名方法
 
 Header One        | Header Two    | Header Three
 :---------------- | :------------ | :-----------------
@@ -25,7 +25,7 @@ base 类            | Base 开头       | BaseActivity
 - 类成员变量以m开头，比如mContext
 - static变量以s开头，比如sInstance
 - 变量小驼峰命名法 比如 mStudentName
-- 局部变量，正常单词组合的小驼峰命名法
+- 局部变量，**不用带前缀m**,正常单词组合的小驼峰命名法
 - 变量最好不要包含特殊字符（比如下划线等）。如果不是必要，最好不要包含数字
 - 常量命名只能包含字母和_，单词之间用_ 隔开，字母全部大写 比如RESULT_SUCCESS, RESULT_CANCEL
 
@@ -33,7 +33,13 @@ base 类            | Base 开头       | BaseActivity
 
 - 动词或动名词，采用小驼峰命名法
 
-- 如果方法有默认行为，最好方法注释说明，并且方法名也有提示，或在方法参数是提醒
+- 如果方法有默认行为，首先方法注释应当有说明，其次方法名有提示，或在方法加入参数
+
+  ```
+
+  @Nullable
+  Bitmap compressBitmap(Bitmap source, boolean recycler)
+  ```
 
 - 常用方法的名字
 
@@ -75,7 +81,25 @@ getInstance | 单例
 
 - 命名模式为：{view缩写}_{module_name}_{view的逻辑名称}，如：ll_crm_content
 
-![缩写](./缩写.png)
+- 常用简写
+
+Header One     | Header Two
+:------------- | :---------
+LinearLayout   | ll
+RelativeLayout | rl
+FrameLayout    | fl
+TextView       | tv
+Button         | btn
+ImageView      | iv
+CheckBox       | cb
+RadioButton    | rb
+EditText       | et
+ProgressBar    | proBar
+WebView        | wv
+ScrollView     | sv
+ListView       | lv
+GridView       | gv
+RecyclerView   | rv
 
 ## selector资源命令
 
@@ -84,7 +108,7 @@ getInstance | 单例
 - 不可用 disabled download_disabled.png
 - selector download_selector
 
-## 其它
+## 小提示
 
 - 尽可能的少的创建对象，比如对于activity,尽可能的在一个View.OnClickListener中处理所有的逻辑 再比如对于RecyclerView的每一个item的点击事件，尽可能统一处理
 
@@ -92,4 +116,22 @@ getInstance | 单例
 
 - 一般情况下不要在循环内部try catch 异常，除非必要
 
-- 代码完成后最好format一下
+- 注意生命周期结束时，使用handler时，注意remove相关的消息，使用AnsyncTask,注意取消task, 使用CountDownTimer和TimerTask注意取消定时器
+
+- 异步代码，主是要api请乐求，注意判断所在的页面的生命周期是否可能已经结束
+
+- 使用static变量时，注意内存泄漏，比如在一个单例中保存某个activity的引用
+
+- 尽可能的使用Spanny而不是多个TextView
+
+## 其它
+
+- 代码和布局文件等尽可能没有警告，多看代码警告提示和相关的解决方法
+
+- 代码中尽可能不要使用过时的方法，除非有必要
+
+- 代码尽可能的少用反射相关的代码
+
+- 代码完成提交前，最好format一下
+
+- 代码逻辑比较复杂，不是一下可以看明白的，多加一些注释
