@@ -190,6 +190,7 @@
                 } else {
                     final boolean cancelChild = resetCancelNextUpFlag(target.child)
                             || intercepted;
+                    // 如果正在detchView 或都viewGroup拦截了事件,则发送cancel事件给子View
                     if (dispatchTransformedTouchEvent(ev, cancelChild,
                             target.child, target.pointerIdBits)) {
                         handled = true;
