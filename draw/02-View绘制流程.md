@@ -2,7 +2,7 @@
 
 - 每一个视图的绘制过程都必须经历三个最主要的阶段，即onMeasure()、onLayout()和onDraw()
 
-# onMeasure
+## onMeasure
 
 - measure()方法接收两个参数，widthMeasureSpec和heightMeasureSpec，这两个值分别用于确定视图的宽度和高度的规格和大小,MeasureSpec的值由specSize和specMode共同组成的，其中specSize记录的是大小，specMode记录的是规格,specMode一共有三种
 
@@ -213,12 +213,12 @@
 
   - 子视图的ViewGroup.LayoutParams必须是MarginLayoutParams
 
-    ```java
+```java
     protected void measureChildWithMargins(View child,
             int parentWidthMeasureSpec, int widthUsed,
             int parentHeightMeasureSpec, int heightUsed) {
 
-        //子视图的LayoutParams必须是MarginLayoutParams      
+        //子视图的LayoutParams必须是MarginLayoutParams
         final MarginLayoutParams lp = (MarginLayoutParams) child.getLayoutParams();
 
         final int childWidthMeasureSpec = getChildMeasureSpec(parentWidthMeasureSpec,
@@ -230,11 +230,11 @@
 
         child.measure(childWidthMeasureSpec, childHeightMeasureSpec);
     }
-    ```
+```
 
     - 有时候，当ViewGroup的LayoutParams不是MarginLayoutParams的时候，可以通过重写下面方法，生成MarginLayoutParams
 
-      ```java
+```java
       @Override
       protected LayoutParams generateLayoutParams(LayoutParams p) {
           return new MarginLayoutParams(p);
@@ -244,4 +244,4 @@
       public LayoutParams generateLayoutParams(AttributeSet attrs) {
           return new MarginLayoutParams(getContext(), attrs);
       }
-      ```
+```

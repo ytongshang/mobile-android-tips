@@ -1,4 +1,6 @@
-# Window
+# Window中的UI层级
+
+## Window
 
 - Activity中有一个成员为Window，Window是一个抽象类，提供了绘制窗口的一组通用API
 - Activity中Window的实例化对象为PhoneWindow，PhoneWindow是Window的具体继承实现类。
@@ -38,8 +40,6 @@ final void attach(Context context, ActivityThread aThread,
   ```
 
 - DecorView是PhoneWindow的内部类，是FrameLayout的子类，是对FrameLayout进行功能的修饰，是所有应用窗口的根View 。
-
-# setContentView
 
 ## setContentView
 
@@ -189,7 +189,7 @@ final void attach(Context context, ActivityThread aThread,
     }
 ```
 
-# 总结
+## 总结
 
 - 首先创建一个DecorView,该DecorView对象将作为整个应用窗口的根视图。
 

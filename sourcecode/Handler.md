@@ -124,24 +124,24 @@
     }
   ```
 
-  - handler处理分发消息
+- handler处理分发消息
 
-    ```java
-    public void dispatchMessage(Message msg) {
-       //如果消息的callback不为null,实际上就是这个消息是包装了一个Runable
-       //就去执行这个Runable
-       if (msg.callback != null) {
-           handleCallback(msg);
-       } else {
-           //如果handler的callback不为空，并且返回true，表示处理了消息，就结束了
-           //否则就由自身的handleMessage函数去处理
-           //handler的callback主要目的是不用重载函数，只用传入一个callback对象就行
-           if (mCallback != null) {
-               if (mCallback.handleMessage(msg)) {
-                   return;
-               }
-           }
-           handleMessage(msg);
-       }
+```java
+public void dispatchMessage(Message msg) {
+    //如果消息的callback不为null,实际上就是这个消息是包装了一个Runable
+    //就去执行这个Runable
+    if (msg.callback != null) {
+        handleCallback(msg);
+    } else {
+        //如果handler的callback不为空，并且返回true，表示处理了消息，就结束了
+        //否则就由自身的handleMessage函数去处理
+        //handler的callback主要目的是不用重载函数，只用传入一个callback对象就行
+        if (mCallback != null) {
+            if (mCallback.handleMessage(msg)) {
+                return;
+            }
+        }
+        handleMessage(msg);
     }
-    ```
+}
+```

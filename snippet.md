@@ -1,4 +1,6 @@
-# 获得android res文件下的uri
+# Snippet
+
+## 获得android res文件下的uri
 
 - "android.resource://" + 包名+类型名 + 资源id
 

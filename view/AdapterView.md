@@ -1,4 +1,6 @@
-# ListView
+# AdapterView
+
+## ListView
 
 - 有时候 listView如果要分组显示的话，可以使用ExpandableListView
 
@@ -10,7 +12,7 @@
   mListView.setAdapter(mAdapter);
   ```
 
-# RecyclerView的notifyDataSetChanged
+## RecyclerView的notifyDataSetChanged
 
 - 很多时候当我们的数据源发生变时时，会直接调用notifyDataSetChanged,但是有的时个仅仅只是变动了数据中的一项，或者一部分，对于UI复杂，而且刷新频繁的情况，会导致页面卡顿其实还有这些方法可以使用：
 
@@ -25,7 +27,7 @@
   public final void notifyItemRangeRemoved(int positionStart, int itemCount)
   ```
 
-# 类似微信表情栏长按显示表情详情
+## 类似微信表情栏长按显示表情详情
 
 - **问题描述：** 最近做一个项目，GridView表情栏中，长按一个表情要显示一个有表情gif的popupWindow,在长按状态下，左右移动，当在不同的的位置时，popupWindow显示对应位置的gif表情，popupWindow的位置也要随之变化，当长按结束时，关闭显示的popupWindow
 

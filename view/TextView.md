@@ -1,4 +1,6 @@
-# TextView 的跑马灯效果
+# TextView
+
+## TextView 的跑马灯效果
 
 - 示例
 
@@ -26,7 +28,7 @@
   - 必须获取焦点，如果布局中有自动获取焦点的比如EditText的话，不会显示这种效果
   - 因为焦点的问题，同一布局中只能有一个TextView有跑马灯的效果
 
-# 复制粘贴
+## 复制粘贴
 
 - 默认情况下，TextView是不能够选择的，如果要让其可以复制粘贴的话
 
@@ -34,23 +36,23 @@
   android:textIsSelectable="true"
   ```
 
-# 文本的删除线
+## 文本的删除线
 
 - 可以用Spannable实现
 
 ```java
-private void addStrikeSpan() {  
-  SpannableString spanString = new SpannableString("删除线");  
-  StrikethroughSpan span = new StrikethroughSpan();  
-  spanString.setSpan(span, 0, 3, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);  
-  mTextView.append(spanString);  
+private void addStrikeSpan() {
+  SpannableString spanString = new SpannableString("删除线");
+  StrikethroughSpan span = new StrikethroughSpan();
+  spanString.setSpan(span, 0, 3, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+  mTextView.append(spanString);
 }
 
-private void addUnderLineSpan() {  
-  SpannableString spanString = new SpannableString("下划线");  
-  UnderlineSpan span = new UnderlineSpan();  
-  spanString.setSpan(span, 0, 3, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);  
-  mTextView.append(spanString);  
+private void addUnderLineSpan() {
+  SpannableString spanString = new SpannableString("下划线");
+  UnderlineSpan span = new UnderlineSpan();
+  spanString.setSpan(span, 0, 3, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+  mTextView.append(spanString);
 }
 ```
 

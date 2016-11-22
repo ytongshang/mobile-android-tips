@@ -4,9 +4,9 @@
 
 - **OnTouchListener, OnClickListener, OnLongClickListener等接口**: 这部分主要是接口。onTouch()与onTouchEvent()都是用户处理触摸事件的API。但不同的是：**(01)**, onTouch()是View提供给用户，让用户自己处理触摸事件的接口。而onTouchEvent()是Android系统自己实现的接口。**(02)**，onTouch()的优先级比onTouchEvent()的优先级更高。dispatchTouchEvent()中分发事件的时候，会先将事件分配给onTouch()进行处理，然后才分配给onTouchEvent()进行处理。 如果onTouch()对触摸事件进行了处理，并且返回true；那么，该触摸事件就不会分配在分配给onTouchEvent()进行处理了。只有当onTouch()没有处理，或者处理了但返回false时，才会分配给onTouchEvent()进行处理
 
-# dispatchTouchEvent
+## dispatchTouchEvent
 
-## 源码
+### 源码
 
 ```java
     public boolean dispatchTouchEvent(MotionEvent event) {
@@ -67,7 +67,7 @@
 - 如果将事件进行分发的话，会先尝试分发给onTouch()；然后才分发给onTouchEvent()
 - 如果View是DISABLED的，即使设置了onTouch也不会执行
 
-## onFilterTouchEventForSecurity
+### onFilterTouchEventForSecurity
 
 - onFilterTouchEventForSecurity()表示是否要分发该触摸事件；如果该View不是位于顶部，并且有设置属性使该View不在顶部时不响应触摸事件，则不分发该触摸事件，即不会执行onTouch()与onTouchEvent()。 否则的话，则将事件分发给onTouch(), onTouchEvent()进行处理。
 
@@ -86,7 +86,7 @@ public boolean onFilterTouchEventForSecurity(MotionEvent event) {
 - FILTER_TOUCHES_WHEN_OBSCURED是android:filterTouchesWhenObscured属性所对应的位。android:filterTouchesWhenObscured是true的话，则表示其他视图在该视图之上，导致该视图被隐藏时，该视图就不再响应触摸事件。
 - MotionEvent.FLAG_WINDOW_IS_OBSCURED为true的话，则表示该视图的窗口是被隐藏的。
 
-# onTouchEvent
+## onTouchEvent
 
 ```java
 public boolean onTouchEvent(MotionEvent event) {
@@ -132,7 +132,7 @@ public boolean onTouchEvent(MotionEvent event) {
 
                         // 不是长按事件
                         //可能是时长不够，也可能时长够了，没有设置OnLongClickListener,或者OnLongClickListener返回为false
-                        //所以如果要想只处理长按，不处理click,OnLongClickListener应当返回为true             
+                        //所以如果要想只处理长按，不处理click,OnLongClickListener应当返回为true
                         if (!mHasPerformedLongPress) {
 
                             removeLongPressCallback();
@@ -251,7 +251,7 @@ public boolean onTouchEvent(MotionEvent event) {
 
 - 在这里最精髓的是使用Handler去判断是否是点击，是否是长按，去执行onClick,去执行onLongClick
 
-# 总结
+## 总结
 
 - View中的dispatchTouchEvent()会将事件传递给"onTouch()", "onTouchEvent()"进行处理。而且onTouch()的优先级比onTouchEvent()的优先级要高。
 

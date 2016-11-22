@@ -2,11 +2,11 @@
 
 - [Android View 事件分发机制源码详解(ViewGroup篇)](http://blog.csdn.net/a553181867/article/details/51287844)
 
-# API
+## API
 
 - ViewGroup的触摸事件处理，很多继承于view,一方面它重载了dispatchTouchEvent,另外一个主要的区别在于新添加了函数onInterceptTouchEvent
 
-# dispatchTouchEvent
+## dispatchTouchEvent
 
 - 如果ViewGroup的某个孩子没有接受ACTION_DOWN事件；那么，ACTION_MOVE和ACTION_UP等事件也一定不会分发给这个孩子
 
@@ -64,11 +64,11 @@
             } else {
                 //不允许拦截的话，当然也就没有拦截
                 intercepted = false;
-            }    
+            }
         } else {
             //up, move事件，并且没有子view可以处理down,当然也没有子view处理up,move,直接相当于拦截掉了
             intercepted = true;
-        }    
+        }
 
         // 第4步：检查当前的触摸事件是否被取消
         //
@@ -233,7 +233,7 @@
 }
 ```
 
-# onInterceptTouchEvent
+## onInterceptTouchEvent
 
 - onInterceptTouchEvent是否拦截触摸事件，默认情况下是不拦截的
 - 常见的例子就是ViewPager,当发生滑动事件的时候，ViewPager拦截了事件，用来左右滑动item
@@ -246,11 +246,11 @@
 
 - 当ViewGroup拦截了down事件，或者没有子view去处理down事件，后续的up,move事件就不会调用 onInterceptTouchEvent()方法了，所以该方法并不是每次事件都会调用的
 
-# 图解
+## 图解
 
 ![viewgroup事件分发](./../resources/viewgroup.png)
 
-# 总结
+## 总结
 
 - ACTION_DOWN事件为一个事件序列的开始，中间有若干个ACTION_MOVE,最后以ACTION_UP结束。
 - ViewGroup默认不拦截任何事件，所以事件能正常分发到子View处（如果子View符合条件的话），如果没有合适的子View或者子View不消耗ACTION_DOWN事件，那么接着事件会交由ViewGroup处理，并且同一事件序列之后的事件不会再分发给子View了。如果ViewGroup的onTouchEvent也返回false，即ViewGroup也不消耗事件的话，那么最后事件会交由Activity处理。即：逐层分发事件下去，如果都没有处理事件的View，那么事件会逐层向上返回。
