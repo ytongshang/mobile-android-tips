@@ -27,3 +27,15 @@ if (mHandler != null) {
   mHandler = null;
 }
 ```
+
+## adb
+
+- 查看最上面的activity
+
+```bash
+Linux:
+adb shell dumpsys activity | grep "mFocusedActivity"
+
+windows:
+adb shell dumpsys activity | findstr "mFocusedActivity"
+```

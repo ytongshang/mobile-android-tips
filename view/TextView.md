@@ -65,3 +65,31 @@ textView.getPaint().setFlags(Paint.UNDERLINE_TEXT_FLAG);
 //下划线
 textView.getPaint().setFlags(0);
 ```
+
+## TextView阴影效果
+
+- 字体阴影需要四个相关参数：
+
+  - android:shadowColor：阴影的颜色
+  - android:shadowDx：水平方向上的偏移量
+  - android:shadowDy：垂直方向上的偏移量
+  - Android:shadowRadius：是阴影的的半径大小
+
+- 例子
+
+```xml
+<TextView
+  android:id="@+id/tv_fans_list"
+  android:layout_width="wrap_content"
+  android:layout_height="wrap_content"
+  android:paddingEnd="@dimen/normal_horizonal_padding"
+  android:paddingLeft="@dimen/normal_horizonal_padding"
+  android:paddingRight="@dimen/normal_horizonal_padding"
+  android:paddingStart="@dimen/normal_horizonal_padding"
+  android:textColor="@color/white"
+  android:shadowColor="@color/kas_black"
+  android:shadowRadius="2"
+  android:shadowDx="0"
+  android:shadowDy="0"
+  android:textSize="14sp" />
+```
