@@ -76,14 +76,17 @@ public void onResume() {
 }
  ```
 
-Enforcing Permissions in AndroidManifest.xml
-High-level权限会影响整个应和相关组件的运行
-activity permission,在Context.startActivity() 和Activity.startActivityForResult()的时候会检测对应的权限，如果没有满足，会抛SecurityException
-service permission,会在Context.startService(), Context.stopService() 和Context.bindService()的时候检查，如果不满足，会抛SecurityException
-BroadcastReceiver权限，限制了谁可以向对应的receiver发送intent的权限，会在Context.sendBroadcast()之后检查，如果不满足，不会抛异常，只会导致不会发送对应的Intent
-对于Context.sendBroadcast(),可以提供权限控制哪些对应的receiver可以接受到对应的inent
-对于Context.registerReceiver(),可以提供权限哪些可以向它发送Intent
-对于content provider，相关的权限控制了对应数据的读写（URI permisson）,而且对于数据的读写分别有android:readPermisson和android:writePermission,并且很重要的一点是，不像其它的权限，有了android：writePermission就一定会有对应的android:readPermission,两者要分别获取，在执行ContentResolver.query() 时需要读的权限，而 使用ContentResolver.insert(), ContentResolver.update(), ContentResolver.delete()则需要写的权限
+## Enforcing Permissions in AndroidManifest.xml
+
+- High-level权限会影响整个应和相关组件的运行
+- activity permission,在Context.startActivity() 和Activity.startActivityForResult()的时候会检测对应的权限，如果没有满足，会抛SecurityException
+- service permission,会在Context.startService(), Context.stopService() 和Context.bindService()的时候检查，如果不满足，会抛SecurityException
+- BroadcastReceiver权限，限制了谁可以向对应的receiver发送intent的权限，会在Context.sendBroadcast()之后检查，如果不满足，不会抛异常，只会导致不会发送对应的Intent
+- 对于Context.sendBroadcast(),可以提供权限控制哪些对应的receiver可以接受到对应的inent
+- 对于Context.registerReceiver(),可以提供权限哪些可以向它发送Intent
+- 对于content provider，相关的权限控制了对应数据的读写（URI permisson）,而且对于数据的读写分别有android:readPermisson和android:writePermission,
+ 并且很重要的一点是，不像其它的权限，有了android：writePermission就一定会有对应的android:readPermission,**两者要分别获取**，
+  在执行ContentResolver.query() 时需要读的权限，而 使用ContentResolver.insert(), ContentResolver.update(), ContentResolver.delete()则需要写的权限
 
 IPC权限检查（跨进程通信）
 在ipc中，可以通过checkCallingPermission (String permission)，处理调用的process是否有对应的权限，并且这一函数只能在ipc调用的过程中使用，其它的情况下都会返回没有对应的权限
@@ -91,44 +94,19 @@ IPC权限检查（跨进程通信）
 如果知道了一个应用的packagename,可以通过PackageManager.checkPermission(String, String)检查它是否有对应的权限
 
 
-URI permission
-对于content provider要保证读写的权限，但是有的时候更要保证只对特定的uri持有权限，而不会影响到其它的的内容，比如邮件，对于一封邮件有权限，并不应当保证对所有的有权限，因而出现了uri permission，只对特定uri资源有权限
-解决办法是在startActivity或者从一个activity获得结果时，为intent设置flag,Intent.FLAG_GRANT_READ_URI_PERMISSION and/or Intent.FLAG_GRANT_WRITE_URI_PERMISSION,这样就保证了只有有了对应的权限，才能读取对应的内容
-一方面content provider实现支持uri permission的机制，通过 <grant-uri-permissions>tag,和android:grantUriPermissions属性
-常用方法：Context.grantUriPermission(), Context.revokeUriPermission(), 和Context.checkUriPermission() 
+## URI permission
+
+- 对于content provider要保证读写的权限，但是有的时候更要保证只对特定的uri持有权限，而不会影响到其它的的内容，
+ 比如邮件，对于一封邮件有权限，并不应当保证对所有的邮件有权限，因而出现了uri permission，只对特定uri资源有权限
+- 解决办法是在startActivity或者从一个activity获得结果时，为intent设置flag,Intent.FLAG_GRANT_READ_URI_PERMISSION and/or
+ Intent.FLAG_GRANT_WRITE_URI_PERMISSION,这样就保证了只有有了对应的权限，才能读取对应的内容
+- 一方面content provider实现支持uri permission的机制，通过 <grant-uri-permissions>tag,和android:grantUriPermissions属性
+- 常用方法：Context.grantUriPermission(), Context.revokeUriPermission(), 和Context.checkUriPermission() 
 
 
-permission与feature
-有些permission需要特定的feature支持，当使用对应特性时，需要要androidManifest.xml指定使用对应的feature
-Category	This Permission...	Implies This Feature Requirement
-Bluetooth	BLUETOOTH	android.hardware.bluetooth
-(See Special handling for Bluetooth feature for details.)
-BLUETOOTH_ADMIN	android.hardware.bluetooth
-Camera	CAMERA	android.hardware.camera and 
-android.hardware.camera.autofocus
-Location	ACCESS_MOCK_LOCATION	android.hardware.location
-ACCESS_LOCATION_EXTRA_COMMANDS	android.hardware.location
-INSTALL_LOCATION_PROVIDER	android.hardware.location
-ACCESS_COARSE_LOCATION	android.hardware.location.network and 
-android.hardware.location
-ACCESS_FINE_LOCATION	android.hardware.location.gps and 
-android.hardware.location
-Microphone	RECORD_AUDIO	android.hardware.microphone
-Telephony	CALL_PHONE	android.hardware.telephony
-CALL_PRIVILEGED	android.hardware.telephony
-MODIFY_PHONE_STATE	android.hardware.telephony
-PROCESS_OUTGOING_CALLS	android.hardware.telephony
-READ_SMS	android.hardware.telephony
-RECEIVE_SMS	android.hardware.telephony
-RECEIVE_MMS	android.hardware.telephony
-RECEIVE_WAP_PUSH	android.hardware.telephony
-SEND_SMS	android.hardware.telephony
-WRITE_APN_SETTINGS	android.hardware.telephony
-WRITE_SMS	android.hardware.telephony
-Wi-Fi	ACCESS_WIFI_STATE	android.hardware.wifi
-CHANGE_WIFI_STATE	android.hardware.wifi
-CHANGE_WIFI_MULTICAST_STATE	android.hardware.wifi
-来源： http://developer.android.com/guide/topics/manifest/uses-feature-element.html#permissions
+## permission与feature
+
+- 有些permission需要特定的feature支持，当使用对应特性时，需要要androidManifest.xml指定使用对应的feature
 
 
 
