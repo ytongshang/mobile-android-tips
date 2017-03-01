@@ -101,7 +101,7 @@ IPC权限检查（跨进程通信）
 - 解决办法是在startActivity或者从一个activity获得结果时，为intent设置flag,Intent.FLAG_GRANT_READ_URI_PERMISSION and/or
  Intent.FLAG_GRANT_WRITE_URI_PERMISSION,这样就保证了只有有了对应的权限，才能读取对应的内容
 - 一方面content provider实现支持uri permission的机制，通过 <grant-uri-permissions>tag,和android:grantUriPermissions属性
-- 常用方法：Context.grantUriPermission(), Context.revokeUriPermission(), 和Context.checkUriPermission() 
+- 常用方法：Context.grantUriPermission(), Context.revokeUriPermission(), 和Context.checkUriPermission()
 
 
 ## permission与feature
