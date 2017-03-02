@@ -39,3 +39,29 @@ adb shell dumpsys activity | grep "mFocusedActivity"
 windows:
 adb shell dumpsys activity | findstr "mFocusedActivity"
 ```
+
+## release的位置
+
+- 一个App需要在退出时调用释放资源的release函数，那么释放函数应当放到主Activity的onPause中，否则如果在onDestroy中调用的话，如果快速的关闭再重启App,会关闭的前一个onDestroy在下一个onCreate后调用，可能出现问题
+
+```java
+
+@Override
+protected void onPause() {
+  super.onPause();
+  if (isFinishing()) {
+    release();
+  }
+}
+
+```
+
+
+```java
+markdown shortcuts
+markdown lint
+prettify json
+material -theme
+shell
+vscode-icons
+```
