@@ -1,6 +1,6 @@
 # View中的坐标系
 
-- 坐标图解 ![坐标图解](./resources/坐标图解.png)
+- 坐标图解 ![坐标图解](../../resources/坐标图解.png)
 
 - 各种坐标的含义
 
@@ -33,7 +33,7 @@ getMeasuredHeight() | 返回measure过程得到的mMeasuredHeight值，供layout
 
 - view的rect方法
 
-![view方法](./resources/rect.jpg)
+![view方法](../../resources/rect.jpg)
 
 Header One             | Header Two           | Header Three         | Header Four
 :--------------------- | :------------------- | :------------------- | :---------------------------------------------------------------------------------------
