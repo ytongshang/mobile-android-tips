@@ -1,5 +1,13 @@
 # Snippet
 
+- [获得资源id](#获得资源id)
+- [获得android res文件下的uri](#获得android-res文件下的uri)
+- [给我们评分](#给我们评分)
+- [release的位置](#release的位置)
+- [Handler的使用](#handler的使用)
+- [adb查看最上层的activity](#adb查看最上层的activity)
+
+
 ## 获得资源id
 
 ```java
@@ -43,4 +51,45 @@ intent.setData(Uri.parse("market://details?id=" + mContext.getPackageName()));
 if (intent.resolveActivity(mContext.getPackageManager()) != null) {
     startActivity(Intent.createChooser(intent, "给我们评分"));
 }
+```
+
+## release的位置
+
+- 一个App需要在退出时调用释放资源的release函数，那么释放函数应当放到主Activity的onPause中，否则如果在onDestroy中调用的话，如果快速的关闭再重启App,会关闭的前一个onDestroy在下一个onCreate后调用，可能出现问题
+
+```java
+
+@Override
+protected void onPause() {
+  super.onPause();
+  if (isFinishing()) {
+    release();
+  }
+}
+
+```
+
+## Handler的使用
+
+- 使用handler的一方面要注意内存泄漏的问题，有时候要使用WeakRefrence，也可以不使用Handler，转而使用开源库[WeakHandler](https://github.com/badoo/android-weak-handler)
+
+- 在界面销毁的时候，比如fragment与activity的ondestroy方法中，要取消handler发送的消息
+
+```java
+if (mHandler != null) {
+  mHandler.removeCallbacksAndMessages(null);
+  mHandler = null;
+}
+```
+
+## adb查看最上层的activity
+
+- 查看最上面的activity
+
+```bash
+Linux:
+adb shell dumpsys activity | grep "mFocusedActivity"
+
+windows:
+adb shell dumpsys activity | findstr "mFocusedActivity"
 ```
