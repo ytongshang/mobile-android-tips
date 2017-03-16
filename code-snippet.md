@@ -18,15 +18,15 @@ int resId = getResources().getIdentifier("background", "color", getPackageName()
 startBtn.setTextColor(getResources().getColor(resId));
 
 public static int getResourceId(Context context,String name,String type,String packageName) {
-        Resources themeResources = null;
-        PackageManager pm = context.getPackageManager();
-        try {
-            themeResources = pm.getResourcesForApplication(packageName);
-            return themeResources.getIdentifier(name, type, packageName);
-        } catch (NameNotFoundException e) {
-            e.printStackTrace();
-        }
-        return 0;
+    Resources themeResources = null;
+    PackageManager pm = context.getPackageManager();
+    try {
+        themeResources = pm.getResourcesForApplication(packageName);
+        return themeResources.getIdentifier(name, type, packageName);
+    } catch (NameNotFoundException e) {
+        e.printStackTrace();
+    }
+    return 0;
  }
 ```
 
@@ -61,10 +61,10 @@ if (intent.resolveActivity(mContext.getPackageManager()) != null) {
 
 @Override
 protected void onPause() {
-  super.onPause();
-  if (isFinishing()) {
-    release();
-  }
+    super.onPause();
+    if (isFinishing()) {
+        release();
+    }
 }
 
 ```
@@ -77,8 +77,8 @@ protected void onPause() {
 
 ```java
 if (mHandler != null) {
-  mHandler.removeCallbacksAndMessages(null);
-  mHandler = null;
+    mHandler.removeCallbacksAndMessages(null);
+    mHandler = null;
 }
 ```
 

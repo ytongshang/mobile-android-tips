@@ -21,15 +21,4 @@
 - 当Fragment配合FragmentTransition使用时，使用onHiddenChanged()来判断Fragment是显示还是隐藏，但是第一次显示要在onResume()里判断.
 
 
-## android stuido找不到源码
 
-- 升级as,下载了android 源码，但找不到源码解决办法，找到jdk.table.xml这个文件
-
-```text
-Windows file location:
-C:\Users{USER_NAME}.AndroidStudio2.0\config\options\jdk.table.xml
-Linix file location:
-~/Library/Preferences/AndroidStudioBeta/options/jdk.table.xml
-
-<root type="simple" url="file://D:/android/sdk/sources/android-23" />
-```
