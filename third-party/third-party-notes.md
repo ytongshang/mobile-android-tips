@@ -1,7 +1,5 @@
 # Android开发第三方知识点笔记
 
-
-
 ## 微信UnionID
 
 - **OpenID**:一个用户在一个接入了微信登录的第三方APP下的唯一标识符，无论授权多少次，只要第三方app不变，那么它的OpenID不变，在不同app下的OpenID不同
