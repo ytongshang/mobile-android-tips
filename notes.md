@@ -2,7 +2,6 @@
 
 - [android:screenOrientation](#androidscreenorientation)
 - [Fragment的显示与否监听](#fragment的显示与否监听)
-- [android stuido找不到源码](#android-stuido找不到源码)
 
 ## android:screenOrientation
 
