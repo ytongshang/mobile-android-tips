@@ -6,7 +6,7 @@
 - [release的位置](#release的位置)
 - [Handler的使用](#handler的使用)
 - [adb查看最上层的activity](#adb查看最上层的activity)
-
+- [dialogFragment设置宽度](#dialogfragment设置宽度)
 
 ## 获得资源id
 
@@ -189,4 +189,39 @@ public abstract class BaseDialog extends DialogFragment {
     <item name="android:windowExitAnimation">@anim/zues_sweetalert_modal_out</item>
 </style>
 
- ```
+```
+
+## bitmap的平铺
+
+- 有时时候，给我们一个小的图片，通过将图片不拉伸重复平铺形成背景图,类似于将一张小图作为电脑桌面
+的效果
+
+```xml
+
+<xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/backrepeat"／>
+
+<!-- backrepeat.xml-->
+<bitmap
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:src="@drawable/repeatimg"
+    android:tileMode="repeat"
+    android:dither="true" />
+
+```
+
+- 代码方式
+
+```java
+
+Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.repeatimg);
+BitmapDrawable bd = new BitmapDrawable(bitmap);
+bd.setTileModeXY(TileMode.REPEAT , TileMode.REPEAT );
+bd.setDither(true);
+view.setBackgroundDrawable(bd);
+
+```

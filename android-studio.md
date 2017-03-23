@@ -2,6 +2,8 @@
 
 - [android stuido找不到源码](#android-stuido找不到源码)
 - [自定义BuildConfig变量](#自定义buildconfig变量)
+- [v2SigningEnabled](#v2signingenabled)
+- [混淆配置](#混淆配置)
 
 
 ## android stuido找不到源码
@@ -68,3 +70,10 @@ signingConfigs {
    }
 
 ```
+
+## 混淆配置
+
+- 一个android stuido工程有多个library project,在每个library project都定义了混淆配置，
+ **最后还必须将library的混淆复制到主工程的混淆配置中**
+
+

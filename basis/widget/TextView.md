@@ -20,7 +20,6 @@
   ```
 
 - 注意点
-
   - android:singleLine="true" 是必须的。否则，一行显示不了的话；会多行显示
   - android:ellipsize="marquee" 是指定一行内容显示不下的情况下，使用跑马灯效果
   - android:marqueeRepeatLimit="marquee_forever" 在 android:ellipsize="marquee" 情况下使用，跑马灯无限循环。当然，这里的"marquee_forever"可以是整数，表示循环次数
@@ -36,7 +35,16 @@
   android:textIsSelectable="true"
   ```
 
-## 文本的删除线
+## 常用的Span
+
+### Span的分类
+
+- 修改字符文本格式时 使用 **CharacterStyle**
+- 修改字符外观时 使用 **UpdateAppearance**
+- 修改文字段落格式时 使用 **ParagraphStyle**
+- 修改文字大小度量时 使用 **UpdateLayout**
+
+### 删除线
 
 - 可以用Spannable实现
 
@@ -66,10 +74,35 @@ textView.getPaint().setFlags(Paint.UNDERLINE_TEXT_FLAG);
 textView.getPaint().setFlags(0);
 ```
 
+### 同一个textview中设置字体大小不一样
+
+- 使用AbsoluteSizeSpan
+
+```java
+private void initGiftList() {
+  TextView[] gifts = new TextView[]{mTvgift01, mTvgift02, mTvgift03};
+  TextView[] coins = new TextView[]{mTvGiftCoin01, mTvGiftCoin02, mTvGiftCoin03};
+  int sp11 = (int) AppUtils.getRawSize(TypedValue.COMPLEX_UNIT_SP, 11, mContext);
+  int sp10 = (int) AppUtils.getRawSize(TypedValue.COMPLEX_UNIT_SP, 10, mContext);
+
+  for (int i = 0; i < coins.length; ++i) {
+    Spanny wave = new Spanny();
+    wave.append(String.valueOf(WAVES[i]))
+        .append(" ")
+        .append(mContext.getString(R.string.video_send_gift_wave));
+    gifts[i].setText(wave);
+
+    Spanny coin = new Spanny();
+    coin.append(String.valueOf(WAVES[i] * WAVE_TO_COIN), new ForegroundColorSpan(mRed), new AbsoluteSizeSpan(sp11))
+        .append(mContext.getString(R.string.video_send_gift_coin_unit), new ForegroundColorSpan(mGray), new AbsoluteSizeSpan(sp10));
+    coins[i].setText(coin);
+        }
+    }
+```
+
 ## TextView阴影效果
 
 - 字体阴影需要四个相关参数：
-
   - android:shadowColor：阴影的颜色
   - android:shadowDx：水平方向上的偏移量
   - android:shadowDy：垂直方向上的偏移量
