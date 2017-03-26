@@ -6,6 +6,28 @@
 - [混淆配置](#混淆配置)
 
 
+## android  library版本配置
+
+``` java
+
+ext {
+    minSdkVersion = 14
+    targetSdkVersion = 25
+    compileSdkVersion = 25
+    buildToolsVersion = "25.0.2"
+    versionCode = 1
+    versionName = "1.0"
+
+    supportlibrary = "25.3.0"
+    rxjava = "2.0.7"
+    rxandroid = "2.0.1"
+    okhttp = "3.6.0"
+    fresco = "1.2.0"
+}
+
+```
+
+
 ## android stuido找不到源码
 
 - 升级as,下载了android 源码，但找不到源码解决办法，找到jdk.table.xml这个文件
