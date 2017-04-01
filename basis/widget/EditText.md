@@ -1,5 +1,11 @@
 # EditText
 
+- [EditText的焦点问题](#edittext的焦点问题)
+- [EditText的listener](#edittext的listener)
+- [点击空白处，关闭软键盘](#点击空白处关闭软键盘)
+- [EditText删除最后一个字符](#edittext删除最后一个字符)
+- [动态设置EditText的字数限制](#动态设置edittext的字数限制)
+
 ## EditText的焦点问题
 
 - **问题描述：** 有时个一个界面有editext的时候，我们希望它**不自动获得焦点**,但是editext调用clearFocus方法都没有用

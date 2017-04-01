@@ -1,5 +1,14 @@
 # TextView
 
+- [TextView 的跑马灯效果](#textview-的跑马灯效果)
+- [复制粘贴](#复制粘贴)
+- [常用的Span](#常用的span)
+    - [Span的分类](#span的分类)
+    - [删除线](#删除线)
+    - [同一个textview中设置字体大小不一样](#同一个textview中设置字体大小不一样)
+- [TextView阴影效果](#textview阴影效果)
+
+
 ## TextView 的跑马灯效果
 
 - 示例

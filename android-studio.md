@@ -27,6 +27,21 @@ ext {
 
 ```
 
+## android 常用插件
+
+```java
+
+FindViewByMe
+Gradle View
+ADB Idea
+Android Parcelable code generator
+WakaTime
+
+AndroidProguardPlugin
+https://github.com/zhonghanwen/AndroidProguardPlugin
+
+```
+
 
 ## android stuido找不到源码
 
