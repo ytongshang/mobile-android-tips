@@ -7,6 +7,10 @@
 - [Handler的使用](#handler的使用)
 - [adb查看最上层的activity](#adb查看最上层的activity)
 - [dialogFragment设置宽度](#dialogfragment设置宽度)
+- [bitmap的平铺](#bitmap的平铺)
+- [监听Home键](#监听home键)
+- [悬浮窗类型](#悬浮窗类型)
+
 
 ## 获得资源id
 
@@ -139,7 +143,7 @@ adb shell dumpsys activity | findstr "mFocusedActivity"
 - 使用dialogfragment时，不要通过onCreateDialog创建dialog,仅仅通过onCreateDialog设置dialog的style,
  dialog的动画等
 
- ```java
+```java
 
 public abstract class BaseDialog extends DialogFragment {
     protected Context mContext;
@@ -193,8 +197,7 @@ public abstract class BaseDialog extends DialogFragment {
 
 ## bitmap的平铺
 
-- 有时时候，给我们一个小的图片，通过将图片不拉伸重复平铺形成背景图,类似于将一张小图作为电脑桌面
-的效果
+- 有时时候，给我们一个小的图片，通过将图片不拉伸重复平铺形成背景图,类似于将一张小图作为电脑桌面的效果
 
 ```xml
 
@@ -223,5 +226,71 @@ BitmapDrawable bd = new BitmapDrawable(bitmap);
 bd.setTileModeXY(TileMode.REPEAT , TileMode.REPEAT );
 bd.setDither(true);
 view.setBackgroundDrawable(bd);
+
+```
+
+## 监听Home键
+
+- **android中home键按下的分发是分发给系统framework的，不会分发给onKeyDown的**，所以监听onkeydown是没有用的
+- 一般通过监听广播的事件来实现
+- 另外一方式可以重载activity的onUserLeaveHint,这个方法会在onPause之后执行
+- 系统的很多行为都是通过广播形式来分发消息的，**具体的广播可以参看Intent中定义的static final action**
+
+```java
+
+public class HomeKeyReceiver extends BroadcastReceiver {
+    private static final String LOG_TAG = "HomeKeyReceiver";
+    private static final String SYSTEM_DIALOG_REASON_KEY = "reason";
+    private static final String SYSTEM_DIALOG_REASON_RECENT_APPS = "recentapps";
+    private static final String SYSTEM_DIALOG_REASON_HOME_KEY = "homekey";
+    private static final String SYSTEM_DIALOG_REASON_LOCK = "lock";
+    private static final String SYSTEM_DIALOG_REASON_ASSIST = "assist";
+
+    @Override
+    public void onReceive(Context context, Intent intent) {
+        String action = intent.getAction();
+        Log.i(LOG_TAG, "onReceive: action: " + action);
+        if (action.equals(Intent.ACTION_CLOSE_SYSTEM_DIALOGS)) {
+            // android.intent.action.CLOSE_SYSTEM_DIALOGS
+            String reason = intent.getStringExtra(SYSTEM_DIALOG_REASON_KEY);
+            Log.i(LOG_TAG, "reason: " + reason);
+
+            if (SYSTEM_DIALOG_REASON_HOME_KEY.equals(reason)) {
+                // 短按Home键
+                Log.i(LOG_TAG, "homekey");
+            }
+            else if (SYSTEM_DIALOG_REASON_RECENT_APPS.equals(reason)) {
+                // 长按Home键 或者 activity切换键
+                Log.i(LOG_TAG, "long press home key or activity switch");
+            }
+            else if (SYSTEM_DIALOG_REASON_LOCK.equals(reason)) {
+                // 锁屏
+                Log.i(LOG_TAG, "lock");
+            }
+            else if (SYSTEM_DIALOG_REASON_ASSIST.equals(reason)) {
+                // samsung 长按Home键
+                Log.i(LOG_TAG, "assist");
+            }
+        }
+    }
+}
+
+```
+
+## 悬浮窗类型
+
+- 悬浮窗也就是在WindowManager上加上view
+- 悬浮窗类型**WindowManager.LayoutParams.TYPE_TOAST与WindowManager.LayoutParams.TYPE_SYSTEM_ALERT**
+- TYPE_TOAST在19以下的系统上无法接收touch事件
+- 7.0及以上系统，TOAST类型窗口只能有一个，已被系统Toast控件用掉，其他的浮窗需要用别的类型
+- 使用TYPE_SYSTEM_ALERT类型的悬浮窗,**必须具有权限 android.permission.SYSTEM_ALERT_WINDOW**
+
+```java
+
+if (Build.VERSION.SDK_INT >= 19 && Build.VERSION.SDK_INT < 24) {
+    mWindowManagerParams.type = WindowManager.LayoutParams.TYPE_TOAST;
+} else {
+    mWindowManagerParams.type = WindowManager.LayoutParams.TYPE_SYSTEM_ALERT;
+}
 
 ```
