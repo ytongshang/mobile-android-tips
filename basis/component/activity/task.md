@@ -1,19 +1,34 @@
-# Task
+# Task 和 Back-Stack
 
 - [google LaunchModes](http://developer.android.com/guide/components/tasks-and-back-stack.html#LaunchModes)
 - [activity task相关](http://blog.csdn.net/liuhe688/article/details/6761337)
 
-## Task 原理
+## Task
 
-- task是一个具有栈结构的对象，“先进后出”，一个task可以管理多个Activity，启动一个应用，
- 也就创建一个与之对应的task。
-- task中的activities是不会再排序的，因而当我们再次start一个前面已经start过的activity，
- 只是在stack中新增了一个该activiry的instance,而不是将前面已有的activity重新排序(针对standard启动的)
-- task与back stack的基本行为
->> When Activity A starts Activity B, Activity A is stopped, but the system retains its state (such as scroll position and text entered into forms). If the user presses the Back button while in Activity B, Activity A resumes with its state restored.
-When the user leaves a task by pressing the Home button, the current activity is stopped and its task goes into the background. The system retains the state of every activity in the task. If the user later resumes the task by selecting the launcher icon that began the task, the task comes to the foreground and resumes the activity at the top of the stack.
-If the user presses the Back button, the current activity is popped from the stack and destroyed. The previous activity in the stack is resumed. When an activity is destroyed, the system does not retain the activity's state.
-Activities can be instantiated multiple times, even from other tasks.
+- **任务是指在执行特定作业时与用户交互的一系列Activity**。 这些Activity按照各自的打开顺序排列在back-stack中。
+ 启动一个应用,也就创建一个与之对应的task。
+- 当用户触摸应用启动器中的图标（或主屏幕上的快捷方式）时，该应用的任务将出现在前台。如果应用不存在任务（应用最近未曾使用），则会创建一个新任务，并且该应用的“主”Activity 将作为堆栈中的根Activity打开。
+- **任务是一个有机整体，当用户开始新任务或通过“主页”按钮转到主屏幕时，可以移动到“后台”**。
+- **当任务处在后台时，该任务中的所有Activity全部停止，但是任务的返回栈仍旧不变**，也就是说，当另一个任务发生时，该任务仅仅失去焦点而已。
+- 任务可以再次返回到“前台”，用户就能够回到离开时的状态
+- **后台可以同时运行多个任务**
+- **如果用户同时运行多个后台任务，则系统可能会开始销毁后台Activity，以回收内存资源，从而导致 Activity 状态丢失**
+
+## Back-Stack
+
+- 任务栈是一个具有栈结构的对象，“先进后出”
+- **默认情况下，所有activity所需的任务栈的名字为应用的包名，当然我们也可以通过taskAffinity为每一个activity指定一个任务栈**
+- 任务栈中的Activity永远不会重新排列，仅推入和弹出堆栈，因而当我们再次start一个前面已经start过的activity，只是在stack中新增了一个该activiry的instance,而不是将前面已有的activity重新排序(针对standard启动的)
+
+## Task与Back-Stack的默认行为
+
+- 当Activity A启动Activity B时，Activity A将会停止，但系统会保留其状态（例如，滚动位置和已输入表单中的文本）。
+ 如果用户在处于 Activity B 时按“返回”按钮，则 Activity A 将恢复其状态，继续执行。
+- 用户通过按“Home”按钮离开任务时，当前Activity将停止且其任务会进入后台。 系统将保留任务中每个Activity的状态。
+ 如果用户稍后通过选择开始任务的启动器图标来恢复任务，则任务将出现在前台并恢复执行堆栈顶部的Activity。
+- 如果用户按“返回”按钮，则当前Activity会从堆栈弹出并被销毁。堆栈中的前一个 Activity 恢复执行。销毁 Activity 时，
+ 系统不会保留该Activity 的状态。
+- **即使来自其他任务，Activity也可以多次实例化**。
 
 ## 改变task与back stack默认行为
 
