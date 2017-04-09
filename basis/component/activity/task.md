@@ -59,12 +59,13 @@ FLAG_ACTIVITY_SINGLE_TOP
 
 ### standard
 
-- 默认的行为，一个activity 可以创建多个实例，每个实例可以分属不同的task，一个task可以有多个实例
+- 默认的行为，一个任务栈可以有多个实例，每个实例也可以属于不同的任务栈，在这种模式下，
+ 谁启动了这个Activity,那么这个Activity就运行在启动它的那个Activity的任务栈
+- **对于standard启动模式的Activity,如果由非Activity的Context（Application/Service）启动，必须加上Intent.FLAG_ACTIVITY_NEW_TASK标识.**
 
 ### single top
 
-- 对于Activity A，如果当前task的最顶部的是activity A的实例，不会再创建一个新的A的实例，
- intent通过onNewIntent()进行处理。
+- 对于Activity A，如果当前task的最顶部的是activity A的实例，不会再创建一个新的A的实例，intent通过onNewIntent()进行处理。
 - 只要当前task的back stack的最顶部不是A的实例，那么A就可以多次被实例化，每个实例可以分属不同的task,
  每个task可以有多个A的实例
 
@@ -72,15 +73,15 @@ FLAG_ACTIVITY_SINGLE_TOP
 
 ### single task
 
-- 开始一个新的task，并且将该activity的实例作为task的root;
-- 但是，如果已经一个task有了该activity的实例，该task会进入foreground,back stack中该activity实例之上  的所有的activity 都会出栈，而新的intent会传递到onNewIntent中去。该acitivy的实例，一次只能存在一次。
+比如以singleTask启动A
+
+- 系统首先会查找是否存在A想要的任务栈，如果不存在，就重新创建一个任务栈，然后创建A的实例后将A放到栈中
+- 如果存在A所需要的栈,这时要查看是否有A的实例，如果实例存在，那么系统就会把A调到栈顶并调用它的onNewIntent方法
+- 如果实例不存在，就创建A然后把A压入栈中
 
 ### single instance
 
-- 与single task差不多，但是存有single instance的task不会再加入其它的activity,
- 由single instance start的activity会开启一个新的activity
-无论是哪种launch mode,按返回键，仍会回到原来的activity
-android 浏览器 activity 指定的是single task，每次都会开启一个新的task，或者运行在已有的task内
+- 与single task差不多，具有SingleTask的所有特性，还加强了一点，具有此种模式的Activity只能单独地位于一个任务栈中
 
 ## Intent flags
 
@@ -103,17 +104,35 @@ This produces the same behavior as the "singleTop" launchMode value, discussed i
  而是会将back stack中 该activity实例上面的activity会部destroyed掉，通过onNewIntent传递intent数据
 - FLAG_ACTIVITY_CLEAR_TOP一般与FLAG_ACTIVITY_NEW_TASK一起使用，这样设置，可以定位一个已经存在的在其它task中的该activity实例，然后让它去处理new intent
 
+### FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS
+
+- 如果设置这个标志，这个Activity就不会显示在最近启动的Activity中
+
+### FLAG_ACTIVITY_NO_HISTORY
+
+- 如果设置这个标志，新的Activity就不会在历史栈中保存。用户一旦离开，这个Activity就会finish掉。也可以使用noHistory属性设置
+
+### FLAG_ACTIVITY_NO_USER_ACTION
+
+- 如果设置了这个标志，可以在避免用户离开当前Activity时回调到 onUserLeaveHint(). 通常，Activity可以通过这个回调表明有明确的用户行为将当前activity切出前台。 
+ 这个回调标记了activity生命周期中的一个恰当的点，可以用来“在用户看过通知之后”将它们清除。
+- 如果Activity是由非用户驱动的事件（如电话呼入或闹钟响铃）启动的，那这个标志就应该被传入Context.startActivity，以确保被打断的activity不会认为用户已经看过了通知
+
 ## Handling affinities
 
-- 定义了一个activity的task归属问题，默认情况下，同一个应用中的application会在同一个task中
-- android:taskAffinity，接受一个参数，一般是一个包名，用来查找一个应用的默认包名
-- SingleTask一般和TaskAffinity一起使用，这样才能发挥这种加载模式的特殊逻辑效果。
- 当一个应用程序加载一singleTask模式的Activity时，首先该Activity会检查是否存在与它的taskAffinity相同的Task。1、如果存在，那么检查是否实例化，如果已经实例化，那么销毁在该Activity以上的Activity并调用onNewIntent。如果没有实例化，那么该Activity实例化并入栈。2、如果不存在，那么就重新创建Task，并入栈。
+### android:taskAffinity
 
-- 当一个应用程序加载一个singleInstance模式的Activity时，如果该Activity没有被实例化，那么就重新创建一个Task，并入栈，
- 如果已经被实例化，那么就调用该Activity的onNewIntent。singleInstance的Activity所在的Task不允许存在其Activity，任何从该Activity加载的其它Actiivty（假设为Activity2）都会被放入其它的Task中，如果存在与Activity2相同affinity的Task，则在该Task内创建Activity2。如果不存在，则重新生成新的Task并入栈
+- 定义了一个activity的task归属问题，默认情况下，所有Activity所需要的任务栈
+- android:taskAffinity，接受一个参数，一般是一个包名，用来指定Activity所属任务栈的名字
+- TaskAffinity一般和SingleTask或者allowTaskReparenting一起使用
+- **当SingleTask与TaskAffinity一起使用时**，它是具有该模式的Activity的目前任务栈的名字，**待启动的Activity会运行在名字和TaskAffinity相同的任务栈中**
 
-- allowTaskReparenting，这个属性用来标记一个Activity实例在当前应用退居后台后，是否能从启动它的那个task移动到有共同affinity的task，“true”表示可以移动，“false”表示它必须呆在当前应用的task中，默认值为false。如果一个这个Activity的<activity>元素没有设定此属性，设定在<application>上的此属性会对此Activity起作用
+### allowTaskReparenting
+
+- allowTaskReparenting，**这个属性用来标记一个Activity实例在当前应用退居后台后，是否能从启动它的那个task移动到有共同affinity的task中**，“true”表示可以移动，
+ “false”表示它必须呆在当前应用的task中，默认值为false。如果一个Activity的<activity>元素没有设定此属性，设定在<application>上的此属性会对此Activity起作用
+- 当taskAffinity和allowTaskReparenting一起使用时，当应用A启动了应用B的某个Activity后，如果这个Activity的allowTaskReparenting为true的话，
+ 当应用B被启动后，此Activity会直接从应用A的任务栈移动到应用B的任务栈
 
 ## Clearing the back stack
 

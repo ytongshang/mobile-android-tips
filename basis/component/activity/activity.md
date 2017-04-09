@@ -93,6 +93,7 @@ public void onRestoreInstanceState(Bundle savedInstanceState) {
 - **系统配置有很多内容，如果当某项内容发生变化后，我们不想系统重新创建Activity，可以给Activity指定configChanges属性**
 - 如果我们没有configChanges中指定该选项的话，当该项配置发生变化后会导致Activity重建
 
+
 - configChanges项目和含义
 
 Value | Description
@@ -113,6 +114,16 @@ Value | Description
 “layoutDirection” | 当布局方向发生变化，比较少见，一般不无须修改布局的layoutDirection,API17引入
 
 - **Api13以上如果希望orientation发生变化，Activity不会重启，那么一定要将orientation结合screenSize使用**
+
+- **当configChanges中的指定的项目发生变化时，会回调onConfigurationChanged(Configuration config) 函数**
+
+```java
+
+public void onConfigurationChanged(Configuration newConfig) {
+    super.onConfigurationChanged( newConfig);
+    //...
+}
+```
 
 ```xml
 
