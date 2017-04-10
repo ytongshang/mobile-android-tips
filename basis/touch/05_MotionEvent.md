@@ -116,6 +116,7 @@ int touchSlop = ViewConfiguration.get(getContext()).getScaledTouchSlop();
 ## VelocityTracker
 
 - android.view.VelocityTracker主要用跟踪触摸屏事件（flinging事件和其他gestures手势事件）的速率。
+- **通过VelocityTracker获得的速度数值**因为运动方向的问题，可能为负值
 - 通过VelocityTracker.obtain()来获得一个VelocityTracker实例
 - 用addMovement(MotionEvent event)函数将Motion event加入到VelocityTracker类实例中
 - 调用computeCurrentVelocity(int units, float maxVelocity)来初始化速率的单位
