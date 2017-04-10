@@ -66,8 +66,8 @@
 
 - 除了pointer的概念，MotionEvent还引入了两个事件类型
 
-  - ACTION_POINTER_DOWN:代表用户又使用一个手指触摸到屏幕上，也就是说，在已经有一个触摸点的情况下，有新出现了一个触摸点。
-  - ACTION_POINTER_UP:代表用户的一个手指离开了触摸屏，但是还有其他手指还在触摸屏上。也就是说，在多个触摸点存在的情况下，其中一个触摸点消失了。它与ACTION_UP的区别就是，它是在多个触摸点中的一个触摸点消失时（此时，还有触摸点存在，也就是说用户还有手指触摸屏幕）产生，而ACTION_UP可以说是最后一个触摸点消失时产生。
+    - ACTION_POINTER_DOWN:代表用户又使用一个手指触摸到屏幕上，也就是说，在已经有一个触摸点的情况下，有新出现了一个触摸点。
+    - ACTION_POINTER_UP:代表用户的一个手指离开了触摸屏，但是还有其他手指还在触摸屏上。也就是说，在多个触摸点存在的情况下，其中一个触摸点消失了。它与ACTION_UP的区别就是，它是在多个触摸点中的一个触摸点消失时（此时，还有触摸点存在，也就是说用户还有手指触摸屏幕）产生，而ACTION_UP可以说是最后一个触摸点消失时产生。
 
 ## getAction 和 getActionMasked
 
@@ -122,3 +122,4 @@ int touchSlop = ViewConfiguration.get(getContext()).getScaledTouchSlop();
 - 调用computeCurrentVelocity(int units, float maxVelocity)来初始化速率的单位
 - 使用getXVelocity() 或getXVelocity()获得横向和竖向的速率到速率时
 - 使用VelocityTracker.clear()和VelocityTracker.recycle()来释放资源
+
