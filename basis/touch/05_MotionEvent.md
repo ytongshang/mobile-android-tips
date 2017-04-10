@@ -101,3 +101,23 @@
 ## 坐标问题
 
 - getX()是表示Widget相对于自身左上角的x坐标,而getRawX()是表示相对于屏幕左上角的x坐标值(注意:这个屏幕左上角是手机屏幕左上角,不管activity是否有titleBar或是否全屏幕),getY(),getRawY()一样的道理
+
+## TouchSlop
+
+- TouchSlop是处理触摸事件中的一个常量，被系统认为滑动和点击事件的临界点。
+- **当我们手触摸在屏幕上滑动时，如果滑动距离没有超过touchSlop值的话 ，android系统本身是不会认为我们在屏幕上做了手势滑动，因此只有当我们在屏幕上的滑动距离超过touchSlop值时，android系统本身才会认为我们做了滑动操作并去响应触摸事件**
+- 不过要注意的是不同的设备，touchSlop的值可能是不同的，一切以函数获取为准。
+- 在处理滑动事件时，其实可以利用这个值来过滤掉一些没必要的动作，比如当两次滑动距离小于这个值时，我们就可以认为滑动没发生，从而更好的优化用户体验。
+
+```java
+int touchSlop = ViewConfiguration.get(getContext()).getScaledTouchSlop();
+```
+
+## VelocityTracker
+
+- android.view.VelocityTracker主要用跟踪触摸屏事件（flinging事件和其他gestures手势事件）的速率。
+- 通过VelocityTracker.obtain()来获得一个VelocityTracker实例
+- 用addMovement(MotionEvent event)函数将Motion event加入到VelocityTracker类实例中
+- 调用computeCurrentVelocity(int units, float maxVelocity)来初始化速率的单位
+- 使用getXVelocity() 或getXVelocity()获得横向和竖向的速率到速率时
+- 使用VelocityTracker.clear()和VelocityTracker.recycle()来释放资源
