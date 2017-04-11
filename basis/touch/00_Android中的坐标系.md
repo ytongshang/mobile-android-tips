@@ -10,8 +10,22 @@ getLeft()   | 返回View自身左边到父布局左边的距离
 getTop()    | 返回View自身顶边到父布局顶边的距离
 getRight()  | 返回View自身右边到父布局左边的距离
 getBottom() | 返回View自身底边到父布局顶边的距离
-getX()      | 返回值为getLeft()+getTranslationX()，当setTranslationX()时getLeft()不变，getX()变。
-getY()      | 返回值为getTop()+getTranslationY()，当setTranslationY()时getTop()不变，getY()变
+getX()      | View左上角相对于parent view中的横坐标
+getY()      | View左上角相对于parent view中的纵坐标
+getTranslationX()     | 水平相对于getLeft的值
+getTranslationY()     | 纵向相对于getTop的值
+
+- getX() = getLeft()+getTranslationX()，当setTranslationX()时getLeft()不变，getX()变。
+- getY() = getTop()+getTranslationY()，当setTranslationY()时getTop()不变，getY()变。
+
+## view的宽高
+
+Header One          | Header Two
+:------------------ | :--------------------------------------------------------------
+getWidth()          | layout后有效，返回值是mRight-mLeft，一般会参考measure的宽度（measure可能没用），但不是必须的。
+getHeight()         | layout后有效，返回值是mBottom-mTop，一般会参考measure的高度（measure可能没用），但不是必须的。
+getMeasuredWidth()  | 返回measure过程得到的mMeasuredWidth值，供layout参考，或许没用。
+getMeasuredHeight() | 返回measure过程得到的mMeasuredHeight值，供layout参考，或许没用。
 
 ## MotionEvent的坐标含义
 
@@ -22,14 +36,6 @@ getY()     | 当前触摸事件距离当前View顶边的距离
 getRawX()  | 当前触摸事件距离整个屏幕左边的距离
 getRawY()  | 当前触摸事件距离整个屏幕顶边的距离
 
-## view的宽高
-
-Header One          | Header Two
-:------------------ | :--------------------------------------------------------------
-getWidth()          | layout后有效，返回值是mRight-mLeft，一般会参考measure的宽度（measure可能没用），但不是必须的。
-getHeight()         | layout后有效，返回值是mBottom-mTop，一般会参考measure的高度（measure可能没用），但不是必须的。
-getMeasuredWidth()  | 返回measure过程得到的mMeasuredWidth值，供layout参考，或许没用。
-getMeasuredHeight() | 返回measure过程得到的mMeasuredHeight值，供layout参考，或许没用。
 
 ## view的rect方法
 
@@ -51,7 +57,7 @@ Header One                     | Header Two
 offsetLeftAndRight(int offset) | 水平方向挪动View，offset为正则x轴正向移动，移动的是整个View，getLeft()会变的，自定义View很有用。
 offsetTopAndBottom(int offset) | 垂直方向挪动View，offset为正则y轴正向移动，移动的是整个View，getTop()会变的，自定义View很有用
 scrollTo(int x, int y)         | 将View中内容（不是整个View）滑动到相应的位置，参考坐标原点为ParentView左上角，x，y为正则向xy轴反方向移动，反之同理。
-scrollBy(int x, int y)         | 在scrollTo()的基础上继续滑动xy
+scrollBy(int x, int y)         | 将View中的内容相对于当前位置滑动x, y,x，y为正则向xy轴反方向移动，反之同理。
 setScrollX(int value)          | 实质为scrollTo()，只是只改变Y轴滑动
 setScrollY(int value)          | 实质为scrollTo()，只是只改变X轴滑动
 getScrollX()/getScrollY()      | 获取当前滑动位置偏移量
