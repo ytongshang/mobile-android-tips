@@ -48,4 +48,12 @@
     }
   ```
 
-  - 通过检查mCloseOnTouchOutside标记，触摸事件是否为ACTION_DOWN事件，同时判断event的x、y坐标是不是超出Bounds，然后检查FrameLayout的content的id的DecorView不为空， 如果这些都满足的话，则finish掉activity,可以参考Dialog型式的Activity
+- 如果Activity设置了setFinishOnTouchOutside(true),并且ACTION_DOWN事件在DectorView的范围的外部，触摸事件可以finish掉Activity,相当于Dialog的setCanceledOnTouchOutside，主要用于Dialog形式的Activity
+
+```java
+ public void setFinishOnTouchOutside(boolean finish) {
+    mWindow.setCloseOnTouchOutside(finish);
+ }
+```
+
+

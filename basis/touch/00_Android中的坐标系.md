@@ -48,16 +48,3 @@ getGlobalVisibleRect() | (30, 100 , 440, 200) | (30, 250 , 440, 720) | 获取Vie
 getLocationOnScreen()  | (30, 100)            | (30, 250)            | 坐标是相对整个屏幕而言，Y坐标为View左上角到屏幕顶部的距离。
 getLocationInWindow()  | (30, 100)            | (30, 250)            | 如果为普通Activity则Y坐标为View左上角到屏幕顶部；如果为对话框式的Activity则Y坐标为当前Dialog模式Activity的标题栏顶部到View左上角的距离。
 
-## view的滑动
-
-- 关于View提供的与坐标息息相关的另一组常用的重要方法就是滚动或者滑动相关的，下面我们给出相关的解释（改变View在屏幕中的位置可以使用offsetLeftAndRight()和offsetTopAndBottom()方法，他会导致getLeft()等值改变。）
-
-Header One                     | Header Two
-:----------------------------- | :--------------------------------------------------------------------
-offsetLeftAndRight(int offset) | 水平方向挪动View，offset为正则x轴正向移动，移动的是整个View，getLeft()会变的，自定义View很有用。
-offsetTopAndBottom(int offset) | 垂直方向挪动View，offset为正则y轴正向移动，移动的是整个View，getTop()会变的，自定义View很有用
-scrollTo(int x, int y)         | 将View中内容（不是整个View）滑动到相应的位置，参考坐标原点为ParentView左上角，x，y为正则向xy轴反方向移动，反之同理。
-scrollBy(int x, int y)         | 将View中的内容相对于当前位置滑动x, y,x，y为正则向xy轴反方向移动，反之同理。
-setScrollX(int value)          | 实质为scrollTo()，只是只改变Y轴滑动
-setScrollY(int value)          | 实质为scrollTo()，只是只改变X轴滑动
-getScrollX()/getScrollY()      | 获取当前滑动位置偏移量
