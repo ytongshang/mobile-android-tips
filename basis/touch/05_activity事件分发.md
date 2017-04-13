@@ -2,7 +2,7 @@
 
 ## dispatchTouchEvent
 
-- 源码
+### dispatchTouchEvent() 源码
 
   ```java
   public boolean dispatchTouchEvent(MotionEvent ev) {
@@ -20,7 +20,18 @@
 
 - 接着会调用getWindow().superDispatchTouchEvent(ev),通过调用到Activity所属Window的superDispatchTouchEvent，进而调用到Window(PhoneWindow)的DecorView的superDispatchTouchEvent，因为DecorView是继承于Framelayout的，进一步的又调用到ViewGroup的dispatchTouchEvent()。
 
-- 事件的分发顺序，先分发给它所包含的View(通过setContentView())，只有它所属View对事件不感兴趣的话，即返回false,才会分发给Activity
+- 事件的分发顺序，先分发给它所包含的View(setContentView())，只有它所属View对事件不感兴趣的话，即返回false,才会分发给Activity
+
+## onUserInteraction() 与onUserLeaveHint()
+
+- onUserLeaveHint 当用户的操作使一个activity准备进入后台时，此 方法会像activity的生命周期的一部分一样被调用。
+ 例如，当用户按下 Home键， Activity#onUserLeaveHint()将会被回调。
+- **但是当来电导致来电activity自动占据前台，Activity#onUserLeaveHint()将不会被回调**。
+
+- onUserLeaveHint() 用户手动离开当前activity，会调用该方法，比如用户主动切换任务，短按home进入桌面等。系统自动切换activity不会调用此方法，如来电，灭屏等。
+
+- onUserInteraction() activity在分发各种事件的时候会调用该方法，注意：启动另一个activity,Activity#onUserInteraction()会被调用两次，一次是activity捕获到事件，
+ 另一次是调用Activity#onUserLeaveHint()之前会调用Activity#onUserInteraction()。
 
 ## onTouchEvent
 

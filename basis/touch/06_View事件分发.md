@@ -6,11 +6,12 @@
 
 ## dispatchTouchEvent
 
-### 源码
+### dispatchTouchEvent 源码
 
 ```java
     public boolean dispatchTouchEvent(MotionEvent event) {
         // If the event should be handled by accessibility focus first.
+        // 辅助功能
         if (event.isTargetAccessibilityFocus()) {
             // We don't have focus or no virtual descendant has it, do not handle the event.
             if (!isAccessibilityFocusedViewOrHost()) {
@@ -64,8 +65,11 @@
     }
 ```
 
-- 如果将事件进行分发的话，会先尝试分发给onTouch()；然后才分发给onTouchEvent()
-- 如果View是DISABLED的，即使设置了onTouch也不会执行
+### 事件分发顺序
+
+- 首先会尝试分发给onTouchListener, 首先如果View是Enabled的并且onTouchListener不为null，并且onTouchListener消耗了事件，直接返回true
+- 如果没有消耗触摸事件，尝试分发给onTouchEvent
+
 
 ### onFilterTouchEventForSecurity
 
