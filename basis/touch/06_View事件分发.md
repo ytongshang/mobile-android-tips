@@ -232,6 +232,7 @@ public boolean onTouchEvent(MotionEvent event) {
     }
 ```
 
+- 一个View如果是
 - 一个View如果是DISABLED的，则返回它是否可以点击。如果View是DISABLED的,但是它是CLICKABLE/LONG_CLICKABLE，它不会对事件有反应，但是它会消费掉触摸事件。
 - 当我们调用了setEnabled(false)时，View就被禁用了；默认情况下，View是可用的。当调用setClickable(true)或者android:clickable为true时，View就是可点击状态；默认情况下，一个View如是是不可点击的，也不能够长按
 
@@ -255,11 +256,36 @@ public boolean onTouchEvent(MotionEvent event) {
 
 - 在这里最精髓的是使用Handler去判断是否是点击，是否是长按，去执行onClick,去执行onLongClick
 
+
 ## 总结
 
-- View中的dispatchTouchEvent()会将事件传递给"onTouch()", "onTouchEvent()"进行处理。而且onTouch()的优先级比onTouchEvent()的优先级要高。
+### 首先会判断是否设置了onTouchListener
 
-- onTouch()与onTouchEvent()有两个不同之处：
+- **如果设置了onTouchListener,并且View是Enabled的，并且onTouchListener返回true**，事件分发结束，直接返回true
 
-  - 如果View是DISABLED的，即使设置了onTouch也不会执行，而onTouchEvent则会返回是否可以点击/是否可以长按。因此如果你有一个控件是DISABLED的，那么给它注册onTouch事件将永远得不到执行，对于这一类控件，如果我们想要监听它的touch事件，就必须通过在该控件中重写onTouchEvent方法来实现
-  - onTouch()的优先级比onTouchEvent()的优先级更高。如果onTouch()对触摸事件进行了处理，并且返回true；那么，该触摸事件就不会分配在分配给onTouchEvent()进行处理了。只有当onTouch()没有处理，或者处理了但返回false时，才会分配给onTouchEvent()进行处理。
+- 否则会尝试分发给onTouchEvent
+
+### 分发给onTouchEvent
+
+- **如果View是disabled的，则直接返回View是否是CLICKABLE或LONG_CLICKABLE或CONTEXT_CLICKABLE**,
+ Disable但可以点击的View不会对事件有反应，但是会消耗事件
+
+- 然后如果View设置了TouchDelegate,并且TouchDelegate返回true，事件分发结束，返回true
+
+- 最后如果View是CLICKABLE或LONG_CLICKABLE或CONTEXT_CLICKABLE，继续执行事件分发
+
+### ACTION_DOWN
+
+- 首先会判断是否在一个ScrollingContainer中，如果不在ScrollingContainer中，直接设置按下效果，
+ 并且通过runnable检查是否是长按事件
+
+- 如果在一个ScrollingContainer中，通过runnable检查是一个点击事件，还是一个滑动事件，按下的视觉反馈也会在runnable中执行
+
+### ACTION_MOVE
+
+- 提供一下视觉反馈
+
+- 如果移动到了View的外部，那么取消按下效果，并且移除检查点击和长按检测的runnable
+
+### ACTION_UP
+
