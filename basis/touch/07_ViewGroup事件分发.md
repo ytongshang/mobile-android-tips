@@ -35,7 +35,7 @@
         // 如果是ACTION_DOWN，说明是一个新的触摸事件序列，则清空之前的触摸事件处理target和状态。
         // 这里的情况状态包括：
         // (01) 清空mFirstTouchTarget链表，并设置mFirstTouchTarget为null。
-        //      mFirstTouchTarget是"接受触摸事件的View"所组成的单链表
+        //      mFirstTouchTarget是"接受触摸事件的子View"所组成的单向链表
         // (02) 将当前view的flags设置为~FLAG_DISALLOW_INTERCEPT，只要是一个新的触摸事件序列，那么就是允许拦截的
         // 但实际上是否会拦截，要看onInterceptTouchEvent(ev)
         // (03) 清空mPrivateFlags的PFLAG_CANCEL_NEXT_UP_EVEN标记
@@ -154,7 +154,7 @@
                 }
 
                 // 如果newTouchTarget为null，并且mFirstTouchTarget不为null；
-                // 则设置newTouchTarget为mFirstTouchTarget链表中第一个不为空的节点。
+                // 则设置newTouchTarget为mFirstTouchTarget链表中最后一个不为空的节点，也就是最后添加人结点
                 if (newTouchTarget == null && mFirstTouchTarget != null) {
                     // Did not find a child to receive the event.
                     // Assign the pointer to the least recently added target.

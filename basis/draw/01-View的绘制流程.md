@@ -3,7 +3,7 @@
 ## Window
 
 - Activity中有一个成员为Window，Window是一个抽象类，提供了绘制窗口的一组通用API
-- Activity中Window的实例化对象为PhoneWindow，PhoneWindow是Window的具体继承实现类。
+- Activity中Window的实际实现为PhoneWindow。
 
 ```java
 // Activity.java
@@ -24,13 +24,17 @@ final void attach(Context context, ActivityThread aThread,
      //初始化window
      mWindow = new PhoneWindow(this);
 
-    // 设置Window的回调
+    // 设置Window的回调,比如触摸事件分发等等
      mWindow.setCallback(this);
      //...
    }
 ```
 
-- PhoneWindow类内部包含了一个DecorView对象，该DectorView对象是所有应用窗口(Activity界面)的根View。
+## DecorView
+
+- PhoneWindow类内部包含了一个DecorView对象。
+- DecorView是PhoneWindow的内部类，是FrameLayout的子类，是对FrameLayout进行功能的修饰。
+- **DecorView是所有应用窗口的根View(包括Activity与Dialog)**
 
   ```java
     // PhoneWindow.java
@@ -39,7 +43,6 @@ final void attach(Context context, ActivityThread aThread,
     private DecorView mDecor;
   ```
 
-- DecorView是PhoneWindow的内部类，是FrameLayout的子类，是对FrameLayout进行功能的修饰，是所有应用窗口的根View 。
 
 ## setContentView
 
@@ -63,6 +66,10 @@ final void attach(Context context, ActivityThread aThread,
 ```
 
 ## PhoneWindow中的setContentView
+
+- 如果没有DectorView，那么就创建它
+- 将View添加到DectorView的mContentParent中
+- 回调Activity的onContentChanged方法通知视图发生了变化
 
 ```java
   // PhoneWindow.java
@@ -106,12 +113,13 @@ final void attach(Context context, ActivityThread aThread,
     }
 ```
 
-## installDecor
+### installDecor
 
 ```java
   private void installDecor() {
         if (mDecor == null) {
-            // 创建一个DecorView，也就是Activity所有View的根布局
+            // 创建一个DecorView，也就是Activity所有View的根布局，
+            // 此时DecorView还仅仅只是一个空白的FrameLayout
             mDecor = generateDecor();
             mDecor.setDescendantFocusability(ViewGroup.FOCUS_AFTER_DESCENDANTS);
             mDecor.setIsRootNamespace(true);
@@ -125,7 +133,6 @@ final void attach(Context context, ActivityThread aThread,
             // mContentParent一定是一个FrameLayout,但是加载进mDecor的布局
             // 会因为有不同的选项，而选用不同的布局
             mContentParent = generateLayout(mDecor);
-
             // ..........
             // 省略其它代码
             }
@@ -133,7 +140,7 @@ final void attach(Context context, ActivityThread aThread,
     }
 ```
 
-## generateLayout
+### generateLayout
 
 ```java
   protected ViewGroup generateLayout(DecorView decor) {
@@ -166,7 +173,7 @@ final void attach(Context context, ActivityThread aThread,
 
         mDecor.startChanging();
 
-        //将选择的布局加载到mDecor上面
+        //根据主题加载不同的布局,然后将布局加载到DecorView
         View in = mLayoutInflater.inflate(layoutResource, null);
         decor.addView(in, new ViewGroup.LayoutParams(MATCH_PARENT, MATCH_PARENT));
         mContentRoot = (ViewGroup) in;
@@ -188,6 +195,38 @@ final void attach(Context context, ActivityThread aThread,
         return contentParent;
     }
 ```
+
+### 添加到Window中
+
+- 经过上面的步骤，DecorView创建完成，并且Activity的布局也添加到了DecorView的mContentParent中，不过还没有添加到Window中
+
+- 在ActivityThread的handleResumeActivity方法中，首先会调用Activity的onResume方法，然后会调用Activity的makeVisible方法，从而将
+ DectorView添加到了WindowManager中
+
+ ```java
+ void makeVisible() {
+        if (!mWindowAdded) {
+            ViewManager wm = getWindowManager();
+            wm.addView(mDecor, getWindow().getAttributes());
+            mWindowAdded = true;
+        }
+        mDecor.setVisibility(View.VISIBLE);
+    }
+ ```
+
+### ViewRoot的performTraversals
+
+- WindowManger的addView调用了WindowManagerImpl的addView
+- WindowManagerImpl的addView调用了WindowManagerGlobal的addView
+- WindowManagerGlobal中创建了ViewRootImpl，进而调用了ViewRootImpl的setView方法
+- ViewRootImpl的setView方法进而调用了requestLayout方法
+- requestLayout方法进而调用了scheduleTraversals方法
+- scheduleTraversals方法post了TraversalRunnable 的Runnable
+- TraversalRunnable进而执行了performTraversals
+- performTraversals进而执行了performMeasure，performLayout，performDraw
+- 进而执行了measure,layout,draw方法
+- 进而执行了onMeasure，onLayout,onDraw方法，完成了View的绘制
+
 
 ## 总结
 
