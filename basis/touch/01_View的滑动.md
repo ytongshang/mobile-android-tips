@@ -64,11 +64,70 @@ mButton1.requestLayout();
 
 ## 弹性滑动
 
+### Scoller
+
 - View调用ScrollTo/ScrollBy方法进行滑动时，其过程是瞬时完成的
-- 如果要实现滑动的过渡效果，可以使用Scroller结合View的computeScroll配合完成
+- **如果要实现滑动的过渡效果，可以使用Scroller结合View的computeScroll配合完成**
 
 ```java
 
-Scroller scroller = new Scroller()
+Scroller mScroller = new Scroller(mContext);
 
+public void smoothScrollTo(int detX, int detY) {
+    int scrollX = getScrollX();
+    int delta = destX - scrollX;
+    mScroller.startScroll(scrollx, 0, delta, 0, 1000);
+    invalidate();
+}
+
+@Override
+public void computeScroll() {
+    if (mScroller.computeScrollOffset()) {
+        scrollTo(mScroller.getCurrX(), mScroller.getCurrY());
+        postInvalidate();
+    }
+}
+
+```
+
+### 通过动画
+
+- 除了View动画和作用于View的属性动画，我们还可以让动画不作用于任何对象，通过listener实现动画
+
+```java
+ValueAnimator animator = ValueAnimator.ofInt(0,1).setDuration(1000);
+animator.addUpdateListener(new AnimatorUpdateListener() {
+
+    @Override
+    public void onAnimationUpdate(ValueAnimator animator) {
+        float fraction = animator.getAnimatedFraction();
+        mButtion.scrollTo(startX + (int)(deltaX*fraction), 0);
+    }
+})
+```
+
+### 通过延时策略
+
+- 常见的就是通过handler或者View的postDelayed()方法
+
+```java
+private static final int MESSAGE_SCROLL_TO = 1;
+private static final int FRAME_COUNT = 30;
+private static final int DELAYED_TIME = 33;
+
+private Handler mHandler = new Handler () {
+
+    @Override
+    public void handleMessage(Message msg) {
+        switch(msg.what) {
+            mCount ++;
+            if (mCount < FRAME_COUNT) {
+                float fraction = mCount / (float)FRAME_COUNT;
+                int scrollX = (int) (fraction*100);
+                mButton.scrollTo(scrollX, 0);
+                mHandler.sendEmptyMessageDelayed(MESSAGE_SCROLL_TO, DELAYED_TIME);
+            }
+        }
+    }
+}
 ```
