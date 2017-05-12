@@ -245,6 +245,42 @@ public void setLayerInset(int index, int l, int t, int r, int b) {
 
 - Android 将应用状态列表中第一个与对象当前状态匹配的项目。因此，如果列表中的第一个项目不含上述任何状态属性，则每次都会应用它，这就是默认值应始终放在最后的原因
 
+### android:duplicateParentState
+
+- 让子View跟随其Parent的状态，如pressed等。常见的使用场景是某些时候一个按钮很小，我们想要扩大其点击区域的时候通常会再给其包裹一层布局，将点击事件写到Parent上，这时候如果希望被包裹按钮的点击效果对应的Selector继续生效的话，这时候duplicateParentState就派上用场了。
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/ll_subscribe_root"
+    android:layout_width="@dimen/subscribe_btn_width"
+    android:layout_height="@dimen/subscribe_btn_height"
+    android:background="@drawable/btn_subscribe_bg"
+    android:orientation="horizontal"
+    android:gravity="center"
+    >
+
+    <ImageView
+        android:id="@+id/iv_subscribe_icon"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:duplicateParentState="true"
+        android:src="@drawable/icon_subscribe_normal" />
+
+    <TextView
+        android:id="@+id/tv_subscribe_content"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingLeft="3dp"
+        android:duplicateParentState="true"
+        android:text="@string/str_not_yet_subscribe_btn"
+        android:textSize="@dimen/subscribe_text_size" />
+
+
+</LinearLayout>
+```
+
+
 
 ## LevelListDrawable
 
