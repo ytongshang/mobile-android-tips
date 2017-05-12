@@ -127,3 +127,12 @@ protected void setupBaseListeners() {
     mContent.setOnLongClickListener(this);
 }
 ```
+
+## setLevel
+
+- level的值的范围是0~10000
+- setLevel的值会回调它的onLevelChange，从而可能会导致Drawable的重绘
+- setLevel的值与LevelDrawable选取哪一项有关
+- setLevel的值与ClipDrawable的裁剪区域有关，并且level越大，裁剪区域越小
+- setLevel的值与ScaleDrawble最终的大小有关，一般情况下，对于ScaleDrawable我们会设置level为1,这样
+ 当我们在xml中指定scaleWidth为a时，最终实际的大小为原大小的(1-a)
