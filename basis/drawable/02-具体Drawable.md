@@ -72,7 +72,7 @@ if (drawable == null) {
 
 ### GradientDrawable
 
-- 能过shape标签生成的其实是GradientDrawable
+- 通过shape标签生成的其实是GradientDrawable
 
 ```xml
 <?xml version="1.0" encoding="utf-8"?>
@@ -170,7 +170,7 @@ if (drawable == null) {
 </layer-list>
 ```
 
-- **默认情况下，所有可绘制项都会缩放以适应包含视图的大小。**因此，将图像放在图层列表中的不同位置可能会增大视图的大小，并且有些图像会相应地缩放。
+- **默认情况下，所有可绘制项都会缩放以适应包含视图的大小**。因此，将图像放在图层列表中的不同位置可能会增大视图的大小，并且有些图像会相应地缩放。
 - 为避免缩放列表中的项目，请在item元素内使用bitmap元素指定可绘制对象，并且对某些不缩放的项目（例如 "center"）定义重力。
 
 ```xml
@@ -581,3 +581,7 @@ h -= h * (10000 - level) / 10000;
 ```
 
 - **level值越大，表示裁剪区域越小**，如果想裁剪20%，留下80%,那么level应当设置为8000;
+
+
+
+## PictureDrawable

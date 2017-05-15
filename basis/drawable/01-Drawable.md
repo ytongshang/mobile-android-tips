@@ -4,7 +4,7 @@
 
 - 对于Drawable来说，getIntrinsicWidth和getIntrinsicHeight默认返回-1
 - **对于BitmapDrawable来说，会返回bitmap在当前density下的的像素大小.**
- 比如一张90×90的png图片放到drawable-hdpi文件夹下，那么它在dpi为320的手机上，getIntrinsicWidth和getIntrinsicHeight两个函数返回的是320/240*100=120
+ 比如一张90×90的png图片放到drawable-hdpi文件夹下，那么它在dpi为320的手机上，getIntrinsicWidth和getIntrinsicHeight两个函数返回的是(320/240*100 + 0.5) =120
 
 ## ConstantState 与 mute
 
@@ -38,7 +38,7 @@ Drawable drawable = ContextCompact.getDrawable(mContext, R.drawable.icon);
 
 Drawable clone1 = drawable.getConstantState().newDrawable();
 
-Drawable clone2 = (Drawable) drawable.getDrawable().mutate();
+Drawable clone2 = (Drawable) drawable.mutate();
 ```
 
 - **clone1是一个新的drawable**,它与drawable共享相同的ConstantState,只要一个地方修改了ConstantState,两者的都会发生变化
@@ -130,7 +130,7 @@ protected void setupBaseListeners() {
 
 ## setLevel
 
-- level的值的范围是0~10000
+- **level的值的范围是0~10000**
 - setLevel的值会回调它的onLevelChange，从而可能会导致Drawable的重绘
 - setLevel的值与LevelDrawable选取哪一项有关
 - setLevel的值与ClipDrawable的裁剪区域有关，并且level越大，裁剪区域越小
