@@ -285,7 +285,7 @@ public class ActivityMessenger extends Activity {
 
 ### 具有已启动和绑定两种状态的服务的生命周期
 
-![具有已启动和绑定两种状态的服务的生命周期](./../resources/已启动和绑定的Service.PNG)
+![具有已启动和绑定两种状态的服务的生命周期](./../../../image-resources/已启动和绑定的Service.png)
 
 
 ## IntentService

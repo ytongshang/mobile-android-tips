@@ -1,8 +1,8 @@
-# 总体
+# TweenAnimation
 
 - alpha,rotate,scale, translate
 
-- Animation属性详解
+## Animation公共属性
 
 Header One              | Header Two                    | Header Two
 :---------------------- | :---------------------------- | :--------------------------------------
@@ -17,67 +17,11 @@ android:repeatMode      | android:repeatMode            | 重复类型有两个�
 android:startOffset     | setStartOffset(long)          | 调用start函数之后等待开始运行的时间，单位为毫秒
 android:zAdjustment     | setZAdjustment(int)           | 表示被设置动画的内容运行时在Z轴上的位置（top/bottom/normal)
 
-- alpha
 
-Header One        | Header Two                           | Header Two
-:---------------- | :----------------------------------- | :--------------------------------
-android:fromAlpha | AlphaAnimation(float fromAlpha, ...) | 动画开始的透明度（0.0到1.0，0.0是全透明，1.0是不透明）
-android:toAlpha   | AlphaAnimation(..., float toAlpha)   | 动画结束的透明度，同上
+- 当我们对set标签使用Animation的属性时会对该标签下的所有子动画都产生影响
 
-- rotate
 
-Header One          | Header Two                                 | Header Two
-:------------------ | :----------------------------------------- | :---------------------------------------------------------------------------------------------------------------------
-android:fromDegrees | RotateAnimation(float fromDegrees, ...)    | 旋转开始角度，正代表顺时针度数，负代表逆时针度数
-android:toDegrees   | RotateAnimation(..., float toDegrees, ...) | 旋转结束角度，正代表顺时针度数，负代表逆时针度数
-android:pivotX      | RotateAnimation(..., float pivotX, ...)    | 缩放起点X坐标（数值、百分数、百分数p，譬如50表示以当前View左上角坐标加50px为初始点、50%表示以当前View的左上角加上当前View宽高的50%做为初始点、50%p表示以当前View的左上角加上父控件宽高的50%做为初始点）
-android:pivotY      | RotateAnimation(..., float pivotY)         | 缩放起点Y坐标，同上规律
-
-- scale
-
-Header One         | Header Two                             | Header Two
-:----------------- | :------------------------------------- | :----------------------------------------------------------------------------------------------------------------------
-android:fromXScale | ScaleAnimation(float fromX, ...)       | 初始X轴缩放比例，1.0表示无变化
-android:toXScale   | ScaleAnimation(..., float toX, ...)    | 结束X轴缩放比例
-android:fromYScale | ScaleAnimation(..., float fromY, ...)  | 初始Y轴缩放比例
-android:toYScale   | ScaleAnimation(..., float toY, ...)    | 结束Y轴缩放比例
-android:pivotX     | ScaleAnimation(..., float pivotX, ...) | 缩放起点X轴坐标（数值、百分数、百分数p，譬如50表示以当前View左上角坐标加50px为初始点、50%表示以当前View的左上角加上当前View宽高的50%做为初始点、50%p表示以当前View的左上角加上父控件宽高的50%做为初始点）
-android:pivotY     | ScaleAnimation(..., float pivotY)      | 同上
-
-- translate
-
-Header One         | Header Two                                     | Header Two
-:----------------- | :--------------------------------------------- | :---------------------------------------------------------------------------------------------------------------------
-android:fromXDelta | TranslateAnimation(float fromXDelta, ...)      | 起始点X轴坐标（数值、百分数、百分数p，譬如50表示以当前View左上角坐标加50px为初始点、50%表示以当前View的左上角加上当前View宽高的50%做为初始点、50%p表示以当前View的左上角加上父控件宽高的50%做为初始点）
-android:fromYDelta | TranslateAnimation(..., float fromYDelta, ...) | 起始点Y轴从标，同上规律
-android:toXDelta   | TranslateAnimation(..., float toXDelta, ...)   | 结束点X轴坐标，同上规律
-android:toYDelta   | TranslateAnimation(..., float toYDelta)        | 结束点Y轴坐标，同上规律
-
-- animationSet
-
-  - 当我们对set标签使用Animation的属性时会对该标签下的所有子控件都产生影响
-
-## 使用
-
-- animation 常用方法
-
-Header One                                       | Header Two
-:----------------------------------------------- | :-----------------
-reset()                                          | 重置Animation的初始化
-cancel()                                         | 取消Animation动画
-start()                                          | 开始Animation动画
-setAnimationListener(AnimationListener listener) | 给当前Animation设置动画监听
-hasStarted()                                     | 判断当前Animation是否开始
-hasEnded()                                       | 判断当前Animation是否结束
-
-- view 类用方法
-
-Header One                          | Header Two
-:---------------------------------- | :----------------------
-startAnimation(Animation animation) | 对当前View开始设置的Animation动画
-clearAnimation()                    | 取消当View在执行的Animation动画
-
-## xml
+## 具体动画属性
 
 ```xml
 <?xml version="1.0" encoding="utf-8"?>
@@ -110,13 +54,48 @@ clearAnimation()                    | 取消当View在执行的Animation动画
 </set>
 ```
 
+## android:pivotX与android:pivotY
+
+- 缩放起点X/Y坐标
+- 数值、百分数、百分数p
+- 譬如50表示以当前View左上角坐标加50px为初始点
+- 50%表示以当前View的左上角加上当前View宽高的50%做为初始点
+- 50%p表示以当前View的左上角加上父控件宽高的50%做为初始点
+
+## 使用
+
+### animation 常用方法
+
+Header One                                       | Header Two
+:----------------------------------------------- | :-----------------
+reset()                                          | 重置Animation的初始化
+cancel()                                         | 取消Animation动画
+start()                                          | 开始Animation动画
+setAnimationListener(AnimationListener listener) | 给当前Animation设置动画监听
+hasStarted()                                     | 判断当前Animation是否开始
+hasEnded()                                       | 判断当前Animation是否结束
+
+### view 类用方法
+
+Header One                          | Header Two
+:---------------------------------- | :----------------------
+startAnimation(Animation animation) | 对当前View开始设置的Animation动画
+clearAnimation()                    | 取消当View在执行的Animation动画
+
+
 ```java
 ImageView spaceshipImage = (ImageView) findViewById(R.id.spaceshipImage);
-Animation hyperspaceJumpAnimation = AnimationUtils.loadAnimation(this, R.anim.hyperspace_jump);
+Animation hyperspaceJumpAnimation = AnimationUtils.loadAnimation(this,R.anim.hyperspace_jump);
 spaceshipImage.startAnimation(hyperspaceJumpAnimation);
 ```
 
 ## 动画插值器
+
+- android:interpolator 指定动画的插值器
+- android:shareInterpolator，表示animationSet中的动画是否和集合共享同一个插值器，
+ 如果集合不指定插值器，那么子动画就需要单独指定所需的插值器或使用默认值
+
+### 具体的动画插值 器
 
 Header One                       | Header Two                                       | Header Two
 :------------------------------- | :----------------------------------------------- | :-------------------------
@@ -134,3 +113,4 @@ PathInterpolator                 |                                              
 ## 注意
 
 - 补间动画执行之后并未改变View的真实布局属性值。切记这一点，譬如我们在Activity中有一个Button在屏幕上方，我们设置了平移动画移动到屏幕下方然后保持动画最后执行状态呆在屏幕下方，这时如果点击屏幕下方动画执行之后的Button是没有任何反应的，而点击原来屏幕上方没有Button的地方却响应的是点击Button的事件
+
