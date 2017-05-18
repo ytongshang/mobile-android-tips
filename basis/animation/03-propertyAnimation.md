@@ -287,6 +287,68 @@ mObjectAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
 });
 ```
 
-## 对任意属性做动画
+## 对Object对象的abc属性作动画
 
-- 对于有UI
+### 条件
+
+- **Object必须提供setAbc方法，如果没有提供初始值，那么也必须提供getAbc方法**，如果没有不满足，
+ 程序直接crash
+- Object的setAbc对属性abc所作的改变，必须通过某种方法反应出来，比如带来UI的改变，如果不满足，
+ 动画无效果，但不会crash
+
+### 解决办法
+
+#### 如果有源码，给对应的abc属性加上set和get方法
+
+#### 用一个对象来包装原始对象，间接为其提供set和get方法
+
+- 比如针对View宽度的动画
+
+```java
+public class ViewWrapper {
+    private View mTarget;
+
+    public ViewWrapper(View target) {
+        mTarget = target;
+    }
+
+    public void setWidth(int width) {
+        mTarget.getLayoutParams.width = width;
+        mTarget.requestLayout();
+    }
+
+    public int getWidth() {
+        return mTarget.getLayoutParams().width;
+    }
+}
+
+ViewWrapper wrapper = new ViewWrapper(mButton);
+ObjectAnimator.ofInt(wrapper, "width", 500).setDuration(100).start();
+```
+
+#### 使用ValueAnimator，监听动画过程，自己实现属性改变
+
+```java
+private void performAnimate(final View target, final int start, final int end) {
+    ValueAnimator valueAnimator = ValueAnimator.ofInt(1, 100);
+    valueAnimator.addUpdateListener(new AnimatorUpdateListener() {
+        // 持有一个IntEvaluator对象，方便下面估值的时候使用
+        private IntEvaluator mEvaluator = new IntEvaluator();
+
+        @Override
+        public void onAnimationUpdate(ValueAnimator animator) {
+            // 获得当前动画的进度值，整型，1-100之间
+            int currentValue = (Integer) animator.getAnimatedValue();
+            Log.d(TAG, "current value: " + currentValue);
+
+            // 获得当前进度占整个动画过程的比例，浮点型，0-1之间
+            float fraction = animator.getAnimatedFraction();
+            // 直接调用整型估值器通过比例计算出宽度，然后再设给Button
+            target.getLayoutParams().width = mEvaluator.evaluate(fraction, start, end);
+            target.requestLayout();
+        }
+    });
+
+    valueAnimator.setDuration(5000).start();
+}
+```
