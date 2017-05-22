@@ -1,6 +1,6 @@
 # 总结
 
-![Handler Looper MessageQueue](./../resources/handler.PNG)
+![Handler Looper MessageQueue](./../image-resources/handler.PNG)
 
 - **其中绿色的部分与蓝色可能在一个线程，也可能不在一个线程**
 
