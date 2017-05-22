@@ -1,5 +1,20 @@
 # Animation
 
+- [AnimationDrawable](#animationdrawable)
+    - [使用AnimationDrawable](#使用animationdrawable)
+    - [start()调用时机](#start调用时机)
+    - [oom解决办法](#oom解决办法)
+- [RotateDrawable](#rotatedrawable)
+- [AnimatedRotateDrawable](#animatedrotatedrawable)
+- [RippleDrawable](#rippledrawable)
+    - [Ripple With Color Mask（用颜色作为Mask的Ripple）](#ripple-with-color-mask用颜色作为mask的ripple)
+    - [Ripple With Picture Mask(用图片作为Mask的Ripple)](#ripple-with-picture-mask用图片作为mask的ripple)
+    - [Ripple With Shape Mask(用设定形状作为Mask的Ripple)](#ripple-with-shape-mask用设定形状作为mask的ripple)
+    - [Ripple With Selector(搭配selector作为Ripple)](#ripple-with-selector搭配selector作为ripple)
+    - [Ripple With No Mask（没有边界的Ripple）](#ripple-with-no-mask没有边界的ripple)
+- [AnimatedListStateDrawable](#animatedliststatedrawable)
+
+
 ## AnimationDrawable
 
 ### 使用AnimationDrawable

@@ -5,7 +5,6 @@
 - [给我们评分](#给我们评分)
 - [release的位置](#release的位置)
 - [Handler的使用](#handler的使用)
-- [adb查看最上层的activity](#adb查看最上层的activity)
 - [dialogFragment设置宽度](#dialogfragment设置宽度)
 - [bitmap的平铺](#bitmap的平铺)
 - [监听Home键](#监听home键)
@@ -84,18 +83,6 @@ if (mHandler != null) {
     mHandler.removeCallbacksAndMessages(null);
     mHandler = null;
 }
-```
-
-## adb查看最上层的activity
-
-- 查看最上面的activity
-
-```bash
-Linux:
-adb shell dumpsys activity | grep "mFocusedActivity"
-
-windows:
-adb shell dumpsys activity | findstr "mFocusedActivity"
 ```
 
 ## dialogFragment设置宽度

@@ -1,5 +1,13 @@
 # Drawable
 
+- [getIntrinsicWidth 与 getIntrinsicHeight](#getintrinsicwidth-与-getintrinsicheight)
+- [ConstantState 与 mute](#constantstate-与-mute)
+    - [ConstantState](#constantstate)
+    - [Drawable mutate()](#drawable-mutate)
+    - [复制一个drawable](#复制一个drawable)
+- [Drawable.Callback](#drawablecallback)
+- [setLevel](#setlevel)
+
 ## getIntrinsicWidth 与 getIntrinsicHeight
 
 - 对于Drawable来说，getIntrinsicWidth和getIntrinsicHeight默认返回-1

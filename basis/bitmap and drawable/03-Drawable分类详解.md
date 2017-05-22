@@ -2,6 +2,33 @@
 
 [google drawable](https://developer.android.com/guide/topics/resources/drawable-resource.html)
 
+- [BitmapDrawable](#bitmapdrawable)
+    - [位图资源](#位图资源)
+    - [xml位图](#xml位图)
+- [NinePatchDrawable](#ninepatchdrawable)
+    - [.9图详解](#9图详解)
+    - [开源库从文件生成.9图](#开源库从文件生成9图)
+- [ShapeDrawabel GradientDrawable PaintDrawable](#shapedrawabel-gradientdrawable-paintdrawable)
+    - [GradientDrawable](#gradientdrawable)
+        - [ring](#ring)
+        - [gradient](#gradient)
+        - [padding](#padding)
+        - [size](#size)
+    - [ShapeDrawable 和 PaintDrawable](#shapedrawable-和-paintdrawable)
+- [LayerDrawable](#layerdrawable)
+- [StateListDrawable](#statelistdrawable)
+    - [android:duplicateParentState](#androidduplicateparentstate)
+- [LevelListDrawable](#levellistdrawable)
+- [TransitionDrawable](#transitiondrawable)
+- [InsetDrawable](#insetdrawable)
+- [ScaleDrawable](#scaledrawable)
+    - [level](#level)
+- [ClipDrawable](#clipdrawable)
+    - [clipOrientation](#cliporientation)
+    - [gravity](#gravity)
+    - [ClipDrawable的level](#clipdrawable的level)
+- [PictureDrawable](#picturedrawable)
+
 ## BitmapDrawable
 
 ### 位图资源

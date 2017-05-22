@@ -1,5 +1,16 @@
 # TweenAnimation
 
+- [Animation公共属性](#animation公共属性)
+- [具体动画属性](#具体动画属性)
+- [android:pivotX与android:pivotY](#androidpivotx与androidpivoty)
+- [使用](#使用)
+    - [animation 常用方法](#animation-常用方法)
+    - [view 类用方法](#view-类用方法)
+- [动画插值器](#动画插值器)
+    - [具体的动画插值 器](#具体的动画插值-器)
+- [注意](#注意)
+
+
 - alpha,rotate,scale, translate
 
 ## Animation公共属性

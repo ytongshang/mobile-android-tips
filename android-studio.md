@@ -1,10 +1,13 @@
 # Android Studio
 
+- [android  library版本配置](#android--library版本配置)
+- [android studio 常用插件](#android-studio-常用插件)
 - [android stuido找不到源码](#android-stuido找不到源码)
 - [自定义BuildConfig变量](#自定义buildconfig变量)
 - [v2SigningEnabled](#v2signingenabled)
 - [混淆配置](#混淆配置)
-
+- [adb查看最上层的activity](#adb查看最上层的activity)
+- [Android依赖关系查找](#android依赖关系查找)
 
 ## android  library版本配置
 
@@ -27,7 +30,7 @@ ext {
 
 ```
 
-## android 常用插件
+## android studio 常用插件
 
 ```java
 
@@ -112,5 +115,26 @@ signingConfigs {
 
 - 一个android stuido工程有多个library project,在每个library project都定义了混淆配置，
  **最后还必须将library的混淆复制到主工程的混淆配置中**
+
+
+## adb查看最上层的activity
+
+- 查看最上面的activity
+
+```bash
+Linux:
+adb shell dumpsys activity | grep "mFocusedActivity"
+
+windows:
+adb shell dumpsys activity | findstr "mFocusedActivity"
+```
+
+## Android依赖关系查找
+
+```bash
+gradlew -q app:dependencies
+```
+
+其中app是指module的名字
 
 
