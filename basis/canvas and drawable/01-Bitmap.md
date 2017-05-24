@@ -2,7 +2,7 @@
 
 ## BitmapOptions
 
-- BitmapOptions参数
+### BitmapOptions参数
 
 Header One                       | Header Two
 :------------------------------- | :-----------------------------------------------
@@ -23,6 +23,154 @@ outHeight | 返回的Bitmap的高，注意是经过scale的
 inTempStorage | 解码时的临时空间，建议16*1024，默认为16k
 outMimeType | bitmap的mimeType,不设置或者解析出错时，该值为null
 mCancel | 解析bitmap是否被取消掉了，可以通过requestCancelDecode()取消bitmap的解析
+
+### inBitmap
+
+- 假如设置了Options.inBitmap的这个字段，在解码Bitmap的时候，系统会去重用inBitmap设置的Bitmap，减少内存的分配和释放，提高了应用的性能
+- **设置的inBitmap必须inMutable为true**
+- 在Android 4.4之前，BitmapFactory.Options.inBitmap设置的Bitmap必须和我们需要解码的Bitmap的大小一致才行，
+- 在Android4.4以后，BitmapFactory.Options.inBitmap设置的Bitmap的getAllocationByteCount必须要大于等于能解码的Bitmap的getByteCount
+
+[Managing Bitmap Memory](https://developer.android.com/topic/performance/graphics/manage-memory.html)
+
+```java
+// ImageCache
+Set<SoftReference<Bitmap>> mReusableBitmaps;
+private LruCache<String, BitmapDrawable> mMemoryCache;
+
+// If you're running on Honeycomb or newer, create a
+// synchronized HashSet of references to reusable bitmaps.
+if (Utils.hasHoneycomb()) {
+    mReusableBitmaps =
+            Collections.synchronizedSet(new HashSet<SoftReference<Bitmap>>());
+}
+
+mMemoryCache = new LruCache<String, BitmapDrawable>(mCacheParams.memCacheSize) {
+
+    // Notify the removed entry that is no longer being cached.
+    @Override
+    protected void entryRemoved(boolean evicted, String key,
+            BitmapDrawable oldValue, BitmapDrawable newValue) {
+        if (RecyclingBitmapDrawable.class.isInstance(oldValue)) {
+            // The removed entry is a recycling drawable, so notify it
+            // that it has been removed from the memory cache.
+            ((RecyclingBitmapDrawable) oldValue).setIsCached(false);
+        } else {
+            // The removed entry is a standard BitmapDrawable.
+            if (Utils.hasHoneycomb()) {
+                // We're running on Honeycomb or later, so add the bitmap
+                // to a SoftReference set for possible use with inBitmap later.
+                mReusableBitmaps.add
+                        (new SoftReference<Bitmap>(oldValue.getBitmap()));
+            }
+        }
+    }
+....
+}
+
+public static Bitmap decodeSampledBitmapFromFile(String filename,
+        int reqWidth, int reqHeight, ImageCache cache) {
+
+    final BitmapFactory.Options options = new BitmapFactory.Options();
+    options.inJustDecodeBounds = true;
+    ...
+    BitmapFactory.decodeFile(filename, options);
+    ...
+
+    // If we're running on Honeycomb or newer, try to use inBitmap.
+    if (Utils.hasHoneycomb()) {
+        addInBitmapOptions(options, cache);
+    }
+     options.inJustDecodeBounds = false;
+    ...
+    return BitmapFactory.decodeFile(filename, options);
+}
+
+private static void addInBitmapOptions(BitmapFactory.Options options,
+        ImageCache cache) {
+    // inBitmap only works with mutable bitmaps, so force the decoder to
+    // return mutable bitmaps.
+    options.inMutable = true;
+
+    if (cache != null) {
+        // Try to find a bitmap to use for inBitmap.
+        Bitmap inBitmap = cache.getBitmapFromReusableSet(options);
+
+        if (inBitmap != null) {
+            // If a suitable bitmap has been found, set it as the value of
+            // inBitmap.
+            options.inBitmap = inBitmap;
+        }
+    }
+}
+
+// This method iterates through the reusable bitmaps, looking for one
+// to use for inBitmap:
+protected Bitmap getBitmapFromReusableSet(BitmapFactory.Options options) {
+
+    Bitmap bitmap = null;
+
+    if (mReusableBitmaps != null && !mReusableBitmaps.isEmpty()) {
+        synchronized (mReusableBitmaps) {
+            final Iterator<SoftReference<Bitmap>> iterator = mReusableBitmaps.iterator();
+            Bitmap item;
+
+            while (iterator.hasNext()) {
+                item = iterator.next().get();
+
+                if (null != item && item.isMutable()) {
+                    // Check to see it the item can be used for inBitmap.
+                    if (canUseForInBitmap(item, options)) {
+                        bitmap = item;
+
+                        // Remove from reusable set so it can't be used again.
+                        iterator.remove();
+                        break;
+                    }
+                } else {
+                    // Remove from the set if the reference has been cleared.
+                    iterator.remove();
+                }
+            }
+        }
+    }
+    return bitmap;
+}
+
+static boolean canUseForInBitmap( Bitmap candidate, BitmapFactory.Options targetOptions) {
+
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+        // From Android 4.4 (KitKat) onward we can re-use if the byte size of
+        // the new bitmap is smaller than the reusable bitmap candidate
+        // allocation byte count.
+        int width = targetOptions.outWidth / targetOptions.inSampleSize;
+        int height = targetOptions.outHeight / targetOptions.inSampleSize;
+        int byteCount = width * height * getBytesPerPixel(candidate.getConfig());
+        return byteCount <= candidate.getAllocationByteCount();
+    }
+
+    // On earlier versions, the dimensions must match exactly and the inSampleSize must be 1
+    return candidate.getWidth() == targetOptions.outWidth
+            && candidate.getHeight() == targetOptions.outHeight
+            && targetOptions.inSampleSize == 1;
+}
+
+/**
+ * A helper function to return the byte usage per pixel of a bitmap based on its configuration.
+ */
+static int getBytesPerPixel(Config config) {
+    if (config == Config.ARGB_8888) {
+        return 4;
+    } else if (config == Config.RGB_565) {
+        return 2;
+    } else if (config == Config.ARGB_4444) {
+        return 2;
+    } else if (config == Config.ALPHA_8) {
+        return 1;
+    }
+    return 1;
+}
+```
 
 ## BitmapFactory
 
@@ -188,5 +336,54 @@ if (drawable == null) {
     drawable = mResources.getDrawable(bgDefault);
 }
 ```
+
+## Bitmap对图像进行操作
+
+### Bitmap裁剪, 缩放，旋转，移动
+
+```java
+Bitmap.createBitmap(Bitmap source, int x, int y, int width, int height,Matrix m, boolean filter);
+
+Bitmap.createBitmap(Bitmap source, int x, int y, int width, int height) {
+    return createBitmap(source, x, y, width, height, null, false);
+}
+```
+
+#### 裁剪
+
+- x,y分别代表裁剪时，x轴和y轴的第一个像素，width，height分别表示裁剪后的图像的宽度和高度。
+- 注意：x+width要小于等于source的宽度，y+height要小于等于source的高度。
+
+#### 缩放，旋转，移动
+
+- m是一个Matrix（矩阵）对象，可以进行缩放，旋转，移动等动作
+- filter为true时表示source会被过滤，仅仅当m操作不仅包含移动操作，还包含别的操作时才适用
+
+```java
+// 定义矩阵对象
+ Matrix matrix = new Matrix();
+// 缩放图像
+matrix.postScale(0.8f, 0.9f);
+// 向左旋转（逆时针旋转）45度，参数为正则向右旋转（顺时针旋转）
+matrix.postRotate(-45);
+//移动图像
+//matrix.postTranslate(100,80);
+Bitmap bitmap = Bitmap.createBitmap(source, 0, 0, source.getWidth(), source.getHeight(),   matrix, true);
+```
+
+#### 注意
+
+- 这里的矩阵变换，并不是对bitmap的颜色进行矩阵变换，如果对bitmap的颜色
+ 进行矩阵变化，是通过Paint来实现的
+
+ ```java
+Canvas c = new Canvas(bitmap);
+Paint paint = new Paint();
+ColorMatrix cm = new ColorMatrix();
+cm.setSaturation(0);
+ColorMatrixColorFilter f = new ColorMatrixColorFilter(cm);
+paint.setColorFilter(f);
+c.drawBitmap(bitmap, 0, 0, paint);
+ ```
 
 

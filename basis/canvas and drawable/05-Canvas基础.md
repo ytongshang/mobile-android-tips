@@ -2,6 +2,15 @@
 
 [Android中Canvas绘图基础详解](http://blog.csdn.net/iispring/article/details/49770651)
 
+- [draw 2d graphics](#draw-2d-graphics)
+- [获得Canvas方法](#获得canvas方法)
+- [在View中绘制](#在view中绘制)
+- [on surfaceView](#on-surfaceview)
+- [坐标系](#坐标系)
+    - [Canvas坐标系](#canvas坐标系)
+    - [绘图坐标系](#绘图坐标系)
+
+
 ## draw 2d graphics
 
 - 对于不需要经常动态改变的或者不是太在意性能的2d图形绘制，一般在一个view对象中绘制,重写onDraw方法

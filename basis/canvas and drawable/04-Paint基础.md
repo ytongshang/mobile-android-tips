@@ -1,5 +1,18 @@
 # Paint基础
 
+- [构造函数](#构造函数)
+- [Paint.Style](#paintstyle)
+- [Paint.Cap](#paintcap)
+- [Paint.Join](#paintjoin)
+- [Paint.Align](#paintalign)
+- [其它常用方法](#其它常用方法)
+- [setColorFilter(ColorFilter filter)](#setcolorfiltercolorfilter-filter)
+    - [ColorMatrixColorFilter](#colormatrixcolorfilter)
+        - [Fresco中的灰度处理](#fresco中的灰度处理)
+    - [LightingColorFilter](#lightingcolorfilter)
+    - [PorterDuffColorFilter](#porterduffcolorfilter)
+
+
 ## 构造函数
 
 ```java
