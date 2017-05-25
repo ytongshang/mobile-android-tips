@@ -225,7 +225,7 @@ public class GrayPostprocessor extends BasePostprocessor {
 
 ### LightingColorFilter
 
-- 顾名思义光照颜色过滤，这肯定是跟光照是有关的了。该类有且只有一个构造方法：
+- 光照颜色过滤,该类有且只有一个构造方法：
 
 ```java
 LightingColorFilter (int mul, int add);
@@ -233,22 +233,29 @@ LightingColorFilter (int mul, int add);
 
 - mul全称是colorMultiply意为色彩倍增，而add全称是colorAdd意为色彩添加，这两个值都是16进制的色彩值0xAARRGGBB。
 
+- 最后生成的颜色计算方法为
+
+```java
+ newR = R * colorMultiply.R + colorAdd.R;
+ newG = G * colorMultiply.G + colorAdd.G;
+ newB = B * colorMultiply.B + colorAdd.B;
+```
+
+- LightingColorFilter(0xFFFFFFFF, 0x00000000)的时候原图是不会有任何改变的，如果我们想增加红色的值，那么LightingColorFilter(0xFFFFFFFF, 0x00XX0000)就好，其中XX取值为00至FF
+
 ```java
 // 我们想要去掉绿色
 @Override
-    protected void onDraw(Canvas canvas) {
-        super.onDraw(canvas);
+protected void onDraw(Canvas canvas) {
+    super.onDraw(canvas);
 
-        // 设置颜色过滤
-        mPaint.setColorFilter(new LightingColorFilter(0xFFFF00FF, 0x00000000));
+    // 设置颜色过滤
+    mPaint.setColorFilter(new LightingColorFilter(0xFFFF00FF, 0x00000000));
 
-        Bitmap bitmap = BitmapFactory.decodeResource(mContext.getResources(), R.drawable.kale);
-        canvas.drawBitmap(bitmap,240,600,mPaint);
-    }
+    Bitmap bitmap = BitmapFactory.decodeResource(mContext.getResources(), R.drawable.kale);
+    canvas.drawBitmap(bitmap,240,600,mPaint);
+}
 ```
-
-- 运行后你会发现绿色确实是没了但是原来偏绿的部分现在居然成了红色，当LightingColorFilter(0xFFFFFFFF, 0x00000000)的时候原图是不会有任何改变的
-- 如果我们想增加红色的值，那么LightingColorFilter(0xFFFFFFFF, 0x00XX0000)就好，其中XX取值为00至FF。
 
 ### PorterDuffColorFilter
 

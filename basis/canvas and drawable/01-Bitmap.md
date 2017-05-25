@@ -1,5 +1,21 @@
 # Bitmap详解
 
+- [BitmapOptions](#bitmapoptions)
+    - [BitmapOptions参数](#bitmapoptions参数)
+    - [inBitmap](#inbitmap)
+- [BitmapFactory](#bitmapfactory)
+    - [解析方法](#解析方法)
+    - [decodeResource](#decoderesource)
+    - [setDensityFromOptions](#setdensityfromoptions)
+    - [inDensity与inTargetDensity的应用](#indensity与intargetdensity的应用)
+- [Bitmap对图像进行操作](#bitmap对图像进行操作)
+    - [Bitmap裁剪, 缩放，旋转，移动](#bitmap裁剪-缩放旋转移动)
+        - [裁剪](#裁剪)
+        - [缩放，旋转，移动](#缩放旋转移动)
+        - [注意](#注意)
+    - [Bitmap其它常用函数](#bitmap其它常用函数)
+
+
 ## BitmapOptions
 
 ### BitmapOptions参数
@@ -28,7 +44,8 @@ mCancel | 解析bitmap是否被取消掉了，可以通过requestCancelDecode()�
 
 - 假如设置了Options.inBitmap的这个字段，在解码Bitmap的时候，系统会去重用inBitmap设置的Bitmap，减少内存的分配和释放，提高了应用的性能
 - **设置的inBitmap必须inMutable为true**
-- 在Android 4.4之前，BitmapFactory.Options.inBitmap设置的Bitmap必须和我们需要解码的Bitmap的大小一致才行，
+- 在Android 4.4之前，BitmapFactory.Options.inBitmap设置的Bitmap必须和我们需要解码的Bitmap的大小完全一致才行，
+ **也就是宽高要一样，并且inSampleSize也必须为1**
 - 在Android4.4以后，BitmapFactory.Options.inBitmap设置的Bitmap的getAllocationByteCount必须要大于等于能解码的Bitmap的getByteCount
 
 [Managing Bitmap Memory](https://developer.android.com/topic/performance/graphics/manage-memory.html)
@@ -347,6 +364,8 @@ Bitmap.createBitmap(Bitmap source, int x, int y, int width, int height,Matrix m,
 Bitmap.createBitmap(Bitmap source, int x, int y, int width, int height) {
     return createBitmap(source, x, y, width, height, null, false);
 }
+
+Bitmap createScaledBitmap(Bitmap src, int dstWidth,int dstHeight, boolean filter)
 ```
 
 #### 裁剪
@@ -386,4 +405,74 @@ paint.setColorFilter(f);
 c.drawBitmap(bitmap, 0, 0, paint);
  ```
 
+## Bitmap其它使用技能
+
+### 部分函数
+
+```java
+// 将位图的压缩到指定的OutputStream，可以理解成将Bitmap保存到文件中！
+public boolean compress (Bitmap.CompressFormat format, int quality, OutputStream stream)
+
+// 回收位图占用的内存空间，把位图标记为Dead
+void recycle()
+
+// 判断位图是否recycled
+boolean isRecycled()
+
+// 获取位图的宽度
+int getWidth()
+
+// 获取位图的高度
+int getHeight()
+
+// 图片是否可修改，如果想用setPixel修改bitmap，这个必须返回true
+boolean isMutable()
+
+// 获取指定密度转换后的图像的宽度
+int getScaledWidth(Canvas canvas)
+
+// 获取指定密度转换后的图像的高度
+int getScaledHeight(Canvas canvas)
+```
+
+### Bitmap的大小
+
+- 如果bitmap设置了inDensity并且也设置了inTargetDensity,那么这个bitmap的大小就应当是
+    **它占用的内存 = width * height * nTargetDensity/inDensity * nTargetDensity/inDensity * 一个像素所占的内存**
+
+- decodeResource方法会默认使用资源所处文件夹对应密度和手机系统密度进行缩放之外
+- 别的解码方法默认都不会。此时Bitmap默认占用的内存 = width * height * 一个像素所占的内存
+
+### getByteCount()
+
+- 在API12加入的，代表存储Bitmap的色素需要的最少内存
+- **在API19以后，看bitmap占用了多大的内存空间，应当调用getAllocationByteCount()**
+
+```java
+public final int getByteCount() {
+    // int result permits bitmaps up to 46,340 x 46,340
+    return getRowBytes() * getHeight();
+}
+```
+
+### getAllocationByteCount()
+
+- 在API19加入的，代表在内存中为Bitmap分配的内存大小。
+- 一般情况下，getByteCount与getAllocationByteCount大小是一致的，
+- 在以下情况下两者会不一样
+    - 解析Bitmap时设置了inBitmap来解析更小的bitmap
+    - 调用了reconfigure(int, int, Config)
+    - 调用了setWidth(int)
+    - setHeight(int)
+    - setConfig(Bitmap.Config)}
+
+```java
+public final int getAllocationByteCount() {
+    if (mBuffer == null) {
+        //mBuffer代表存储Bitmap像素数据的字节数组。
+        return getByteCount();
+    }
+    return mBuffer.length;
+}
+```
 
