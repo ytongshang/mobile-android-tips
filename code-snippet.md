@@ -9,6 +9,7 @@
 - [bitmap的平铺](#bitmap的平铺)
 - [监听Home键](#监听home键)
 - [悬浮窗类型](#悬浮窗类型)
+- [App启动黑屏解决办法](#app启动黑屏解决办法)
 
 
 ## 获得资源id
@@ -280,4 +281,39 @@ if (Build.VERSION.SDK_INT >= 19 && Build.VERSION.SDK_INT < 24) {
     mWindowManagerParams.type = WindowManager.LayoutParams.TYPE_SYSTEM_ALERT;
 }
 
+```
+
+## App启动黑屏解决办法
+
+[Android启动页黑屏及最优解决方案](https://juejin.im/post/58ad90518ac2472a2ad9b684)
+
+- 在启动的Activity的主题中设置windowBackground为具体的图片资源
+- 必须为图片资，也可以是可以解决为bitmap的资源
+
+```xml
+<style name="APPTheme" parent="@android:style/Theme.Holo.NoActionBar">
+    <item name="android:windowBackground">@drawable/splash_icon</item>
+</style>
+
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android"
+    android:opacity="opaque">
+    <item android:drawable="@color/white"/>
+    <item>
+        <bitmap
+            android:gravity="center"
+            android:src="@drawable/qq"/>
+    </item>
+</layer-list>
+```
+
+- 启动完成之后，设置windowbackground为null
+
+```java
+@Override
+protected void onCreate(@Nullable Bundle savedInstanceState) {
+    //将window的背景图设置为空
+    getWindow().setBackgroundDrawable(null);
+    super.onCreate(savedInstanceState);
+}
 ```
