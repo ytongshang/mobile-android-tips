@@ -231,22 +231,22 @@ public static float lerp(float start, float stop, float amount) {
 - **AnimatedRotateDrawale类被标记为@hide的，不能通过代码使用，只能通过xml使用**
 
 ```xml
+<!--im_message_progress_bar.xml-->
 <?xml version="1.0" encoding="utf-8"?>
 <animated-rotate xmlns:android="http://schemas.android.com/apk/res/android"
     android:pivotX="50%"
     android:pivotY="50%"
-    android:drawable="@drawable/fifth">
+    android:drawable="@drawable/im_message_loading">
 </animated-rotate>
 ```
 
 ```java
-<TextView
-    android:layout_centerInParent="true"
-    android:gravity="center"
-    android:background="@drawable/animated_rotate_drawable"
-    android:id="@+id/tv"
-    android:layout_width="200dp"
-    android:layout_height="200dp"/>
+<ProgressBar
+    android:id="@+id/progress_bar"
+    android:layout_width="20dp"
+    android:layout_height="20dp"
+    android:layout_gravity="center_horizontal"
+    android:indeterminateDrawable="@drawable/im_message_progress_bar" />
 ```
 
 ## RippleDrawable
