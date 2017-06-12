@@ -10,7 +10,6 @@
     - [具体的动画插值 器](#具体的动画插值-器)
 - [注意](#注意)
 
-
 - alpha,rotate,scale, translate
 
 ## Animation公共属性
@@ -28,9 +27,7 @@ android:repeatMode      | android:repeatMode            | 重复类型有两个�
 android:startOffset     | setStartOffset(long)          | 调用start函数之后等待开始运行的时间，单位为毫秒
 android:zAdjustment     | setZAdjustment(int)           | 表示被设置动画的内容运行时在Z轴上的位置（top/bottom/normal)
 
-
 - 当我们对set标签使用Animation的属性时会对该标签下的所有子动画都产生影响
-
 
 ## 具体动画属性
 
@@ -93,7 +90,6 @@ Header One                          | Header Two
 startAnimation(Animation animation) | 对当前View开始设置的Animation动画
 clearAnimation()                    | 取消当View在执行的Animation动画
 
-
 ```java
 ImageView spaceshipImage = (ImageView) findViewById(R.id.spaceshipImage);
 Animation hyperspaceJumpAnimation = AnimationUtils.loadAnimation(this,R.anim.hyperspace_jump);
@@ -124,4 +120,3 @@ PathInterpolator                 |                                              
 ## 注意
 
 - 补间动画执行之后并未改变View的真实布局属性值。切记这一点，譬如我们在Activity中有一个Button在屏幕上方，我们设置了平移动画移动到屏幕下方然后保持动画最后执行状态呆在屏幕下方，这时如果点击屏幕下方动画执行之后的Button是没有任何反应的，而点击原来屏幕上方没有Button的地方却响应的是点击Button的事件
-

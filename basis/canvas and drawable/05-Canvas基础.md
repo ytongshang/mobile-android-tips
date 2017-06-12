@@ -10,11 +10,10 @@
     - [Canvas坐标系](#canvas坐标系)
     - [绘图坐标系](#绘图坐标系)
 
-
 ## draw 2d graphics
 
 - 对于不需要经常动态改变的或者不是太在意性能的2d图形绘制，一般在一个view对象中绘制,重写onDraw方法
-- 对于需要经常重绘的图形，一般直接通过Canvas对象绘帛，一种是直接调用对应对象的draw法，比如BitmapDraw.draw方法，
+- 对于需要经常重绘的图形，一般直接通过Canvas对象绘制，一种是直接调用对应对象的draw法，比如Bitmap的draw方法，
  另一种方法是调用Canvas对应的draw方法
 
 ## 获得Canvas方法

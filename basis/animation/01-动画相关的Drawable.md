@@ -14,7 +14,6 @@
     - [Ripple With No Mask（没有边界的Ripple）](#ripple-with-no-mask没有边界的ripple)
 - [AnimatedListStateDrawable](#animatedliststatedrawable)
 
-
 ## AnimationDrawable
 
 ### 使用AnimationDrawable

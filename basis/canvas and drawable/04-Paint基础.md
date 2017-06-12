@@ -12,7 +12,6 @@
     - [LightingColorFilter](#lightingcolorfilter)
     - [PorterDuffColorFilter](#porterduffcolorfilter)
 
-
 ## 构造函数
 
 ```java
@@ -31,8 +30,9 @@ Paint(Paint paint);
 - Paint.Style.FILL：填充内部
 - Paint.Style.FILL_AND_STROKE  ：填充内部和描边
 - Paint.Style.STROKE  ：描边
+- 其中**STROKE注意是外描边**
 
-![Paint.Style](./../../image-resources/paint_style.png)
+![Paint.Style](./../../image-resources/paint_style.jpg)
 
 ## Paint.Cap
 
@@ -257,6 +257,79 @@ protected void onDraw(Canvas canvas) {
 }
 ```
 
+### 颜色混合模式
+
+[安卓自定义View基础-颜色](http://www.gcssloop.com/customview/Color)
+
+- 当一个颜色绘制到Canvas上时的混合模式是这样计算的：
+ **(RGB通道) 最终颜色 = 绘制的颜色 + (1 - 绘制颜色的透明度) × Canvas上的原有颜色。**
+    - 这里我们一般把每个通道的取值从0(ox00)到255(0xff)映射到0到1的浮点数表示。
+    - 这里等式右边的“绘制的颜色”、“Canvas上的原有颜色” 都是经过预乘了自己的Alpha通道的值。
+     如绘制颜色：0x88ffffff，那么参与运算时的每个颜色通道的值不是1.0，而是(1.0 * 0.5333 = 0.5333)。 (其中0.5333 = 0x88/0xff)
+- 使用这种方式的混合，就会造成后绘制的内容以半透明的方式叠在上面的视觉效果
+
+#### PorterDuff.Mode
+
+- 其实还可以有不同的混合模式供我们选择，用Paint.setXfermode，指定不同的PorterDuff.Mode。
+
+- PorterDuff.Mode混合计算公式：（D指原本在Canvas上的内容dst，S指绘制输入的内容src，a指alpha通道，c指RGB各个通道）
+
+```java
+public enum Mode {
+        /** [0, 0] */
+        CLEAR       (0),
+        /** [Sa, Sc] */
+        SRC         (1),
+        /** [Da, Dc] */
+        DST         (2),
+        /** [Sa + (1 - Sa)*Da, Rc = Sc + (1 - Sa)*Dc] */
+        SRC_OVER    (3),
+        /** [Sa + (1 - Sa)*Da, Rc = Dc + (1 - Da)*Sc] */
+        DST_OVER    (4),
+        /** [Sa * Da, Sc * Da] */
+        SRC_IN      (5),
+        /** [Sa * Da, Sa * Dc] */
+        DST_IN      (6),
+        /** [Sa * (1 - Da), Sc * (1 - Da)] */
+        SRC_OUT     (7),
+        /** [Da * (1 - Sa), Dc * (1 - Sa)] */
+        DST_OUT     (8),
+        /** [Da, Sc * Da + (1 - Sa) * Dc] */
+        SRC_ATOP    (9),
+        /** [Sa, Sa * Dc + Sc * (1 - Da)] */
+        DST_ATOP    (10),
+        /** [Sa + Da - 2 * Sa * Da, Sc * (1 - Da) + (1 - Sa) * Dc] */
+        XOR         (11),
+        /** [Sa + Da - Sa*Da,
+             Sc*(1 - Da) + Dc*(1 - Sa) + min(Sc, Dc)] */
+        DARKEN      (16),
+        /** [Sa + Da - Sa*Da,
+             Sc*(1 - Da) + Dc*(1 - Sa) + max(Sc, Dc)] */
+        LIGHTEN     (17),
+        /** [Sa * Da, Sc * Dc] */
+        MULTIPLY    (13),
+        /** [Sa + Da - Sa * Da, Sc + Dc - Sc * Dc] */
+        SCREEN      (14),
+        /** Saturate(S + D) */
+        ADD         (12),
+        OVERLAY     (15);
+
+        Mode(int nativeInt) {
+            this.nativeInt = nativeInt;
+        }
+
+        /**
+         * @hide
+         */
+        public final int nativeInt;
+    }
+
+```
+
+- 用示例图来查看使用不同模式时的混合效果如下（src表示输入的图，dst表示原Canvas上的内容）：
+
+![PorterDuff.Mode](./../../image-resources/PorterDuff.Mode.jpg)
+
 ### PorterDuffColorFilter
 
 - PorterDuffColorFilter跟LightingColorFilter一样，只有一个构造方法：
@@ -265,10 +338,9 @@ protected void onDraw(Canvas canvas) {
 PorterDuffColorFilter(int color, PorterDuff.Mode mode)
 ```
 
-- 这个构造方法也接受两个值，一个是16进制表示的颜色值这个很好理解，而另一个是PorterDuff内部类Mode中的一个常量值，这个值表示混合模式。
+- 这个构造方法也接受两个值，一个是16进制表示的颜色值，而另一个是PorterDuff内部类Mode中的一个常量值，这个值表示混合模式。
 
-- 那么什么是混合模式呢？混合混合必定是有两种东西混才行，第一种就是我们设置的color值而第二种当然就是我们画布上的元素了！
- 也就是说将画布上的元素和我们设置的color进行混合，产生最终的效果。
+- 将画布上的元素和我们设置的color进行混合，产生最终的效果。
 
 ```java
 @Override
@@ -276,7 +348,7 @@ PorterDuffColorFilter(int color, PorterDuff.Mode mode)
         super.onDraw(canvas);
 
         // 设置颜色过滤
-        mPaint.setColorFilter(new PorterDuffColorFilter(Color.RED, PorterDuff.Mode.DARKEN));  
+        mPaint.setColorFilter(new PorterDuffColorFilter(Color.RED, PorterDuff.Mode.DARKEN));
 
         Bitmap bitmap = BitmapFactory.decodeResource(mContext.getResources(), R.drawable.kale);
         canvas.drawBitmap(bitmap,240,600,mPaint);
@@ -284,4 +356,3 @@ PorterDuffColorFilter(int color, PorterDuff.Mode mode)
 ```
 
 - 但是这里要注意一点，PorterDuff.Mode中的模式不仅仅是应用于图像色彩混合，还应用于图形混合，比如PorterDuff.Mode.DST_OUT就表示裁剪混合图。
-
