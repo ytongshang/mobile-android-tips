@@ -66,3 +66,36 @@ drawable.draw(canvas);
 ```
 
 ## drawBitmap
+
+### 方法1
+
+```java
+public void drawBitmap (Bitmap bitmap, Matrix matrix, Paint paint)
+```
+
+- 方法中后两个参数(matrix, paint)是在绘制的时候对图片进行一些改变
+
+### 方法2
+
+```java
+public void drawBitmap(@NonNull Bitmap bitmap, float left, float top, @Nullable Paint paint) 
+```
+
+- 在绘制时指定了图片左上角的坐标(距离坐标原点的距离)
+
+### 方法3
+
+```java
+public void drawBitmap(@NonNull Bitmap bitmap, @Nullable Rect src, @NonNull RectF dst, @Nullable Paint paint)
+
+public void drawBitmap(@NonNull Bitmap bitmap, @Nullable Rect src, @NonNull Rect dst,@Nullable Paint paint)
+```
+
+名称                 | 作用
+---------------------|----------------------------------
+Rect src             | 指定绘制图片的区域
+Rect dst 或RectF dst | 指定图片在屏幕上显示(绘制)的区域
+
+- 用src指定了原图片需要绘制的区域，然后用dst指定了绘制到屏幕上的区域，**图片宽高会根据指定的区域自动进行缩放**
+
+****

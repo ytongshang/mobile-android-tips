@@ -15,7 +15,6 @@
         - [注意](#注意)
     - [Bitmap其它常用函数](#bitmap其它常用函数)
 
-
 ## BitmapOptions
 
 ### BitmapOptions参数
