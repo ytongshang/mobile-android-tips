@@ -116,7 +116,6 @@ signingConfigs {
 - 一个android stuido工程有多个library project,在每个library project都定义了混淆配置，
  **最后还必须将library的混淆复制到主工程的混淆配置中**
 
-
 ## adb查看最上层的activity
 
 - 查看最上面的activity

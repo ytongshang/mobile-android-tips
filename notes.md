@@ -17,3 +17,42 @@
 
 - 当Fragment配合ViewPager使用时，使用setUserVisibleHint()判断Fragment是显示还是隐藏。
 - 当Fragment配合FragmentTransition使用时，使用onHiddenChanged()来判断Fragment是显示还是隐藏，但是第一次显示要在onResume()里判断.
+
+## View的生命周期
+
+### onAttachedToWindow与onDetachedFromWindow
+
+```java
+protected void onAttachedToWindow()
+protected void onDetachedFromWindow()
+```
+
+- onAttachedToWindow与onDetachedFromWindow分别会在View add到WindowManager，从windowManager remove后回调
+- 一般我们会在onAttachedToWindow初始化一些操作，比如动画等，在onDetachedFromWindow中取消一些动作，比如mHandler发送的消息
+
+### onStartTemporaryDetach与onFinishTemporaryDetach
+
+```java
+/**
+* This is called when a container is going to temporarily detach a child, with
+* {@link ViewGroup#detachViewFromParent(View) ViewGroup.detachViewFromParent}.
+* It will either be followed by {@link #onFinishTemporaryDetach()} or
+* {@link #onDetachedFromWindow()} when the container is done.
+*/
+public void onStartTemporaryDetach() {
+    removeUnsetPressCallback();
+    mPrivateFlags |= PFLAG_CANCEL_NEXT_UP_EVENT;
+}
+
+/**
+* Called after {@link #onStartTemporaryDetach} when the container is done
+* changing the view.
+*/
+public void onFinishTemporaryDetach() {
+}
+```
+
+- **当父布局ViewGroup调用detachViewFromParent(View child)，会回调onStartTemporaryDetach**
+- **当调用onStartTemporaryDetach后，接着一定会回调onFinishTemporaryDetach或者回调onDetchedFromWindow**
+- detach的childView再次调用attachViewToParent(View, int, ViewGroup.LayoutParams) add到parent上，会回调onFinishTemporaryDetach，**此时childView实际上是attached的**
+- detach的childView再次调用removeDetachedView(View, boolean)，会回调onDetchedFromWindow，**此时childView是detched的**
