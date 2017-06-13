@@ -78,7 +78,7 @@ public void drawBitmap (Bitmap bitmap, Matrix matrix, Paint paint)
 ### 方法2
 
 ```java
-public void drawBitmap(@NonNull Bitmap bitmap, float left, float top, @Nullable Paint paint) 
+public void drawBitmap(@NonNull Bitmap bitmap, float left, float top, @Nullable Paint paint)
 ```
 
 - 在绘制时指定了图片左上角的坐标(距离坐标原点的距离)
@@ -98,4 +98,99 @@ Rect dst 或RectF dst | 指定图片在屏幕上显示(绘制)的区域
 
 - 用src指定了原图片需要绘制的区域，然后用dst指定了绘制到屏幕上的区域，**图片宽高会根据指定的区域自动进行缩放**
 
-****
+## Canvas的Text绘制
+
+### Paint.FontMetrics
+
+[FontMetrics](https://stackoverflow.com/questions/27631736/meaning-of-top-ascent-baseline-descent-bottom-and-leading-in-androids-font)
+
+```java
+public static class FontMetrics {
+    /**
+    * The maximum distance above the baseline for the tallest glyph in
+    * the font at a given text size.
+    */
+    public float   top;
+    /**
+    * The recommended distance above the baseline for singled spaced text.
+    */
+    public float   ascent;
+    /**
+    * The recommended distance below the baseline for singled spaced text.
+    */
+    public float   descent;
+    /**
+    * The maximum distance below the baseline for the lowest glyph in
+    * the font at a given text size.
+    */
+    public float   bottom;
+    /**
+    * The recommended additional space to add between lines of text.
+    */
+    public float   leading;
+}
+```
+
+![FontMetrics](./../../image-resources/FontMetrics.png)
+
+- **BaseLine**：基准线
+- **Ascent**:baseline到字符最高处的距离
+- **descent**:baseline到字符最低处的距离
+- **Leading**：文档说的很含糊，不太确定，可以认为是一行的bottom到下一行的top之间的距离
+- **Top**：指的是该textsize时，字体中最高字符到baseline的值，即ascent的最大值
+- **Bottom**：指的是该textsize时，字体中最低字符到baseline的值，即descent的最大值
+
+- **因为坐标系的关系，baseline向下为正，向右为正，所以bottom与top之间的距离应当为bottom-top**
+
+### drawText
+
+```java
+// 第一类
+public void drawText(@NonNull String text, float x, float y, @NonNull Paint paint)
+public void drawText(@NonNull String text, int start, int end, float x, float y, @NonNull Paint paint)
+public void drawText(@NonNull CharSequence text, int start, int end, float x, float y,@NonNull Paint paint)
+public void drawText(@NonNull char[] text, int index, int count, float x, float y,@NonNull Paint paint)
+
+// 第二类
+@Deprecated
+public void drawPosText(@NonNull String text, @NonNull @Size(multiple=2) float[] pos, @NonNull Paint paint)
+
+@Deprecated
+public void drawPosText(@NonNull char[] text, int index, int count,
+            @NonNull @Size(multiple=2) float[] pos,@NonNull Paint paint)
+
+// 第三类
+public void drawTextOnPath (String text, Path path, float hOffset, float vOffset, Paint paint)
+public void drawTextOnPath (char[] text, int index, int count, Path path, float hOffset, float vOffset, Paint paint)
+```
+
+- 绘制文字时，文字的位置由Canvas确定，但是文字的大小，字体等由Paint确定
+
+标题 | 相关方法                  | 备注
+-----|---------------------------|-----------------------------------------------------
+色彩 | setColor setARGB setAlpha | 设置颜色，透明度
+大小 | setTextSize               | 设置文本字体大小
+字体 | setTypeface               | 设置或清除字体样式
+样式 | setStyle                  | 填充(FILL),描边(STROKE),填充加描边(FILL_AND_STROKE)
+对齐 | setTextAlign              | 左对齐(LEFT),居中对齐(CENTER),右对齐(RIGHT)
+测量 | measureText               | 测量文本大小(注意，请在设置完文本各项参数后调用)
+
+### 第一类
+
+- 第一类可以指定了文本开始的位置，可以截取文本中部分内容进行绘制
+- **基线x默认在字符串左侧，基线y也就是文本的FontMetrics的baseLine的位置**
+
+### 第二类
+
+- **必须指定每一个字符的位置，来绘制文本**
+- 不建议使用，标记为Deprecated
+
+序号 | 反对理由
+-----|-------------------------------------------------
+1    | 必须指定所有字符位置，否则直接crash掉，反人类设计
+2    | 性能不佳，在大量使用的时候可能导致卡顿
+3    | 不支持emoji等特殊字符，不支持字形组合与分解
+
+### 第三类
+
+- 与 Path相关
