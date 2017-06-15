@@ -6,7 +6,6 @@
 - [BehaviorSubject](#behaviorsubject)
 - [AsyncSubject](#asyncsubject)
 
-
 ## Subject类型
 
 - 继承了Observable，也实现了Observer接口
@@ -35,12 +34,12 @@ PublishSubject<Integer> subject = PublishSubject.create();
 
 ## ReplaySubject
 
-- ReplaySubject 可以缓存所有发射给他的数据。当一个新的订阅者订阅的时候，缓存的所有数据都会发射给这个订阅者。 由于使用了缓存，所以每个订阅者都会收到所有的数据。 
+- ReplaySubject 可以缓存所有发射给他的数据。当一个新的订阅者订阅的时候，缓存的所有数据都会发射给这个订阅者。 由于使用了缓存，所以每个订阅者都会收到所有的数据
 - 缓存所有的数据并不是一个十分理想的情况，如果 Observable 事件流运行很长时间，则缓存所有的数据会消耗很多内存。
 - 可以限制缓存数据的数量和时间。 ReplaySubject.createWithSize 限制缓存多少个数据；而 ReplaySubject.createWithTime 限制一个数据可以在缓存中保留多长时间。
 
 ```java
-ReplaySubject<Integer> s = ReplaySubject.create();  
+ReplaySubject<Integer> s = ReplaySubject.create();
 s.subscribe(v -> System.out.println("Early:" + v));
 s.onNext(0);
 s.onNext(1);
@@ -85,4 +84,3 @@ s.onCompleted();
 
 2
 ```
-
