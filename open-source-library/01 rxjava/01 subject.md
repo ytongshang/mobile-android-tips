@@ -6,6 +6,10 @@
 - [BehaviorSubject](#behaviorsubject)
 - [AsyncSubject](#asyncsubject)
 
+## Rxjava2
+
+- 在Rxjava2中对应着Processor
+
 ## Subject类型
 
 - 继承了Observable，也实现了Observer接口
