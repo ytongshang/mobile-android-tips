@@ -316,3 +316,43 @@ protected void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
 }
 ```
+
+## ManifestPlaceHolder
+
+- AndroidManifest.xml中的占位符可以用build.gralde中预先定义好的key-value替换
+
+```xml
+<intent-filter ... >
+    <data android:scheme="http" android:host="${hostName}" ... />
+    ...
+</intent-filter>
+```
+
+```groovy
+android {
+    defaultConfig {
+        manifestPlaceholders = [hostName:"www.example.com"]
+    }
+    ...
+}
+```
+
+- **android studio中还内置了一个默认的placeHolder ${applicationId}**，并且这个值等于最终生成的applicationId
+- 如果我们的library中需要唯一的标识符，可以使用${applicationId}
+
+```xml
+<!--library中定义了启动该activity的隐式intent filter的action
+  当我们不同的app都使用了这个模块，因为不同的app最终的applicaionId是不同的，最终的action也是不一样的，
+  调用时就只会弹出有一个activity响应该intent-->
+<activity
+    android:name="tv.chushou.record.mine.login.LoginActivity"
+    android:configChanges="screenSize|orientation|keyboardHidden"
+    android:launchMode="singleTask"
+    android:theme="@style/CommonAppTheme"
+    android:screenOrientation="portrait">
+    <intent-filter>
+        <action android:name="${applicationId}.login"/>
+        <category android:name="android.intent.category.DEFAULT"/>
+    </intent-filter>
+</activity>
+```

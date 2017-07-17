@@ -2,6 +2,9 @@
 
 - [android:screenOrientation](#androidscreenorientation)
 - [Fragment的显示与否监听](#fragment的显示与否监听)
+- [View的生命周期](#view的生命周期)
+    - [onAttachedToWindow与onDetachedFromWindow](#onattachedtowindow与ondetachedfromwindow)
+    - [onStartTemporaryDetach与onFinishTemporaryDetach](#onstarttemporarydetach与onfinishtemporarydetach)
 
 ## android:screenOrientation
 
