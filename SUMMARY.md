@@ -4,8 +4,8 @@
 
 ## android-code-style
 
-    * [activity](basis/component/activity/activity.md)
-    * [activity](basis/component/activity/activity.md)
+* [Android代码规范](android-code-style/Android代码规范.md)
+* [代码规范](android-code-style/代码规范.md)
 
 ## basis
 
