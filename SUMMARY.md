@@ -10,6 +10,7 @@
         * [intent](basis/component/activity/intent.md)
         * [process](basis/component/activity/process.md)
         * [task](basis/component/activity/task.md)
+
     * Fragment
          * [Fragment](basis/component/fragment/fragment.md)
 
