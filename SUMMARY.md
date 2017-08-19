@@ -89,3 +89,22 @@
 * [17 享元模式](design-pattern/17 享元模式.md)
 * [18 外观模式](design-pattern/18 外观模式.md)
 * [19 桥接模式](design-pattern/19 桥接模式.md)
+
+## google-training-notes
+
+* [01_permission](google-training-notes/01_permission.md)
+
+## jni
+
+* [jni开发](jni/Jni开发.md)
+
+## material-design
+
+* [CoordinatorLayout](material-design/CoordinatorLayout.md)
+* [DesignSupportLibrary](material-design/DesignSupportLibrary.md)
+* [DrawerLayout](material-design/DrawerLayout.md)
+
+## open-source-library
+
+* 01 rxjava
+    * [01 subject](open-source-library/01 rxjava/01 subject.md)
