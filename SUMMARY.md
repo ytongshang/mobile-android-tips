@@ -4,11 +4,12 @@
 
 ## basis
 
-* Activity
-    * [activity](basis/component/activity/activity.md)
-    * [intent](basis/component/activity/intent.md)
-    * [process](basis/component/activity/process.md)
-    * [task](basis/component/activity/task.md)
+* Component
+    * Activity
+        * [activity](basis/component/activity/activity.md)
+        * [intent](basis/component/activity/intent.md)
+        * [process](basis/component/activity/process.md)
+        * [task](basis/component/activity/task.md)
 
 ## Animation
 
