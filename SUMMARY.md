@@ -20,7 +20,7 @@
         * [process](basis/component/activity/process.md)
         * [task](basis/component/activity/task.md)
     * Fragment
-        * [Fragment](basis/component/fragment/fragment.md)
+        * [Fragment](basis/component/fragment/Fragment.md)
     * Service
         * [Service](basis/component/service/service.md)
     * [Context](basis/component/Context.md)
