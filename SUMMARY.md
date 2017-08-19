@@ -5,7 +5,6 @@
 ## basis
 
 * Component
-    * [Context](basis/component/Context.md)
     * Activity
         * [activity](basis/component/activity/activity.md)
         * [intent](basis/component/activity/intent.md)
@@ -15,6 +14,7 @@
         * [Fragment](basis/component/fragment/fragment.md)
     * Service
         * [Service](basis/component/service/service.md)
+    * [Context](basis/component/Context.md)
 
 * Animation
     * [01-动画相关的Drawable](basis/animation/01-动画相关的Drawable.md)
