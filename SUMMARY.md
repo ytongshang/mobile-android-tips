@@ -30,3 +30,12 @@
     * [05-Canvas基础](basis/canvas and drawable/05-Canvas基础.md)
     * [06-Canvas画布操作](basis/canvas and drawable/06-Canvas画布操作.md)
     * [07-Canvas图片文字](basis/canvas and drawable/07-Canvas图片文字.md)
+
+* draw views
+    * [01-View的绘制流程](basis/draw views/01-View的绘制流程.md)
+    * [02-OnMeassure](basis/draw views/02-OnMeassure.md)
+
+* system service
+    * [01 AppOpsManager](basis/system service/01 AppOpsManager.md)
+    * [02 UsageStatsManager](basis/system service/02 UsageStatsManager.md)
+    * [03 PowerManager](basis/system service/03 PowerManager.md)
