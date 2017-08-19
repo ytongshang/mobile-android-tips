@@ -39,3 +39,21 @@
     * [01 AppOpsManager](basis/system service/01 AppOpsManager.md)
     * [02 UsageStatsManager](basis/system service/02 UsageStatsManager.md)
     * [03 PowerManager](basis/system service/03 PowerManager.md)
+
+* touch events
+    * [00_Android中的坐标系](basis/touch events/00_Android中的坐标系.md)
+    * [01_View的滑动](basis/touch events/01_View的滑动.md)
+    * [02_MotionEvent](basis/touch events/02_MotionEvent.md)
+    * [03_手势识别](basis/touch events/03_手势识别.md)
+    * [04_事件分发基础](basis/touch events/04_事件分发基础.md)
+    * [05_activity事件分发](basis/touch events/05_activity事件分发.md)
+    * [06_View事件分发](basis/touch events/06_View事件分发.md)
+    * [07_ViewGroup事件分发](basis/touch events/07_ViewGroup事件分发.md)
+    * [08 滑动冲突解决](basis/touch events/08 滑动冲突解决.md)
+
+* widget
+    * [AdapterView](basis/widget/AdapterView.md)
+    * [EditText](basis/widget/EditText.md)
+    * [PopupWindow](basis/widget/PopupWindow.md)
+    * [TextView](basis/widget/TextView.md)
+    * [ViewPager](basis/widget/ViewPager.md)
