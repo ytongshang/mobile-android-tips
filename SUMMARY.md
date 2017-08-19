@@ -57,3 +57,7 @@
     * [PopupWindow](basis/widget/PopupWindow.md)
     * [TextView](basis/widget/TextView.md)
     * [ViewPager](basis/widget/ViewPager.md)
+
+* [Handler](basis/Handler.md)
+* [SystemBar](basis/SystemBar.md)
+* [Uri](basis/Uri.md)
