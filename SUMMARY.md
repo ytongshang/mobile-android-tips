@@ -70,10 +70,6 @@
 * jni
     * [jni开发](develop/jni/Jni开发.md)
 
-## google-training-notes
-
-* [01_permission](google-training-notes/01_permission.md)
-
 ## open-source-library
 
 * rxjava
@@ -86,6 +82,10 @@
     * [07 检查数据](open-source-library/rxjava/07 检查数据.md)
     * [08 聚合算术操作](open-source-library/rxjava/08 聚合算术操作.md)
     * [09 组合与算术](open-source-library/rxjava/09 组合与算术.md)
+
+## google-training-notes
+
+* [01_permission](google-training-notes/01_permission.md)
 
 ## third-party
 

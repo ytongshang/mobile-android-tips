@@ -135,5 +135,3 @@ gradlew -q app:dependencies
 ```
 
 其中app是指module的名字
-
-
