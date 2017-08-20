@@ -1,9 +1,6 @@
 # Summary
 
 * [Introduction](README.md)
-* [android-studio](android-studio.md)
-* [code-snippet](code-snippet.md)
-* [notes](notes.md)
 
 ## Basis
 
