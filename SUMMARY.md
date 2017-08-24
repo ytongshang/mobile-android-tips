@@ -49,7 +49,7 @@
 
 ## Component
 
-* Activity
+* [Activity](component/activity.md)
   * [activity](component/activity/activity.md)
   * [intent](component/activity/intent.md)
   * [process](component/activity/process.md)

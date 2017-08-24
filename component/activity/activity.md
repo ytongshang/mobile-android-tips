@@ -6,7 +6,7 @@
 
 ### 生命周期图解
 
-![activity生命周期](./../../../image-resources/activity_lifecycle.png)
+![activity生命周期](./../../image-resources/activity_lifecycle.png)
 
 ### 生命周期
 
@@ -38,7 +38,7 @@ onDestroy() | Called before the activity is destroyed. This is the final call th
 
 ### restore activity
 
-![restore activity](./../../../image-resources/activity_restore_instance.png)
+![restore activity](./../../image-resources/activity_restore_instance.png)
 
 - 正常情况下，当activity进入paused或都stopped状态的时候，activity状态、数据都会保存的, 当activity再次进入resumed状态的时候，可以还原原先的状态
 - 但是在极端情况下，activity会被销毁，系统会调用onSaveInstanceState()来保存当前Activity的状态
