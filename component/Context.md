@@ -2,7 +2,7 @@
 
 ## Context的应用场景
 
-![Context应用场景](./../../image-resources/Context的应用场景.jpg)
+![Context应用场景](./../image-resources/Context的应用场景.jpg)
 
 - 有一些NO上添加了一些数字，其实这些从能力上来说是可以的，下面一个一个解释：
     - 数字1：启动Activity在这些类中是可以的，但是需要创建一个新的task,也就是要设置Intent.FLAG_ACTIVITY_NEW_TASK
