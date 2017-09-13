@@ -88,4 +88,6 @@
 ## third-party
 
 * [third-party-notes](third-party/third-party-notes.md)
-
+* [android-studio](third-party/android-studio.md)
+* [code-snippet](third-party/code-snippet.md)
+* [notes](third-party/notes.md)
