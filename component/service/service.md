@@ -32,7 +32,7 @@
  ，Activity 便可启动服务进行音乐播放，即使用户离开应用，音乐播放也不会停止。 然后，当用户返回应用时，Activity 可绑定到服务，重新获得回放控制权
 
 
-![具有已启动和绑定两种状态的服务的生命周期](./../../../image-resources/service生命周期.PNG)
+![具有已启动和绑定两种状态的服务的生命周期](./../../image-resources/service生命周期.png)
 
 
 
@@ -285,7 +285,7 @@ public class ActivityMessenger extends Activity {
 
 ### 具有已启动和绑定两种状态的服务的生命周期
 
-![具有已启动和绑定两种状态的服务的生命周期](./../../../image-resources/已启动和绑定的Service.png)
+![具有已启动和绑定两种状态的服务的生命周期](./../../image-resources/已启动和绑定的Service.png)
 
 
 ## IntentService
