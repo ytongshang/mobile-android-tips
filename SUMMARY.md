@@ -81,6 +81,9 @@
   * [08 聚合算术操作](open-source-library/rxjava/08 聚合算术操作.md)
   * [09 组合与算术](open-source-library/rxjava/09 组合与算术.md)
 
+* fresco
+  * [01 BasePostprocessor](open-source-library/fresco/01 BasePostprocessor.md)
+
 ## google-training-notes
 
 * [01\_permission](google-training-notes/01_permission.md)
