@@ -3,6 +3,30 @@
 - [google LaunchModes](http://developer.android.com/guide/components/tasks-and-back-stack.html#LaunchModes)
 - [activity task相关](http://blog.csdn.net/liuhe688/article/details/6761337)
 
+- [Task](#task)
+- [Back-Stack](#back-stack)
+- [Task与Back-Stack的默认行为](#task与back-stack的默认行为)
+- [改变task与back stack默认行为](#改变task与back-stack默认行为)
+- [Manifest中定义launch mode](#manifest中定义launch-mode)
+    - [standard](#standard)
+    - [single top](#single-top)
+    - [single task](#single-task)
+    - [single instance](#single-instance)
+- [Intent flags](#intent-flags)
+    - [FLAG_ACTIVITY_NEW_TASK](#flag_activity_new_task)
+    - [FLAG_ACTIVITY_SINGLE_TOP](#flag_activity_single_top)
+    - [FLAG_ACTIVITY_CLEAR_TOP](#flag_activity_clear_top)
+    - [FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS](#flag_activity_exclude_from_recents)
+    - [FLAG_ACTIVITY_NO_HISTORY](#flag_activity_no_history)
+    - [FLAG_ACTIVITY_NO_USER_ACTION](#flag_activity_no_user_action)
+- [Handling affinities](#handling-affinities)
+    - [android:taskAffinity](#androidtaskaffinity)
+    - [allowTaskReparenting](#allowtaskreparenting)
+- [Clearing the back stack](#clearing-the-back-stack)
+    - [alwaysRetainTaskState](#alwaysretaintaskstate)
+    - [clearTaskOnLaunch](#cleartaskonlaunch)
+    - [finishOnTaskLaunch](#finishontasklaunch)
+
 ## Task
 
 - **任务是指在执行特定作业时与用户交互的一系列Activity**。 这些Activity按照各自的打开顺序排列在back-stack中。

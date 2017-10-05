@@ -1,5 +1,20 @@
 # service
 
+- [生命周期](#生命周期)
+    - [startService,stopService](#startservicestopservice)
+    - [bindService，unbindService](#bindserviceunbindservice)
+    - [具有已启动和绑定两种状态的服务](#具有已启动和绑定两种状态的服务)
+- [绑定服务](#绑定服务)
+    - [扩展Binder类](#扩展binder类)
+    - [使用messager](#使用messager)
+    - [绑定的其它相关内容](#绑定的其它相关内容)
+    - [具有已启动和绑定两种状态的服务的生命周期](#具有已启动和绑定两种状态的服务的生命周期)
+- [IntentService](#intentservice)
+    - [特点](#特点)
+- [onStartCommand](#onstartcommand)
+- [前台服务](#前台服务)
+    - [前台服务特点](#前台服务特点)
+
 ## 生命周期
 
 ### startService,stopService

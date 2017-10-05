@@ -1,5 +1,17 @@
 # Processes
 
+- [android 进程简介](#android-进程简介)
+- [Process 分类](#process-分类)
+    - [Foreground process](#foreground-process)
+    - [Visible process](#visible-process)
+    - [Service process](#service-process)
+    - [Background process](#background-process)
+    - [Empty process](#empty-process)
+    - [process 回收](#process-回收)
+- [跨进程通信](#跨进程通信)
+
+## android 进程简介
+
 - 默认情况下，一个应用的所有的component运行在同一个process中
 - 通过在manifest的android:process属性，指定activity,service,contentProvider和broadcastReceiver 的属性，可以让不同的的componet运行在不同的process中
 
@@ -22,8 +34,7 @@
 
 - application也可以指定android:process属性，为所有的component指定一个默认的process
 
-
-## Process liftcircle
+## Process 分类
 
 ### Foreground process
 
@@ -73,43 +84,4 @@
 
 - service process的优先级比background proces的优先级要高，所以需要消耗很长时间的操作一般被放在service中，而不是放在一个back thread中，比如上传图片等等，所以在broadcastreceiver中，如果要启动一个长时间操作，也应当启用一个service，而不是用back thread
 
-
-## Thread
-
-### UI Thread
-
-- 不要堵塞Ui thread
-- 不要从UI thread 以外调用ui toolkit
-
-### Work Thread
-
-- 从work thread中调用Ui thread的常见方法有
-
-```java
-Activity.runOnUiThread(Runnable);
-View.post(Runnable);
-View.postDelayed(Runnable, long);
-handler
-AsyncTask
-```
-
-### Thread safe methods
-
-- IBinder必须被实现为thread safe
-- ContentProvider,query(), insert(),delete(), update(), and getType()这些方法是在process的线程池中执行的，
- 不是在UI thread，所以这些方法也必须被实现为thread safe
-
-### InterProcesses communicaton
-
-- To perform IPC, your application must bind to a service, using bindService()
-
-
-
-
-
-
-
-
-
-
-
+## 跨进程通信

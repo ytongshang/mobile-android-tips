@@ -1,5 +1,23 @@
 # Intent
 
+- [隐式intent与显式intent](#隐式intent与显式intent)
+- [构建intent](#构建intent)
+    - [Component](#component)
+    - [Action](#action)
+    - [Data](#data)
+    - [Category](#category)
+- [隐式Intent](#隐式intent)
+- [Intent Filter](#intent-filter)
+- [intent与intent filter的匹配](#intent与intent-filter的匹配)
+    - [action 匹配](#action-匹配)
+    - [category匹配](#category匹配)
+    - [data 匹配](#data-匹配)
+    - [mine type与uri的匹配](#mine-type与uri的匹配)
+    - [intent filter的其它应用](#intent-filter的其它应用)
+- [startActivity()](#startactivity)
+- [Pending intent](#pending-intent)
+- [Task](#task)
+
 ## 隐式intent与显式intent
 
 - 对于隐式intent，将intent的内容与AndroidManifest.xml中定义的intent filter相匹配，

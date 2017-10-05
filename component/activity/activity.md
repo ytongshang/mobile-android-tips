@@ -2,6 +2,15 @@
 
 - [google activity guide](http://developer.android.com/guide/components/activities.html)
 
+- [activity的生命周期](#activity的生命周期)
+    - [生命周期图解](#生命周期图解)
+    - [生命周期](#生命周期)
+    - [其它](#其它)
+- [重新创建activity](#重新创建activity)
+    - [restore activity](#restore-activity)
+    - [资源相关的系统配置发生变化引起activity重建](#资源相关的系统配置发生变化引起activity重建)
+    - [资源内存不足时导致低优先级的Activity被杀死](#资源内存不足时导致低优先级的activity被杀死)
+
 ## activity的生命周期
 
 ### 生命周期图解
