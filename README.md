@@ -1,3 +1,6 @@
 # AndroidTips
 
-- Notes about android
+* Notes about android
+
+
+
