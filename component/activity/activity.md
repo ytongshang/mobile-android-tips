@@ -49,15 +49,47 @@ onDestroy() | Called before the activity is destroyed. This is the final call th
 
 ![restore activity](./../../image-resources/activity_restore_instance.png)
 
-- 正常情况下，当activity进入paused或都stopped状态的时候，activity状态、数据都会保存的, 当activity再次进入resumed状态的时候，可以还原原先的状态
-- 但是在极端情况下，activity会被销毁，系统会调用onSaveInstanceState()来保存当前Activity的状态
+#### onSaveInstanceState 
 - **onSaveInstanceState方法会在onStop之前调用，它和onPause没有既定的时序关系**，可以在onPause之前，也可以在onPause之后
+- 调用了finish方法后，activity会被销毁，也就没有回来的必要了，**所以调用finish方法后activity一定不会调用onSaveInstanceState方法**
+- 在Activity的onPause方法中,如果App的targetSdkVersion小于11才会执行onSaveInstanceState
+
+```java
+private void handlePauseActivity(IBinder token, boolean finished,
+            boolean userLeaving, int configChanges, boolean dontReport, int seq) {
+    // ...
+    performPauseActivity(token, finished, r.isPreHoneycomb(), "handlePauseActivity");
+    // ...
+}
+
+
+final Bundle performPauseActivity(ActivityClientRecord r, boolean finished,
+            boolean saveState, String reason) {
+    // ...
+    // Next have the activity save its current state and managed dialogs...
+    if (!r.activity.mFinished && saveState) {
+        callCallActivityOnSaveInstanceState(r);
+    }
+    // ...
+}
+
+ public boolean isPreHoneycomb() {
+    if (activity != null) {
+        return activity.getApplicationInfo().targetSdkVersion
+            < android.os.Build.VERSION_CODES.HONEYCOMB;
+    }
+    return false;
+}
+```
+
+#### onRestoreInstanceState
+
 - Activity重建的时候，可以通过onCreate和onRestoreInstanceState方法将保存的信息还原,两个方法选择一个就可以了，**官方文档建议我们采用onRestoreInstanceState的方法**
 - **onRestoreInstanceState方法调用的时机是在onStart方法以后**
 - onSaveInstanceState保存的bundle对象可以从onCreate或者onRestoreInstanceState中获取，两者的区别是，
  **onCreate中的bundle对象在正常启动的情况下为null,所以要进行非null判断，**
  **而onRestoreInstanceState方法中的bundle一定不会为空**
-- **具有Id的View也会保存自身的状态**，具体保存了哪些信息，可以查看View的onSaveInstanceState方法
+- **具有Id的View才会保存自身的状态**，具体保存了哪些信息，可以查看View的onSaveInstanceState方法
 
 ```java
 static final String STATE_SCORE = "playerScore";
