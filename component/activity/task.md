@@ -30,9 +30,8 @@
 ## Task
 
 - **任务是指在执行特定作业时与用户交互的一系列Activity**。 这些Activity按照各自的打开顺序排列在back-stack中。
- 启动一个应用,也就创建一个与之对应的task。
 - 当用户触摸应用启动器中的图标（或主屏幕上的快捷方式）时，该应用的任务将出现在前台。如果应用不存在任务（应用最近未曾使用），则会创建一个新任务，并且该应用的“主”Activity 将作为堆栈中的根Activity打开。
-- **任务是一个有机整体，当用户开始新任务或通过“主页”按钮转到主屏幕时，可以移动到“后台”**。
+- **任务是一个有机整体，当用户开始新任务或通过Home键转到主屏幕时，任务可以移动到“后台”**。
 - **当任务处在后台时，该任务中的所有Activity全部停止，但是任务的返回栈仍旧不变**，也就是说，当另一个任务发生时，该任务仅仅失去焦点而已。
 - 任务可以再次返回到“前台”，用户就能够回到离开时的状态
 - **后台可以同时运行多个任务**
@@ -46,13 +45,18 @@
 
 ## Task与Back-Stack的默认行为
 
-- 当Activity A启动Activity B时，Activity A将会停止，但系统会保留其状态（例如，滚动位置和已输入表单中的文本）。
- 如果用户在处于 Activity B 时按“返回”按钮，则 Activity A 将恢复其状态，继续执行。
-- 用户通过按“Home”按钮离开任务时，当前Activity将停止且其任务会进入后台。 系统将保留任务中每个Activity的状态。
- 如果用户稍后通过选择开始任务的启动器图标来恢复任务，则任务将出现在前台并恢复执行堆栈顶部的Activity。
+- 当Activity A启动Activity B时，Activity A将会停止，但系统会保留其状态（onSaveInstanceState）。
+- 如果用户在处于 Activity B 时按“返回”按钮，则 Activity A 将恢复其状态，继续执行。
+- 用户通过按Home键离开任务时，当前Activity将停止且其任务会进入后台。 系统将保留任务中每个Activity的状态。
+- 如果用户稍后通过选择开始任务的启动器图标来恢复任务，则任务将出现在前台并恢复执行堆栈顶部的Activity。
 - 如果用户按“返回”按钮，则当前Activity会从堆栈弹出并被销毁。堆栈中的前一个 Activity 恢复执行。销毁 Activity 时，
  系统不会保留该Activity 的状态。
-- **即使来自其他任务，Activity也可以多次实例化**。
+- **即使来自其他任务，Activity也可以多次实例化**
+
+## Task和startActivityForResult
+
+- 使用startActivityForResult的必要条件是被启动的Activity和原Activity要在同一个Task中。因此，使用startActivityForResult时，会强制将新启动的Activity放在原来的Task中，不论activiy的xml属性和Intent#Flag_XXX。
+- 只有一个例外FLAG_ACTIVITY_NEW_TASK：如果使用这个标签，原Activity会立刻收到onActivityResult，并执行和startActivity相同的逻辑。
 
 ## 改变task与back stack默认行为
 
@@ -97,11 +101,9 @@ FLAG_ACTIVITY_SINGLE_TOP
 
 ### single task
 
-比如以singleTask启动A
-
-- 系统首先会查找是否存在A想要的任务栈，如果不存在，就重新创建一个任务栈，然后创建A的实例后将A放到栈中
-- 如果存在A所需要的栈,这时要查看是否有A的实例，如果实例存在，那么系统就会把A调到栈顶并调用它的onNewIntent方法
-- 如果实例不存在，就创建A然后把A压入栈中
+- 比如以singleTask启动A, 系统首先会查找是否存在A想要的任务栈，也就是taskAffinity指定的任务栈，如果没有指定taskAffinity，则为应用的包名，如果不存在这样的任务栈，就重新创建一个任务栈，然后创建A的实例后将A放到栈中
+- 如果存在A所需要的栈,这时要查看是否有A的实例，如果实例存在，那么系统就会把A调到栈顶并调用它的onNewIntent方法，如果实例不存在，就创建A然后把A压入栈中
+- 也说明了一件事，**以singleTask启动Activity并不一定是启动了一个新的任务栈**
 
 ### single instance
 
@@ -146,10 +148,10 @@ This produces the same behavior as the "singleTop" launchMode value, discussed i
 
 ### android:taskAffinity
 
-- 定义了一个activity的task归属问题，默认情况下，所有Activity所需要的任务栈
+- 定义了一个activity的task归属问题，默认情况下，Activity所需要的任务栈的名字为应用的包名
 - android:taskAffinity，接受一个参数，一般是一个包名，用来指定Activity所属任务栈的名字
 - TaskAffinity一般和SingleTask或者allowTaskReparenting一起使用
-- **当SingleTask与TaskAffinity一起使用时**，它是具有该模式的Activity的目前任务栈的名字，**待启动的Activity会运行在名字和TaskAffinity相同的任务栈中**
+- **当SingleTask与TaskAffinity一起使用时，待启动的Activity会运行在名字和TaskAffinity相同的任务栈中**
 
 ### allowTaskReparenting
 
@@ -160,8 +162,7 @@ This produces the same behavior as the "singleTop" launchMode value, discussed i
 
 ## Clearing the back stack
 
-- 当用户离开一个task非常长的时间后，android系统会清除back stack中除了了root activity其它的activity，
- 可以设置修改activity的属性，该变这种默认行为：
+- 当用户离开一个task非常长的时间后，android系统会清除back stack中除了了root activity其它的activity，可以通过设置修改activity的属性，该变这种默认行为：
 
 ### alwaysRetainTaskState
 
@@ -183,24 +184,3 @@ This produces the same behavior as the "singleTop" launchMode value, discussed i
 ### finishOnTaskLaunch
 
 - 与clearTaskOnLaunch类似，不同之处在于allowReparenting属性是重新宿主到有共同affinity的task中，而finishOnTaskLaunch属性是销毁实例。如果这个属性和android:allowReparenting都设定为“true”，则这个属性胜出
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

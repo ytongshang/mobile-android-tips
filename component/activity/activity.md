@@ -49,7 +49,8 @@ onDestroy() | Called before the activity is destroyed. This is the final call th
 
 ![restore activity](./../../image-resources/activity_restore_instance.png)
 
-#### onSaveInstanceState 
+#### onSaveInstanceState
+
 - **onSaveInstanceState方法会在onStop之前调用，它和onPause没有既定的时序关系**，可以在onPause之前，也可以在onPause之后
 - 调用了finish方法后，activity会被销毁，也就没有回来的必要了，**所以调用finish方法后activity一定不会调用onSaveInstanceState方法**
 - 在Activity的onPause方法中,如果App的targetSdkVersion小于11才会执行onSaveInstanceState
@@ -79,6 +80,29 @@ final Bundle performPauseActivity(ActivityClientRecord r, boolean finished,
             < android.os.Build.VERSION_CODES.HONEYCOMB;
     }
     return false;
+}
+```
+
+- 如果没有调用finish方法，onStop方法会调用onSaveInstanceState
+
+```java
+ private void handleStopActivity(IBinder token, boolean show, int configChanges) {
+        ActivityClientRecord r = mActivities.get(token);
+    // ...
+    performStopActivityInner(r, info, show, true);
+    // ...
+}
+
+private void performStopActivityInner(ActivityClientRecord r,
+            StopInfo info, boolean keepShown, boolean saveState) {
+     // ...
+    // Next have the activity save its current state and managed dialogs...
+    if (!r.activity.mFinished && saveState) {
+        if (r.state == null) {
+            callCallActivityOnSaveInstanceState(r);
+        }
+    }
+     // ...
 }
 ```
 

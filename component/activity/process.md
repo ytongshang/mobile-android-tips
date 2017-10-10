@@ -13,7 +13,14 @@
 ## android 进程简介
 
 - 默认情况下，一个应用的所有的component运行在同一个process中
-- 通过在manifest的android:process属性，指定activity,service,contentProvider和broadcastReceiver 的属性，可以让不同的的componet运行在不同的process中
+
+### android:process
+
+- 通过在manifest指定android:process属性,可分别指定四大组件运行的进程名
+- application也可以指定android:process属性，为所有的component指定一个默认的process
+- 不指定进程名时，使用包名作为进程名
+- 如果进程名是以冒号开头的，则这个进程是应用的私有进程
+- 如果进程名是以字符开头的，且符合包名规范，则这个进程是全局的
 
 ```xml
 <service
@@ -22,7 +29,18 @@
     android:process=":pushservice" />
 ```
 
-- 可以让不同应用的component运行在同一个process中，**只要它们的Linux userid相同（通过sharedUserId）,并且签名相同**
+### android:multiprocess
+
+- 只有provider和activity定义了android:multiprocess，但一般不要在activity中使用。
+- 如果android:multiprocess为true，则每个访问provider的应用都会自己创建一个ContentProvider实例
+ 优势：避免跨进程通信，提高数据访问效率，弊端：多个实例导致系统内存消耗变大，且难以处理多个进程之间的数据同步问题
+
+### 不同APP运行在同一进程
+
+- 如果需要两个不同APK中的组件运行于同一个进程，需要以下三个条件：
+  - 两个应用程序使用相同的android:sharedUserId
+  - 两个应用使用相同的keystore进行签名
+  - 为组件设置相同的android:process
 
 ```xml
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
@@ -32,7 +50,11 @@
     android:sharedUserId="com.example">
 ```
 
-- application也可以指定android:process属性，为所有的component指定一个默认的process
+### Process的实际使用
+
+- 子进程可以分担主进程的内存压力
+- 在主进程Crash时，子进程中的功能不受影响
+- 子进程的Application#onCreate中可以跳过一些不必要的初始化
 
 ## Process 分类
 
