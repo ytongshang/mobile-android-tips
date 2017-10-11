@@ -166,25 +166,6 @@ public static Intent createChooser(Intent target, String title)
     - App widget，当用户与app widget交户时，由HomeScren app处理pendingInten
     - 将来某个时间点做的事情，由alarmManager处理pendingIntent
 
-## Task
-
-- android使用task来记录用户在每一个application的状态
-- task实际是一个stack，里面记录了相关联的activities
-- 一个task可能含有不同application的activity
-- Intent.FLAG_ACTIVITY_NEW_TASK 可以以一个新的task来启动activity
-
-```java
-Intent i = new Intent(Intent.ACTION_MAIN);
-i.setClassName(activityInfo.applicationInfo.packageName, activityInfo.name);
-i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-startActivity(i);
-```
-
-- 如果启动一次intent i,当再次以Intent.FLAG_ACTIVITY_NEW_TASK启动intent时，只会有一个
-- 一个task有来自己不同application的activity,这些activity的process是不同的，
- 都在对应的application的   Process中运行，但是他们是同一个task
-- process可以kill,task不能kill
-
 
 
 
