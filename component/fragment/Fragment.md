@@ -1,24 +1,25 @@
 # Fragment
 
 - 可以通过fragment所在的container 的id来唯一标识这一fragment
-- fragmenttransaction的commit方法一定要在activity保存状态之前调用。如果想要在保存状态之后调用，使用commitAllowingStateLoss().
+- FragmentTransaction的commit方法一定要在activity保存状态之前调用。如果想要在保存状态之后调用，使用commitAllowingStateLoss().
 
 ## fragment的生命周期
 
 ![fragment生命周期](../../image-resources/fragment/fragment生命周期.jpg)
 
+- fragment生命周期与activity生命周期类似，其中最大的不同在于activity的生命周期函数由os调用，而fragment的生命周期函数由fragmentmanager调用。
 - fragment的onResume和onPause方法是和activity对应起来的，只有当activity 的onResume和onPause被调用的时候，才会调用对应的fragment的onResume和onPause
-- 当使用fragmentTransaction的show()和hide()方法时，是不会再次调用onResume和onPause
-- 可以重载onHiddenChanged方法，在fragment可见性发生变化时，实现具体功能，true时表示隐藏，不可见，false表示不隐藏，可见- fragment生命周期与activity生命周期类似，其中最大的不同在于activity的生命周期函数由os调用，而fragment的生命周期函数由fragmentmanager调用。
-- 当将fragment add 到fragmentmanager时，onAttach(Activity) ,  onCreate(Bundle) , 和onCreateView()被调用了 
- onActivityCreated(…)会在宿主activity的onCreate（）被调用后调用
-- 将fragment添加到已经处于stopped,paused，running状态的activity时，fragment会快速调用其生命周期函数，从而保持与activity的生命周期相同步，eg,比如将一个fragment添加到一个处于running状态的activity,fragment会快速的执行onAttach(Activity) ,  onCreate(Bundle) ,  onCreateView(…) ,  onActivityCreated(Bundle) ,  onStart() ,   onResume() 函数
-- 当fragment与activity生命周期同步后，当os调用其宿主activity的生命周期函数时，fragmentmanager就会调用fragment对应的生命周期函数。
+- **当调用fragmentTransaction的show()和hide()方法时，是不会再次调用onResume和onPause
+- 可以重载onHiddenChanged(boolean)方法，在fragment可见性发生变化时，会回调此函数，其中true时表示隐藏，fragment不可见，false表示不隐藏,fragment可见
+- 当ViewPager与fragment联合使用时，可以通过重载setUserVisibleHint来判断fragment是否可见
+- 当将fragment add 到fragmentmanager时，首先onAttach(Activity)，onCreate(Bundle)，和onCreateView()会被调用，而onActivityCreated(…)会在宿主activity的onCreate（）被调用后调用
+- 将fragment添加到已经处于stopped,paused，running状态的activity时，fragment会快速调用其生命周期函数，从而保持与activity的生命周期相同步
+ 比如将一个fragment添加到一个处于running状态的activity,fragment会快速的执行onAttach(Activity)，onCreate(Bundle)等生命周期函数，从而与Activity生命周期同步
 
 ## fragment的回退栈
 
-- 将一个事务添加到回退栈，点击back,即，即使使用replace，上一个fragment也不会销毁，而是会回到上一个fragment
-- 一般最底层的不会添加到回退栈，而是直接退出activity
+- 将一个事务添加到回退栈，点击back键,即使使用replace方法，上一个fragment也不会销毁，而是会回到上一个fragment
+- 一般最底层的fragment不会添加到回退栈中，而是直接退出activity
 
 ```java
 FragmentTwo fTwo = new FragmentTwo();
@@ -31,13 +32,16 @@ tx.commit();
 
 ## fragment与activity
 
-- 如果你Activity中包含自己管理的Fragment的引用，可以通过引用直接访问所有的Fragment的public方法
+- 如果要给一个activity添加一个没有UI的fragment,使用add(Fragment, tag)
+- FragmentTranscton()执行commit后，并不一定是立即执行，它会将事务加入主线程的消息队列中，如果要立即执行transaction的话，可以在主线程调用executePendingTransactions()
+
+- 如果Activity中包含自己管理的Fragment的引用，可以通过引用直接访问所有的Fragment的public方法
 - 如果Activity中未保存任何Fragment的引用,可以通过getFragmentManager.findFragmentByTag()或者findFragmentById()获得任何Fragment实例，然后进行操作
 - 通常fragment之间可能会需要交互，比如基于用户事件改变fragment的内容。所有fragment之间的交互需要通过他们关联的activity，两个fragment之间不应该直接交互
-- 如果要给一个activity添加一个没有UI的fragment,使用add(Fragment, tag)
+
 - 对于执行的每一个transaction,都可以指定一个动画，setTransition()
-- transcton() commit后，并不一定是立即执行，它会将事务加入主线程的消息列中，如果要立即执行transaction的话，可以在主线程调用executePendingTransactions()，从而立即执行transaction
-- 为了让fragment与activity交互，可以在Fragment 类中定义一个接口，并在activity中实现。Fragment在他们生命周期的onAttach()方法中获取接口的实现，然后调用接口的方法来与Activity交互。为了接收回调事件，宿主activity必须实现在Fragment中定义的接口
+
+- 为了让fragment与activity交互，可以在Fragment 类中定义一个接口，并在activity中实现。
 
 ```java
 public class HeadlinesFragment extends ListFragment {
@@ -52,32 +56,13 @@ public class HeadlinesFragment extends ListFragment {
         try {
             mCallback = (OnHeadlineSelectedListener) activity;
         } catch (ClassCastException e) {
-            throw new ClassCastException(activity.toString()
-                    + " must implement OnHeadlineSelectedListener");
+            throw new ClassCastException(activity.toString() + " must implement OnHeadlineSelectedListener");
         }
     }
 }
 ```
 
 - activity向fragment传递参数，用setArguments,setArguments方法必须在fragment创建以后，add到activity前完成。千万不要，首先调用了add，然后设置arguments。
-
-```java
-public class ContentFragment extends Fragment
-{
-    private String mArgument;
-    public static final String ARGUMENT = "argument";
-    @Override
-    public void onCreate(Bundle savedInstanceState)
-    {
-        super.onCreate(savedInstanceState);
-        // mArgument = getActivity().getIntent().getStringExtra(ARGUMENT);
-        Bundle bundle = getArguments();
-        if (bundle != null)
-            mArgument = bundle.getString(ARGUMENT);
-    }
- }
-```
-
 - fragment添加到activity,首先查找fragment是否已经存在，不存在则new 出新实例
 
 ```java
