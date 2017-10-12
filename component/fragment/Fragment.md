@@ -5,7 +5,7 @@
 
 ## fragment的生命周期
 
-![fragment生命周期](../../image-resources/activity/fragment_设置了retainInstance.jpg)
+![fragment生命周期](../../image-resources/fragment/fragment生命周期.jpg)
 
 - fragment的onResume和onPause方法是和activity对应起来的，只有当activity 的onResume和onPause被调用的时候，才会调用对应的fragment的onResume和onPause
 - 当使用fragmentTransaction的show()和hide()方法时，是不会再次调用onResume和onPause
@@ -239,11 +239,11 @@ public void onCreate(Bundle savedInstanceState) {
 
 设置为false时，configration发生变时时
 
-![fragment_没有设置retainInstance](../../image-resources/activity/fragment_没有设置retainInstance.jpg)
+![fragment_没有设置retainInstance](../../image-resources/fragment/fragment_没有设置retainInstance.jpg)
 
 设置为true时，fragment实例没有被destroy，但是其view仍然被销毁了，从原来的activity  detach掉，处理retained状态，新activity创建后，view重新创建，再attach到新的activity上
 
-![fragment_设置了retainInstance](../../image-resources/activity/fragment_设置了retainInstance.jpg)
+![fragment_设置了retainInstance](../../image-resources/fragment/fragment_设置了retainInstance.jpg)
 
 ## setRetainInstance(true)与onSavedInstanceState
 
