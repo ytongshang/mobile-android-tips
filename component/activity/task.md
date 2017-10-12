@@ -1,24 +1,55 @@
 # Task 和 Back-Stack
 
-- [google LaunchModes](http://developer.android.com/guide/components/tasks-and-back-stack.html#LaunchModes)
-- [activity task相关](http://blog.csdn.net/liuhe688/article/details/6761337)
-
+- [相关文章](#相关文章)
 - [Task](#task)
 - [Back-Stack](#back-stack)
 - [Task与Back-Stack的默认行为](#task与back-stack的默认行为)
+- [Task和startActivityForResult](#task和startactivityforresult)
 - [改变task与back stack默认行为](#改变task与back-stack默认行为)
 - [Manifest中定义launch mode](#manifest中定义launch-mode)
     - [standard](#standard)
     - [single top](#single-top)
     - [single task](#single-task)
+        - [本应用时](#本应用时)
+        - [跨应用时](#跨应用时)
+            - [要启动的singleTask所在的应用进程不存在](#要启动的singletask所在的应用进程不存在)
+            - [要启动的singleTask所在的应用进程存在](#要启动的singletask所在的应用进程存在)
     - [single instance](#single-instance)
 - [Intent flags](#intent-flags)
     - [FLAG_ACTIVITY_NEW_TASK](#flag_activity_new_task)
+    - [FLAG_ACTIVITY_NEW_DOCUMENT](#flag_activity_new_document)
+    - [FLAG_ACTIVITY_MULTIPLE_TASK](#flag_activity_multiple_task)
     - [FLAG_ACTIVITY_SINGLE_TOP](#flag_activity_single_top)
     - [FLAG_ACTIVITY_CLEAR_TOP](#flag_activity_clear_top)
     - [FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS](#flag_activity_exclude_from_recents)
     - [FLAG_ACTIVITY_NO_HISTORY](#flag_activity_no_history)
     - [FLAG_ACTIVITY_NO_USER_ACTION](#flag_activity_no_user_action)
+    - [FLAG_ACTIVITY_BROUGHT_TO_FRONT](#flag_activity_brought_to_front)
+    - [FLAG_ACTIVITY_CLEAR_TASK](#flag_activity_clear_task)
+    - [FLAG_ACTIVITY_CLEAR_TOP](#flag_activity_clear_top-1)
+    - [FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS](#flag_activity_exclude_from_recents-1)
+    - [FLAG_ACTIVITY_FORWARD_RESULT](#flag_activity_forward_result)
+    - [FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY](#flag_activity_launched_from_history)
+    - [FLAG_ACTIVITY_MULTIPLE_TASK](#flag_activity_multiple_task-1)
+    - [FLAG_ACTIVITY_NEW_DOCUMENT](#flag_activity_new_document-1)
+    - [FLAG_ACTIVITY_NEW_TASK](#flag_activity_new_task-1)
+    - [FLAG_ACTIVITY_NO_ANIMATION](#flag_activity_no_animation)
+    - [FLAG_ACTIVITY_NO_HISTORY](#flag_activity_no_history-1)
+    - [FLAG_ACTIVITY_NO_USER_ACTION](#flag_activity_no_user_action-1)
+    - [FLAG_ACTIVITY_PREVIOUS_IS_TOP](#flag_activity_previous_is_top)
+    - [FLAG_ACTIVITY_REORDER_TO_FRONT](#flag_activity_reorder_to_front)
+    - [FLAG_ACTIVITY_RESET_TASK_IF_NEEDED](#flag_activity_reset_task_if_needed)
+    - [FLAG_ACTIVITY_SINGLE_TOP](#flag_activity_single_top-1)
+    - [FLAG_ACTIVITY_TASK_ON_HOME](#flag_activity_task_on_home)
+    - [FLAG_EXCLUDE_STOPPED_PACKAGES和FLAG_INCLUDE_STOPPED_PACKAGES](#flag_exclude_stopped_packages和flag_include_stopped_packages)
+    - [FLAG_FROM_BACKGROUND](#flag_from_background)
+    - [FLAG_GRANT_PERSISTABLE_URI_PERMISSION](#flag_grant_persistable_uri_permission)
+    - [FLAG_GRANT_PREFIX_URI_PERMISSION](#flag_grant_prefix_uri_permission)
+    - [FLAG_GRANT_READ_URI_PERMISSION和FLAG_GRANT_WRITE_URI_PERMISSION](#flag_grant_read_uri_permission和flag_grant_write_uri_permission)
+    - [FLAG_RECEIVER_FOREGROUND](#flag_receiver_foreground)
+    - [FLAG_RECEIVER_NO_ABORT](#flag_receiver_no_abort)
+    - [FLAG_RECEIVER_REGISTERED_ONLY](#flag_receiver_registered_only)
+    - [FLAG_RECEIVER_REPLACE_PENDING](#flag_receiver_replace_pending)
 - [Handling affinities](#handling-affinities)
     - [android:taskAffinity](#androidtaskaffinity)
     - [allowTaskReparenting](#allowtaskreparenting)
@@ -26,6 +57,13 @@
     - [alwaysRetainTaskState](#alwaysretaintaskstate)
     - [clearTaskOnLaunch](#cleartaskonlaunch)
     - [finishOnTaskLaunch](#finishontasklaunch)
+
+
+## 相关文章
+
+- [google LaunchModes](http://developer.android.com/guide/components/tasks-and-back-stack.html#LaunchModes)
+- [activity task相关](http://blog.csdn.net/liuhe688/article/details/6761337)
+- [深入讲解Android中Activity launchMode](http://droidyue.com/blog/2015/08/16/dive-into-android-activity-launchmode/)
 
 ## Task
 
@@ -87,27 +125,89 @@ FLAG_ACTIVITY_SINGLE_TOP
 
 ### standard
 
-- 默认的行为，一个任务栈可以有多个实例，每个实例也可以属于不同的任务栈，在这种模式下，
- 谁启动了这个Activity,那么这个Activity就运行在启动它的那个Activity的任务栈
-- **对于standard启动模式的Activity,如果由非Activity的Context（Application/Service）启动，必须加上Intent.FLAG_ACTIVITY_NEW_TASK标识.**
+- 默认的行为，一个任务栈可以有多个实例，每个实例也可以属于不同的任务栈
+- 每当发送一个intent请求打开该activity时，都会创建一个新的activity实例.
+- **在这种模式下，无论本应用打开，还是跨应用打开，新启动的Activity都运行在发送Intent的Activity的任务栈的栈顶**
+- 跨引用打开，的时候会在 Recent app 页面显示两个独立项，但是此时它们两个 Activity 仍然是在一个栈中
+- 对于standard启动模式的Activity,如果由非Activity的Context（Application/Service）启动，必须加上Intent.FLAG_ACTIVITY_NEW_TASK标识
+- adb查看task相关的信息
+
+```shell
+➜ trunk adb shell dumpsys activity | grep "TaskRecord"
+  * Recent #0: TaskRecord{2bb34f8e #12532 A=com.kascend.chushou U=0 sz=3}
+  * Recent #1: TaskRecord{37367384 #12206 A=com.bbk.launcher2 U=0 sz=1}
+  * Recent #2: TaskRecord{854223a #12531 A=com.tencent.mobileqq U=0 sz=2}
+  * Recent #3: TaskRecord{108c221a #12530 A=com.baidu.tieba U=0 sz=3}
+  * Recent #4: TaskRecord{3579976d #12524 A=com.example.businesshall U=0 sz=0}
+  * Recent #5: TaskRecord{1c36dfa2 #12509 I=com.android.BBKClock/.AlertClock.AlarmAlertFullScreen U=0 sz=0}
+  * Recent #6: TaskRecord{14ccc433 #12461 A=com.android.packageinstaller U=0 sz=0}
+  * Recent #7: TaskRecord{316943f0 #12393 A=android.task.mms.notidelete U=0 sz=0}
+  * Recent #8: TaskRecord{18253d69 #12226 A=com.baidu.input_bbk.service U=0 sz=2}
+  * Recent #9: TaskRecord{8c753ee #12208 A=android.task.StkDialogActivity U=0 sz=0}
+      TaskRecord{2bb34f8e #12532 A=com.kascend.chushou U=0 sz=3}
+      TaskRecord{854223a #12531 A=com.tencent.mobileqq U=0 sz=2}
+      TaskRecord{108c221a #12530 A=com.baidu.tieba U=0 sz=3}
+      TaskRecord{1085708f #12458 A=com.autonavi.minimap U=0 sz=1}
+      TaskRecord{18253d69 #12226 A=com.baidu.input_bbk.service U=0 sz=2}
+      TaskRecord{2bb34f8e #12532 A=com.kascend.chushou U=0 sz=3}
+      TaskRecord{854223a #12531 A=com.tencent.mobileqq U=0 sz=2}
+      TaskRecord{108c221a #12530 A=com.baidu.tieba U=0 sz=3}
+      TaskRecord{37367384 #12206 A=com.bbk.launcher2 U=0 sz=1}
+      TaskRecord{37367384 #12206 A=com.bbk.launcher2 U=0 sz=1}
+
+➜  trunk adb shell dumpsys activity | grep "12532"
+  * Recent #0: TaskRecord{2bb34f8e #12532 A=com.kascend.chushou U=0 sz=3}
+    Task id #12532
+      TaskRecord{2bb34f8e #12532 A=com.kascend.chushou U=0 sz=3}
+        Hist #2: ActivityRecord{317b1c93 u0 com.android.camera/.CameraActivity t12532}
+        Hist #1: ActivityRecord{4ec132a u0 com.kascend.chushou/tv.chushou.athena.ui.activity.IMEntranceActivity t12532}
+        Hist #0: ActivityRecord{1675388a u0 com.kascend.chushou/.ChuShouTV t12532}
+      TaskRecord{2bb34f8e #12532 A=com.kascend.chushou U=0 sz=3}
+        Run #7: ActivityRecord{317b1c93 u0 com.android.camera/.CameraActivity t12532}
+        Run #6: ActivityRecord{4ec132a u0 com.kascend.chushou/tv.chushou.athena.ui.activity.IMEntranceActivity t12532}
+        Run #5: ActivityRecord{1675388a u0 com.kascend.chushou/.ChuShouTV t12532}
+    mResumedActivity: ActivityRecord{317b1c93 u0 com.android.camera/.CameraActivity t12532}
+  mFocusedActivity: ActivityRecord{317b1c93 u0 com.android.camera/.CameraActivity t12532}
+  mCurTaskId=12532
+```
 
 ### single top
 
-- 对于Activity A，如果当前task的最顶部的是activity A的实例，不会再创建一个新的A的实例，intent通过onNewIntent()进行处理。
-- 只要当前task的back stack的最顶部不是A的实例，那么A就可以多次被实例化，每个实例可以分属不同的task,
- 每个task可以有多个A的实例
-
->>For example, suppose a task's back stack consists of root activity A with activities B, C, and D on top (the stack is A-B-C-D; D is on top). An intent arrives for an activity of type D. If D has the default "standard"launch mode, a new instance of the class is launched and the stack becomes A-B-C-D-D. However, if D's launch mode is "singleTop", the existing instance of D receives the intent through onNewIntent(), because it's at the top of the stack—the stack remains A-B-C-D. However, if an intent arrives for an activity of type B, then a new instance of B is added to the stack, even if its launch mode is "singleTop"
+- singleTop其实和standard几乎一样，使用singleTop的Activity也可以创建很多个实例。
+- 唯一不同的就是，如果调用的目标Activity已经位于调用者的Task的栈顶，则不创建新实例，而是使用当前的这个Activity实例，并调用这个实例的onNewIntent方法
 
 ### single task
 
-- 比如以singleTask启动A, 系统首先会查找是否存在A想要的任务栈，也就是taskAffinity指定的任务栈，如果没有指定taskAffinity，则为应用的包名，如果不存在这样的任务栈，就重新创建一个任务栈，然后创建A的实例后将A放到栈中
-- 如果存在A所需要的栈,这时要查看是否有A的实例，如果实例存在，那么系统就会把A调到栈顶并调用它的onNewIntent方法，如果实例不存在，就创建A然后把A压入栈中
+#### 本应用时
+
+- 以singleTask启动A, 系统首先会查找是否存在A想要的任务栈，也就是taskAffinity指定的任务栈，如果manifest文件中没有指定taskAffinity，则任务栈为该activity所属应用的包名.
+- 如果不存在这样的任务栈，就先创建一个任务栈，然后创建A的实例后将A放到栈中
+- 如果存在A所需要的任务栈,这时要查看任务栈中是否有A的实例，如果有实例存在，那么在Activity任务栈中，所有位于该Activity上面的Activity实例都将被销毁掉（销毁过程会调用Activity生命周期回调），这样使得singleTask Activity实例位于栈顶。与此同时，Intent会通过onNewIntent传递到这个SingleTask Activity实例。
 - 也说明了一件事，**以singleTask启动Activity并不一定是启动了一个新的任务栈**
+
+#### 跨应用时
+
+##### 要启动的singleTask所在的应用进程不存在
+
+- 如果要启动的singleTask Activity所在的应用进程不存在，那么将首先创建一个新的Task，然后创建SingleTask Activity的实例，将其放入新的Task中
+
+![singleTask所属进程不存在](../../image-resources/activity/singletask_across_app_no_instance.jpg)
+
+##### 要启动的singleTask所在的应用进程存在
+
+- 如果要启动的singleTask Activity所在的应用进程存在，但是singleTask Activity实例不存在，那么从别的应用启动这个Activity，新的Activity实例会被创建，并放入到所属进程所在的Task中，并位于栈顶位置。
+
+![singleTask所属进程存在并且实例不存在](../../image-resources/activity/singletask_acrossapp_application_exists_activity_nonexists.jpg)
+
+- 如果要启动的singleTask Activity所在的应用进程存在，而且singleTask Activity实例也存在，从其他程序启动singleTask Activity，那么这个Activity所在的Task会被移到顶部，并且在这个Task中，位于singleTask Activity实例之上的所有Activity将会被正常销毁掉。
+
+![singleTask所属进程存在并且实例存在](../../image-resources/activity/singletask_acrossapp_instance_exists_and_back.jpg)
+
+- 上面两种情况，只要要启动的singleTask所在的应用的进程存在，**如果我们按返回键，那么我们首先会回退到singleTask所在应用的Task中的其他Activity，直到该Task的Activity回退栈为空时，才会返回到调用者的Task。**
 
 ### single instance
 
-- 与single task差不多，具有SingleTask的所有特性，还加强了一点，具有此种模式的Activity只能单独地位于一个任务栈中
+- 这个模式和singleTask差不多，因为他们在系统中都只有一份实例。唯一不同的就是存放singleInstance Activity实例的Task只能存放一个该模式的Activity实例。如果从singleInstance Activity实例启动另一个Activity，那么这个Activity实例会放入其他的Task中。同理，如果singleInstance Activity被别的Activity启动，它也会放入不同于调用者的Task中
 
 ## Intent flags
 
