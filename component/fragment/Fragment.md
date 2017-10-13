@@ -35,11 +35,46 @@ tx.commit();
 - 如果要给一个activity添加一个没有UI的fragment,使用add(Fragment, tag)
 - FragmentTranscton()执行commit后，并不一定是立即执行，它会将事务加入主线程的消息队列中，如果要立即执行transaction的话，可以在主线程调用executePendingTransactions()
 
+### Fragment动画
+
+- 都是调用FragmentTransaction对应的方法
+
+#### 标准转场动画
+
+- 对于执行的每一个transaction,都可以指定一个标准转场动画，setTransition(int transit)
+- 该方法可传入的三个参数是：
+　　TRANSIT_NONE,
+　　TRANSIT_FRAGMENT_OPEN,
+　　TRANSIT_FRAGMENT_CLOSE，
+   TRANSIT_FRAGMENT_FADE
+- 分别对应无动画、打开形式的动画和关闭形式的动画和渐进动画
+- 标准动画设置好后，在Fragment添加和移除的时候都会有。
+
+#### v4.Fragment
+
+- 使用的是View动画
+
+```java
+public abstract FragmentTransaction setCustomAnimations(@AnimRes int enter,@AnimRes int exit);
+
+public abstract FragmentTransaction setCustomAnimations(@AnimRes int enter,@AnimRes int exit, 
+	@AnimRes int popEnter, @AnimRes int popExit);
+```
+
 - 如果Activity中包含自己管理的Fragment的引用，可以通过引用直接访问所有的Fragment的public方法
 - 如果Activity中未保存任何Fragment的引用,可以通过getFragmentManager.findFragmentByTag()或者findFragmentById()获得任何Fragment实例，然后进行操作
 - 通常fragment之间可能会需要交互，比如基于用户事件改变fragment的内容。所有fragment之间的交互需要通过他们关联的activity，两个fragment之间不应该直接交互
 
-- 对于执行的每一个transaction,都可以指定一个动画，setTransition()
+#### Fragment
+
+- 使用的是属性动画
+
+```java
+ public abstract FragmentTransaction setCustomAnimations(@AnimatorRes int enter,@AnimatorRes int exit);
+
+ public abstract FragmentTransaction setCustomAnimations(@AnimatorRes int enter,@AnimatorRes int exit, 
+ 	@AnimatorRes int popEnter, @AnimatorRes int popExit);
+```
 
 - 为了让fragment与activity交互，可以在Fragment 类中定义一个接口，并在activity中实现。
 
