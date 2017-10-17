@@ -1,4 +1,4 @@
-# BubbleProcessor
+# BaseProcessor
 
 [修改图片](https://www.fresco-cn.org/docs/modifying-image.html)
 
