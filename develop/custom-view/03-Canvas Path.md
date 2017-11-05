@@ -1,5 +1,26 @@
 # Path
 
+- [总结](#总结)
+- [moveTo、 setLastPoint、 lineTo 和 close](#moveto-setlastpoint-lineto-和-close)
+- [addXxx与arcTo](#addxxx与arcto)
+    - [基本形状](#基本形状)
+    - [addPath](#addpath)
+    - [addArc与arcTo](#addarc与arcto)
+    - [贝塞尔曲线](#贝塞尔曲线)
+        - [二阶贝塞尔曲线](#二阶贝塞尔曲线)
+        - [三阶贝塞尔曲线](#三阶贝塞尔曲线)
+- [FillType](#filltype)
+    - [奇偶规则](#奇偶规则)
+    - [非零环绕数规则](#非零环绕数规则)
+- [布尔操作](#布尔操作)
+    - [DIFFERENCE](#difference)
+    - [REVERSE_DIFFERENCE](#reverse_difference)
+    - [INTERSECT](#intersect)
+    - [UNION](#union)
+    - [XOR](#xor)
+- [重置路径](#重置路径)
+- [其它函数](#其它函数)
+
 ## 总结
 
 作用            | 相关方法                                                           | 备注
@@ -148,7 +169,185 @@ false | 不移动，而是连接最后一个点与圆弧起点 | public void arc
 - **sweepAngle取值范围是 [-360, 360)**,当 >= 360 或者 < -360 时将不会绘制任何内容
 - **addArc() 只是一个直接使用了 forceMoveTo = true 的简化版 arcTo()**
 
-### 其它函数
+### 贝塞尔曲线
+
+```java
+// 二阶贝塞尔曲线
+// 其中开始点为上次最后一个点
+// 结束为(x2, y2)
+// 控制点为(x1,y1)
+public void quadTo(float x1, float y1, float x2, float y2)
+public void rQuadTo(float dx1, float dy1, float dx2, float dy2)
+
+
+// 三阶贝塞尔曲线
+// 开始点为最后一个点
+// 终点为（x3,y3）
+// 两个控制点为（x1,y1） (x2,y2)
+public void cubicTo(float x1, float y1, float x2, float y2,
+                        float x3, float y3)
+public void rCubicTo(float x1, float y1, float x2, float y2,
+                        float x3, float y3)
+```
+
+- [贝塞尔曲线扫盲](http://blog.csdn.net/cdnight/article/details/48468653)
+
+#### 二阶贝塞尔曲线
+
+- 开始点A,终点C，控制点B，连接AB，BC
+- 在AB上找一点D，BC上找一点E，使得AD:AB=BE:BC
+- 连接DE，在DE上找一点F，使得**DF:DE=AD:AB=BE:BC**
+- 从开始移动点D生成曲线
+
+![二阶贝塞尔曲线](./../../image-resources/customview/path/二阶贝塞尔曲线.png)
+
+![二阶贝塞尔曲线](./../../image-resources/customview/path/二阶贝塞尔曲线.gif)
+
+#### 三阶贝塞尔曲线
+
+- 与二阶类似
+- AE:AB = BF:BC=CG:CD=EH:EF=FI:FG=HJ:HI
+- 其中I就是曲线上的一点
+
+![三阶贝塞尔曲线](./../../image-resources/customview/path/三阶贝塞尔曲线01.png)
+
+## FillType
+
+```java
+public void setFillType(FillType ft)
+
+public enum FillType {
+  // these must match the values in SkPath.h
+  /**
+  * Specifies that "inside" is computed by a non-zero sum of signed
+  * edge crossings.
+  */
+  WINDING(0),
+  /**
+  * Specifies that "inside" is computed by an odd number of edge
+  * crossings.
+  */
+  EVEN_ODD(1),
+  /**
+  * Same as {@link #WINDING}, but draws outside of the path, rather than inside.
+  */
+  INVERSE_WINDING (2),
+  /**
+  * Same as {@link #EVEN_ODD}, but draws outside of the path, rather than inside.
+  */
+  INVERSE_EVEN_ODD(3);
+
+  FillType(int ni) {
+    nativeInt = ni;
+  }
+
+  final int nativeInt;
+}
+
+```
+
+- 都是针对封密图形
+- EVEN_ODD表示奇偶规则，而INVERSE_EVEN_ODD表示奇偶规则的反色版本
+- WINDING表示非零环绕数规则，而INVERSE_WINDING表示对应的反色版本
+
+### 奇偶规则
+
+- **奇数表示在图形内，偶数表示在图形外**
+- 从任意位置p作一条射线， 若与该射线相交的图形边的数目为奇数，则p是图形内部点，否则是外部点。
+
+![奇偶规则](./../../image-resources/customview/path/奇偶规则.jpg)
+
+- P1: 从P1发出一条射线，发现图形与该射线相交边数为0，偶数，故P1点在图形外部。
+- P2: 从P2发出一条射线，发现图形与该射线相交边数为1，奇数，故P2点在图形内部。
+- P3: 从P3发出一条射线，发现图形与该射线相交边数为2，偶数，故P3点在图形外部。
+
+### 非零环绕数规则
+
+- 首先，它需要你图形中的所有线条都是有绘制方向的(Path.Direction指定)
+- **若环绕数为0表示在图形外，非零表示在图形内**
+- 然后，同样是从平面中的点向任意方向射出一条射线，但计算规则不一样：以 0 为初始值，对于射线和图形的所有交点，遇到每个顺时针的交点（图形从射线的左边向右穿过）把结果加 1，遇到每个逆时针的交点（图形从射线的右边向左穿过）把结果减 1，最终把所有的交点都算上，**得到的结果如果不是 0，则认为这个点在图形内部，是要被涂色的区域；如果是 0，则认为这个点在图形外部，是不被涂色的区域。**
+
+![非零环绕数规则](./../../image-resources/customview/path/非零环绕数规则.jpg)
+
+## 布尔操作
+
+```java
+// op操作成功，返回true,否则返回false
+public boolean op(Path path, Op op)
+public boolean op(Path path1, Path path2, Op op)
+
+// 对 path1 和 path2 执行布尔运算，运算方式由第二个参数指定，运算结果存入到path1中。
+path1.op(path2, Path.Op.DIFFERENCE);
+
+// 对 path1 和 path2 执行布尔运算，运算方式由第三个参数指定，运算结果存入到path3中。
+path3.op(path1, path2, Path.Op.DIFFERENCE)
+```
+
+- 布尔操作是两个Path之间的运算，主要作用是用一些简单的图形通过一些规则合成一些相对比较复杂，或难以直接得到的图
+
+### DIFFERENCE
+
+- 差集
+- Path1中减去Path2后剩下的部分
+
+![DIFFERENCE](./../../image-resources/customview/path/DIFFERENCE.jpg)
+
+### REVERSE_DIFFERENCE
+
+- 差集
+- Path2中减去Path1后剩下的部分
+
+![REVERSE_DIFFERENCE](./../../image-resources/customview/path/REVERSE_DIFFERENCE.jpg)
+
+### INTERSECT
+
+- 交集
+- Path1与Path2相交的部分
+
+![INTERSECT](./../../image-resources/customview/path/INTERSECT.jpg)
+
+### UNION
+
+- 并集
+- 包含全部Path1和Path2
+
+![UNION](./../../image-resources/customview/path/UNION.jpg)
+
+### XOR
+
+- 异或
+- 包含Path1与Path2但不包括两者相交的部分
+
+![XOR](./../../image-resources/customview/path/XOR.jpg)
+
+## 重置路径
+
+```java
+public void reset() {
+  isSimplePath = true;
+  mLastDirection = null;
+  if (rects != null) rects.setEmpty();
+  // We promised not to change this, so preserve it around the native
+  // call, which does now reset fill type.
+  final FillType fillType = getFillType();
+  nReset(mNativePath);
+  setFillType(fillType);
+}
+
+public void rewind() {
+  isSimplePath = true;
+  mLastDirection = null;
+  if (rects != null) rects.setEmpty();
+  nRewind(mNativePath);
+}
+```
+
+方法   | 是否保留FillType设置 | 是否保留原有数据结构
+-------|----------------------|----------------------
+reset  | 是                   | 否
+rewind | 否                   | 是
+
+## 其它函数
 
 ```java
 // 判断path中是否包含内容
@@ -166,4 +365,7 @@ public void set (Path src)
 // dst为空(null),平移将作用于当前path，相当于第一种方法
 public void offset (float dx, float dy)
 public void offset (float dx, float dy, Path dst)
+
+// 这个方法主要作用是计算Path所占用的空间以及所在位置,测量结果会放入这个矩形bounds
+void computeBounds (RectF bounds, boolean exact)
 ```
