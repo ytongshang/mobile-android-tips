@@ -32,15 +32,50 @@ public void draw (Canvas canvas)                     | 将Picture中内容绘制
 是否对Canvas有影响 | 1有影响2,3不影响             | 此处指绘制完成后是否会影响Canvas的状态(Matrix clip等)
 可操作性强弱       | 1可操作性较弱2,3可操作性较强 | 此处的可操作性可以简单理解为对绘制结果可控程度。
 
-- 使用Picture的draw方法
+```java
+// 1.创建Picture
+private Picture mPicture = new Picture();
+
+---------------------------------------------------------------
+
+// 2.录制内容方法
+private void recording() {
+    // 开始录制 (接收返回值Canvas)
+    Canvas canvas = mPicture.beginRecording(500, 500);
+    // 创建一个画笔
+    Paint paint = new Paint();
+    paint.setColor(Color.BLUE);
+    paint.setStyle(Paint.Style.FILL);
+
+    // 在Canvas中具体操作
+    // 位移
+    canvas.translate(250,250);
+    // 绘制一个圆
+    canvas.drawCircle(0,0,100,paint);
+
+    mPicture.endRecording();
+}
+
+---------------------------------------------------------------
+
+// 3.在使用前调用(我在构造函数中调用了)
+  public Canvas3(Context context, AttributeSet attrs) {
+    super(context, attrs);
+
+    recording();    // 调用录制
+}
+```
+
+#### 使用Picture的draw方法
+
+- **在较低的版本的系统中会影响Canvas的状态，所以这种方法一般不使用**
 
 ```java
 // 将Picture中的内容绘制在Canvas上
 mPicture.draw(canvas);
 ```
 
-- 使用Canvas提供的drawPicture方法绘制
-- **使用drawPicture(Picture,Rect)时，会缩放picture的内容来适应Rect的大小**，从而可能导致Picture的内容发生变化
+#### 使用Canvas提供的drawPicture方法绘制
 
 ```java
 public void drawPicture (Picture picture)
@@ -53,8 +88,18 @@ public void drawPicture (Picture picture, Rect dst)
 public void drawPicture (Picture picture, RectF dst)
 ```
 
-- 使用PictureDrawable
-- 此处setBounds是设置在画布上的绘制区域，并非根据该区域进行缩放，也不是剪裁Picture，每次都从Picture的左上角开始绘制
+- **使用drawPicture(Picture,Rect)时，会缩放picture的内容来适应Rect的大小**，从而可能导致Picture的内容发生变形
+
+```java
+// 会拉伸picture的内容，使内容全部绘制在矩形中，导致变形
+canvas.drawPicture(mPicture,new RectF(0,0,mPicture.getWidth(),200));
+```
+
+![canvas-drawpicture](./../../image-resources/customview/canvas/canvas-drawpicture.png)
+
+#### 使用PictureDrawable
+
+- **此处setBounds是设置在画布上的绘制区域，并非根据该区域进行缩放**，也不是剪裁Picture，每次都从Picture的左上角开始绘制
 
 ```java
 // 包装成为Drawable
@@ -65,6 +110,8 @@ drawable.setBounds(0,0,250,mPicture.getHeight());
 drawable.draw(canvas);
 ```
 
+![canvas-picturedrawable](./../../image-resources/customview/canvas/canvas-picturedrawable.png)
+
 ## drawBitmap
 
 ### 方法1
@@ -73,7 +120,7 @@ drawable.draw(canvas);
 public void drawBitmap (Bitmap bitmap, Matrix matrix, Paint paint)
 ```
 
-- 方法中后两个参数(matrix, paint)是在绘制的时候对图片进行一些改变
+- **matrix用来对bitmap进行矩阵变换**
 
 ### 方法2
 
@@ -81,7 +128,7 @@ public void drawBitmap (Bitmap bitmap, Matrix matrix, Paint paint)
 public void drawBitmap(@NonNull Bitmap bitmap, float left, float top, @Nullable Paint paint)
 ```
 
-- 在绘制时指定了图片左上角的坐标(距离坐标原点的距离)
+- 将bitmap绘制出来，**其中(left,top)是bitmap的左上角将要绘制的坐标**
 
 ### 方法3
 
@@ -93,8 +140,8 @@ public void drawBitmap(@NonNull Bitmap bitmap, @Nullable Rect src, @NonNull Rect
 
 名称                 | 作用
 ---------------------|----------------------------------
-Rect src             | 指定绘制图片的区域
-Rect dst 或RectF dst | 指定图片在屏幕上显示(绘制)的区域
+Rect src             | 如果不为null,表示bitmap的一个子区域
+Rect dst 或RectF dst | bitmap将通过拉伸变化绘制到dst区域内
 
 - 用src指定了原图片需要绘制的区域，然后用dst指定了绘制到屏幕上的区域，**图片宽高会根据指定的区域自动进行缩放**
 
