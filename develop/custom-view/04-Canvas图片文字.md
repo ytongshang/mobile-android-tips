@@ -1,6 +1,26 @@
 # Canvas图片文字
 
-[安卓自定义View进阶-Canvas之图片文字](http://www.gcssloop.com/customview/Canvas_PictureText)
+- [相关资料](#相关资料)
+- [drawPicture](#drawpicture)
+    - [Picture](#picture)
+    - [将Picture的内容绘制出来](#将picture的内容绘制出来)
+        - [使用Picture的draw方法](#使用picture的draw方法)
+        - [使用Canvas提供的drawPicture方法绘制](#使用canvas提供的drawpicture方法绘制)
+        - [使用PictureDrawable](#使用picturedrawable)
+- [drawBitmap](#drawbitmap)
+    - [方法1](#方法1)
+    - [方法2](#方法2)
+    - [方法3](#方法3)
+- [Canvas的Text绘制](#canvas的text绘制)
+    - [Paint.FontMetrics](#paintfontmetrics)
+    - [drawText](#drawtext)
+    - [第一类](#第一类)
+    - [第二类](#第二类)
+    - [第三类](#第三类)
+
+## 相关资料
+
+- [安卓自定义View进阶-Canvas之图片文字](http://www.gcssloop.com/customview/Canvas_PictureText)
 
 ## drawPicture
 

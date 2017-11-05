@@ -1,5 +1,10 @@
 # 自定义View基础
 
+- [颜色](#颜色)
+    - [透明度](#透明度)
+    - [颜色混合](#颜色混合)
+    - [PorterDuff.Mode](#porterduffmode)
+
 ## 颜色
 
 ### 透明度
@@ -23,7 +28,7 @@
 
 ### PorterDuff.Mode
 
-- 还有不同的混合模式供我们选择，用Paint.setXfermode，指定不同的PorterDuff.Mode。
+- 用Paint.setXfermode，指定不同的PorterDuff.Mode。
 
 - PorterDuff.Mode混合计算公式：（D指原本在Canvas上的内容dst，S指绘制输入的内容src，a指alpha通道，c指RGB各个通道）
 
@@ -79,6 +84,14 @@ public enum Mode {
 
 ```
 
-- 用示例图来查看使用不同模式时的混合效果如下（src表示输入的图，dst表示原Canvas上的内容）：
+- 主要分为两类
+    - Alpha合成
+    - 混合模式 DARKEN LIGHTEN MULTIPLY SCREEN OVERLAY
 
-![PorterDuff.Mode](./../../image-resources/PorterDuff.Mode.jpg)
+- Alpha合成（src表示输入的图，dst表示原Canvas上的内容）：
+
+![PorterDuff.Mode](./../../image-resources/customview/alphacomposing.jpg)
+
+- 混合模式
+
+![PorterDuff.Mode](./../../image-resources/customview/blending.jpg)
