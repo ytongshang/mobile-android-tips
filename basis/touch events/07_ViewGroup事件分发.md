@@ -256,7 +256,7 @@
 
 ## 图解
 
-![viewgroup事件分发](./../../image-resources/viewgroup.png)
+![viewgroup事件分发](./../../image-resources/touchevent/viewgroup.png)
 
 ## 总结
 

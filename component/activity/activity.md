@@ -15,7 +15,7 @@
 
 ### 生命周期图解
 
-![activity生命周期](./../../image-resources/activity_lifecycle.png)
+![activity生命周期](./../../image-resources/activity/activity_lifecycle.png)
 
 ### 生命周期
 
@@ -47,7 +47,7 @@ onDestroy() | Called before the activity is destroyed. This is the final call th
 
 ### restore activity
 
-![restore activity](./../../image-resources/activity_restore_instance.png)
+![restore activity](./../../image-resources/activity/activity_restore_instance.png)
 
 #### onSaveInstanceState
 
