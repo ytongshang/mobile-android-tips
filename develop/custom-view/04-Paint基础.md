@@ -149,9 +149,89 @@ canvas.drawCircle(300, 300, 300, paint);
 
 ### setColorFilter(ColorFilter filter)
 
-- 设置颜色过滤器,可以通过颜色过滤器过滤掉对应的色值，比如图像灰度处理，生成老照片效果
+- 设置颜色过滤器,颜色过滤的意思，就是为绘制的内容设置一个统一的过滤策略，然后 Canvas.drawXXX() 方法会对每个像素都进行过滤后再绘制出来
 
 - ColorFilter有以下几个子类可用: ColorMatrixColorFilter, LightingColorFilter, PorterDuffColorFilter
+
+#### LightingColorFilter
+
+```java
+LightingColorFilter (int mul, int add);
+```
+
+- mul全称是colorMultiply意为色彩倍增，而add全称是colorAdd意为色彩添加
+- 这两个值都是16进制的色彩值0xAARRGGBB。
+
+- 最后生成的颜色计算方法为
+
+```java
+R' = R * mul.R / 0xff + add.R
+G' = G * mul.G / 0xff + add.G
+B' = B * mul.B / 0xff + add.B
+```
+
+- **LightingColorFilter(0xFFFFFF, 0x000000)的时候原图是不会有任何改变的**
+
+```java
+R' = R * 0xff / 0xff + 0x0 = R // R' = R
+G' = G * 0xff / 0xff + 0x0 = G // G' = G
+B' = B * 0xff / 0xff + 0x0 = B // B' = B
+```
+
+- 如果我们想要**移除红色，可以使用将可以使用LightingColorFilter(0x00FFFF, 0x000000)**
+
+```java
+R' = R * 0x0 / 0xff + 0x0 = 0 // 红色被移除
+G' = G * 0xff / 0xff + 0x0 = G
+B' = B * 0xff / 0xff + 0x0 = B
+```
+
+- 如果我们想增加红色的值，那么可以使用LightingColorFilter(0xFFFFFF, 0xXX0000)就好，其中XX取值为00至FF
+
+```java
+R' = R * 0xff / 0xff + 0xXX = R + 0xXX （红色被增强）
+G' = G * 0xff / 0xff + 0x0 = G
+B' = B * 0xff / 0xff + 0x0 = B
+```
+
+```java
+// 我们想要去掉绿色
+@Override
+protected void onDraw(Canvas canvas) {
+    super.onDraw(canvas);
+
+    // 设置颜色过滤
+    mPaint.setColorFilter(new LightingColorFilter(0xFF00FF, 0x000000));
+
+    Bitmap bitmap = BitmapFactory.decodeResource(mContext.getResources(), R.drawable.kale);
+    canvas.drawBitmap(bitmap,240,600,mPaint);
+}
+```
+
+#### PorterDuffColorFilter
+
+```java
+PorterDuffColorFilter(int color, PorterDuff.Mode mode)
+```
+
+- 这个构造方法也接受两个值，一个是16进制表示的颜色值，而另一个是PorterDuff内部类Mode中的一个常量值，这个值表示混合模式。
+
+- 将画布上的元素和我们设置的color进行混合，产生最终的效果。
+
+```java
+@Override
+protected void onDraw(Canvas canvas) {
+    super.onDraw(canvas);
+
+    // 设置颜色过滤
+    mPaint.setColorFilter(new PorterDuffColorFilter(Color.RED, PorterDuff.Mode.DARKEN));
+
+    Bitmap bitmap = BitmapFactory.decodeResource(mContext.getResources(), R.drawable.kale);
+    canvas.drawBitmap(bitmap,240,600,mPaint);
+}
+```
+
+- 但是这里要注意一点，PorterDuff.Mode中的模式不仅仅是应用于图像色彩混合，还应用于图形混合，比如PorterDuff.Mode.DST_OUT就表示裁剪混合图。
 
 #### ColorMatrixColorFilter
 
@@ -165,7 +245,7 @@ canvas.drawCircle(300, 300, 300, paint);
 
 - 为了改变图像的显示效果，只需要改变 4*5 的颜色矩阵ColorMatrix，然后通过矩阵计算，即可得到新的图像显示矩阵
 
-![ColorMatrix计算](./../../image-resources/color_matrix.png)
+![ColorMatrix计算](./../../image-resources/customview/paint/color_matrix.png)
 
 - 通过颜色矩阵 ColorMatrix 修改了原图像的 RGBA 值，从而达到了改变图片颜色效果的目的。并且，通过如上图所示的运算可知，颜色矩阵 ColorMatrix 的第一行参数abcde决定了图像的红色成分，第二行参数fghij决定了图像的绿色成分，第三行参数klmno决定了图像的蓝色成分，第四行参数pqrst决定了图像的透明度，第五列参数ejot是颜色的偏移量
 
@@ -202,67 +282,6 @@ public class GrayPostprocessor extends BasePostprocessor {
     }
 }
 ```
-
-#### LightingColorFilter
-
-- 光照颜色过滤,该类有且只有一个构造方法：
-
-```java
-LightingColorFilter (int mul, int add);
-```
-
-- mul全称是colorMultiply意为色彩倍增，而add全称是colorAdd意为色彩添加，这两个值都是16进制的色彩值0xAARRGGBB。
-
-- 最后生成的颜色计算方法为
-
-```java
- newR = R * colorMultiply.R + colorAdd.R;
- newG = G * colorMultiply.G + colorAdd.G;
- newB = B * colorMultiply.B + colorAdd.B;
-```
-
-- LightingColorFilter(0xFFFFFFFF, 0x00000000)的时候原图是不会有任何改变的，如果我们想增加红色的值，那么LightingColorFilter(0xFFFFFFFF, 0x00XX0000)就好，其中XX取值为00至FF
-
-```java
-// 我们想要去掉绿色
-@Override
-protected void onDraw(Canvas canvas) {
-    super.onDraw(canvas);
-
-    // 设置颜色过滤
-    mPaint.setColorFilter(new LightingColorFilter(0xFFFF00FF, 0x00000000));
-
-    Bitmap bitmap = BitmapFactory.decodeResource(mContext.getResources(), R.drawable.kale);
-    canvas.drawBitmap(bitmap,240,600,mPaint);
-}
-```
-
-#### PorterDuffColorFilter
-
-- PorterDuffColorFilter跟LightingColorFilter一样，只有一个构造方法：
-
-```java
-PorterDuffColorFilter(int color, PorterDuff.Mode mode)
-```
-
-- 这个构造方法也接受两个值，一个是16进制表示的颜色值，而另一个是PorterDuff内部类Mode中的一个常量值，这个值表示混合模式。
-
-- 将画布上的元素和我们设置的color进行混合，产生最终的效果。
-
-```java
-@Override
-    protected void onDraw(Canvas canvas) {
-        super.onDraw(canvas);
-
-        // 设置颜色过滤
-        mPaint.setColorFilter(new PorterDuffColorFilter(Color.RED, PorterDuff.Mode.DARKEN));
-
-        Bitmap bitmap = BitmapFactory.decodeResource(mContext.getResources(), R.drawable.kale);
-        canvas.drawBitmap(bitmap,240,600,mPaint);
-    }
-```
-
-- 但是这里要注意一点，PorterDuff.Mode中的模式不仅仅是应用于图像色彩混合，还应用于图形混合，比如PorterDuff.Mode.DST_OUT就表示裁剪混合图。
 
 ## Paint.Style
 
