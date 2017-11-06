@@ -78,7 +78,7 @@ private void recording() {
 
 ---------------------------------------------------------------
 
-// 3.在使用前调用(我在构造函数中调用了)
+// 3.在使用前调用
   public Canvas3(Context context, AttributeSet attrs) {
     super(context, attrs);
 
@@ -198,15 +198,14 @@ public static class FontMetrics {
 }
 ```
 
-![FontMetrics](./../../image-resources/FontMetrics.png)
+![FontMetrics](./../../image-resources/customview/canvas/FontMetrics.jpg)
 
 - **BaseLine**：基准线
-- **Ascent**:baseline到字符最高处的距离
-- **descent**:baseline到字符最低处的距离
-- **Leading**：文档说的很含糊，不太确定，可以认为是一行的bottom到下一行的top之间的距离
-- **Top**：指的是该textsize时，字体中最高字符到baseline的值，即ascent的最大值
-- **Bottom**：指的是该textsize时，字体中最低字符到baseline的值，即descent的最大值
-
+- **ascent / descent**: 上图中绿色和橙色的线，它们的作用是限制普通字符的顶部和底部范围。 
+ 普通的字符，上不会高过 ascent ，下不会低过 descent ，例如上图中大部分的字形都显示在  ascent 和 descent 两条线的范围内。具体到 Android 的绘制中， **ascent** 的值是图中绿线和  baseline 的相对位移，**它的值为负（因为它在 baseline 的上方）**； **descent** 的值是图中橙线和  baseline 相对位移，**值为正（因为它在 baseline 的下方）**
+- top / bottom: 上图中蓝色和红色的线，它们的作用是限制所有字形（ glyph ）的顶部和底部范围。
+ 除了普通字符，有些字形的显示范围是会超过 ascent 和 descent 的，而 top 和 bottom 则限制的是所有字形的显示范围，包括这些特殊字形。例如上图的第二行文字里，就有两个泰文的字形分别超过了 ascent 和 descent 的限制，但它们都在 top 和 bottom 两条线的范围内。具体到 Android 的绘制中， top 的值是图中蓝线和 baseline 的相对位移，它的值为负（因为它在 baseline 的上方）；  bottom 的值是图中红线和 baseline 相对位移，值为正（因为它在 baseline 的下方）。
+- leading: 这个词在上图中没有标记出来，因为它并不是指的某条线和 baseline 的相对位移。  leading 指的是行的额外间距，即对于上下相邻的两行，上行的 bottom 线和下行的 top 线的距离，也就是上图中第一行的红线和第二行的蓝线的距离
 - **因为坐标系的关系，baseline向下为正，向右为正，所以bottom与top之间的距离应当为bottom-top**
 
 ### drawText
