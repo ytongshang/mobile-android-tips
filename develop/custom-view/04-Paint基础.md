@@ -11,15 +11,31 @@
             - [BitmapShader](#bitmapshader)
             - [ComposeShader](#composeshader)
     - [setColorFilter(ColorFilter filter)](#setcolorfiltercolorfilter-filter)
-        - [ColorMatrixColorFilter](#colormatrixcolorfilter)
-            - [Fresco中的灰度处理](#fresco中的灰度处理)
         - [LightingColorFilter](#lightingcolorfilter)
         - [PorterDuffColorFilter](#porterduffcolorfilter)
-- [Paint.Style](#paintstyle)
-- [Paint.Cap](#paintcap)
-- [Paint.Join](#paintjoin)
-- [Paint.Align](#paintalign)
-- [其它常用方法](#其它常用方法)
+        - [ColorMatrixColorFilter](#colormatrixcolorfilter)
+            - [Fresco中的灰度处理](#fresco中的灰度处理)
+    - [setXfermode](#setxfermode)
+        - [离屏缓冲](#离屏缓冲)
+            - [Canvas.saveLayer](#canvassavelayer)
+            - [View.setLayerType()](#viewsetlayertype)
+        - [控制好透明区域](#控制好透明区域)
+- [效果](#效果)
+    - [抗锯齿](#抗锯齿)
+    - [Paint.Style](#paintstyle)
+    - [线条形状](#线条形状)
+        - [线条宽](#线条宽)
+        - [Paint.Cap](#paintcap)
+        - [Paint.Join](#paintjoin)
+        - [setStrokeMiter(float miter)](#setstrokemiterfloat-miter)
+    - [色彩优化](#色彩优化)
+        - [setDither](#setdither)
+        - [setFilterBitmap](#setfilterbitmap)
+    - [setPathEffect](#setpatheffect)
+    - [setShadowLayer](#setshadowlayer)
+    - [setMastFilter](#setmastfilter)
+- [获取绘制的Path](#获取绘制的path)
+- [常用方法](#常用方法)
 
 ## 相关资料
 
@@ -283,7 +299,64 @@ public class GrayPostprocessor extends BasePostprocessor {
 }
 ```
 
-## Paint.Style
+### setXfermode
+
+```java
+public Xfermode setXfermode(Xfermode xfermode)
+```
+
+- **就是要你以绘制的内容作为源图像，以 View 中已有的内容作为目标图像，选取一个  PorterDuff.Mode 作为绘制内容的颜色处理方案**
+
+```java
+Xfermode xfermode = new PorterDuffXfermode(PorterDuff.Mode.DST_IN);
+
+...
+
+canvas.drawBitmap(rectBitmap, 0, 0, paint); // 画方
+paint.setXfermode(xfermode); // 设置 Xfermode
+canvas.drawBitmap(circleBitmap, 0, 0, paint); // 画圆
+paint.setXfermode(null); // 用完及时清除 Xfermode
+```
+
+#### 离屏缓冲
+
+- 要想使用 setXfermode() 正常绘制，必须使用离屏缓存 (Off-screen Buffer) **把内容绘制在额外的层上，再把绘制好的内容贴回 View 中**
+
+##### Canvas.saveLayer
+
+```java
+int saved = canvas.saveLayer(null, null, Canvas.ALL_SAVE_FLAG);
+
+canvas.drawBitmap(rectBitmap, 0, 0, paint); // 画方
+paint.setXfermode(xfermode); // 设置 Xfermode
+canvas.drawBitmap(circleBitmap, 0, 0, paint); // 画圆
+paint.setXfermode(null); // 用完及时清除 Xfermode
+
+canvas.restoreToCount(saved);
+```
+
+##### View.setLayerType()
+
+- View.setLayerType() 是直接把整个 View 都绘制在离屏缓冲中
+- setLayerType(LAYER_TYPE_HARDWARE) 是使用 GPU 来缓冲
+- setLayerType(LAYER_TYPE_SOFTWARE) 是直接直接用一个 Bitmap 来缓冲。
+
+#### 控制好透明区域
+
+- 使用 Xfermode 来绘制的内容，除了注意使用离屏缓冲，还应该注意控制它的透明区域不要太小，要让它足够覆盖到要和它结合绘制的内容，否则得到的结果很可能不是你想要的
+
+![Paint.Style](./../../image-resources/customview/paint/透明区域.jpg)
+
+## 效果
+
+### 抗锯齿
+
+```java
+public void setAntiAlias(boolean aa)
+Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
+```
+
+### Paint.Style
 
 - Paint.Style.FILL：填充内部
 - Paint.Style.FILL_AND_STROKE  ：填充内部和描边
@@ -292,21 +365,124 @@ public class GrayPostprocessor extends BasePostprocessor {
 
 ![Paint.Style](./../../image-resources/customview/paint/paint_style.jpg)
 
-## Paint.Cap
+### 线条形状
+
+#### 线条宽
+
+```java
+public void setStrokeWidth(float width)
+```
+
+#### Paint.Cap
+
+```java
+public void setStrokeCap(Cap cap)
+```
 
 ![Paint.Cap](./../../image-resources/customview/paint/paint_cap.png)
 
-## Paint.Join
+#### Paint.Join
+
+```java
+public void setStrokeJoin(Join join)
+```
 
 ![Paint.Join](./../../image-resources/customview/paint/paint_join.png)
 
-## Paint.Align
+#### setStrokeMiter(float miter)
 
-- Paint.Align.LEFT
-- Paint.Align.CENTER
-- Paint.Align.RIGHT
+- **必须setStrokeJoin(Join.MITER)才有效果**
 
-## 其它常用方法
+### 色彩优化
+
+#### setDither
+
+```java
+public void setDither(boolean dither)
+```
+
+- 所谓抖动，是指把图像从较高色彩深度（即可用的颜色数）向较低色彩深度的区域绘制时，在图像中有意地插入噪点，通过有规律地扰乱图像来让图像对于肉眼更加真实的做法。
+- **抖动更多的作用是在图像降低色彩深度绘制时，避免出现大片的色带与色块**
+- **当向自建的Bitmap中绘制，并且选择了16位色的ARGB_4444或者RGB_565的时候，开启它才会有比较明显的效果**
+
+![抖动](./../../image-resources/customview/paint/抖动.jpg)
+
+#### setFilterBitmap
+
+- 使用双线性过滤来绘制bitmap
+- **图像在放大绘制的时候**，默认使用的是最近邻插值过滤，这种算法简单，但会出现马赛克现象；**而如果开启了双线性过滤，就可以让结果图像显得更加平滑**
+
+![双线性过滤](./../../image-resources/customview/paint/双线性过滤.jpg)
+
+### setPathEffect
+
+- 使用 PathEffect 来给图形的轮廓设置效果。对 Canvas 所有的图形绘制有效
+
+```java
+// 把所有拐角变成圆角
+public CornerPathEffect(float radius)
+
+// 实现轮廓变为虚线
+public DashPathEffect(float intervals[], float phase)
+
+// 它是使用一个 Path 来绘制「虚线」
+public PathDashPathEffect(Path shape, float advance, float phase,
+                              Style style)
+
+//把线条进行随机的偏离，让轮廓变得乱七八糟
+public DiscretePathEffect(float segmentLength, float deviation)
+
+//这是一个组合效果类的 PathEffect 。它的行为特别简单，就是分别按照两种 PathEffect 分别对目标进行绘制
+public SumPathEffect(PathEffect first, PathEffect second)
+
+//这也是一个组合效果类的 PathEffect 。不过它是先对目标 Path 使用一个 PathEffect，然后再对这个改变后的 Path 使用另一个 PathEffect
+public ComposePathEffect(PathEffect outerpe, PathEffect innerpe)
+```
+
+### setShadowLayer
+
+```java
+public void setShadowLayer(float radius, float dx, float dy, int shadowColor)
+```
+
+- setShadowLayer() 是设置的在绘制层下方的阴影效果
+- radius 是阴影的模糊范围； dx dy 是阴影的偏移量；  shadowColor 是阴影的颜色
+- **在硬件加速开启的情况下， setShadowLayer() 只支持文字的绘制**，文字之外的绘制必须关闭硬件加速才能正常绘制阴影
+- **如果 shadowColor 是半透明的，阴影的透明度就使用 shadowColor 自己的透明度；而如果shadowColor 是不透明的，阴影的透明度就使用 paint 的透明度**
+
+### setMastFilter
+
+- MaskFilter 和它相反，设置的是在绘制层上方的附加效果
+
+```java
+// 模糊效果
+// NORMAL: 内外都模糊绘制
+// SOLID: 内部正常绘制，外部模糊
+// INNER: 内部模糊，外部不绘制
+// OUTER: 内部不绘制，外部模糊
+public BlurMaskFilter(float radius, Blur style)
+
+// 浮雕效果
+// direction 是一个 3 个元素的数组，指定了光源的方向
+// ambient 是环境光的强度，数值范围是 0 到 1
+// specular 是炫光的系数
+// blurRadius 是应用光线的范围
+public EmbossMaskFilter(float[] direction, float ambient, float specular, float blurRadius)
+```
+
+## 获取绘制的Path
+
+- 所谓实际 Path ，指的就是 drawPath() 的绘制内容的轮廓，要算上线条宽度和设置的 PathEffect
+
+```java
+// 源path
+// 实际的path
+public boolean getFillPath(Path src, Path dst)
+
+getTextPath(String text, int start, int end, float x, float y, Path path) / getTextPath(char[] text, int index, int count, float x, float y, Path path)
+```
+
+## 常用方法
 
 ```java
 //重置Paint。
@@ -347,7 +523,7 @@ setShader(Shader shader)
 //设置画笔颜色过滤器，有ColorMatrixColorFilter，LightingColorFilter，PorterDuffColorFilter几种，这个以后再单独分析
 setColorFilter(ColorFilter filter)
 
-//设置图形重叠时的显示方式，下面来演示一下
+//设置图形重叠时的显示方式
 setXfermode(Xfermode xfermode)
 
 //设置绘制路径的效果，有ComposePathEffect，CornerPathEffect，DashPathEffect，DiscretePathEffect，PathDashPathEffect，SumPathEffect几种，以后在单独分析
@@ -358,7 +534,6 @@ setMaskFilter(MaskFilter maskfilter)
 
 //设置阴影效果，radius为阴影角度，dx和dy为阴影在x轴和y轴上的距离，color为阴影的颜色 ，看一下演示效果，其中第一个是没有阴影的，第二个设置了黑色的阴影
 setShadowLayer(float radius, float dx, float dy, int shadowColor)
-
 
 //设置字体样式，可以是Typeface设置的样式，也可以通过Typeface的createFromAsset(AssetManager mgr, String path)方法加载样式
 setTypeface(Typeface typeface)
@@ -424,4 +599,3 @@ getTextPath(String text, int start, int end, float x, float y, Path path)
 getTextBounds(String text, int start, int end, Rect bounds)
 getTextBounds(char[] text, int index, int count, Rect bounds)
 ```
-

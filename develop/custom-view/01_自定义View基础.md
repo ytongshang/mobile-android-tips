@@ -95,3 +95,11 @@ public enum Mode {
 - 混合模式
 
 ![PorterDuff.Mode](./../../image-resources/customview/blending.jpg)
+
+- 在android中主要有3个地方用到了PorterDuff.Mode
+
+API                                                     | 用途
+--------------------------------------------------------|--------------------------------------------
+ComposeShader(Shader A, Shader B, PorterDuff.Mode mode) | B为src,A为dst
+paint.setXfermode(Xfermode xfermode)                    | 将要绘制的内容src,Canvas现有内容为dst
+PorterDuffColorFilter(int color, PorterDuff.Mode mode)  | color为src,现有像素的值为dst
