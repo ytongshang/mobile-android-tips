@@ -192,3 +192,52 @@ public void setLinearText(boolean linearText)
 ```
 
 ## 文字测量尺寸类
+
+### getFontSpacing()
+
+```java
+public float getFontSpacing()
+```
+
+- 获取推荐的行距。**即推荐的两行文字的 baseline 的距离**
+
+![linespacing](./../../image-resources/customview/canvas/linespacing.jpg)
+
+### getFontMetrics()
+
+- 根据FontMetrics的定义，可以认为两行文字的 font spacing (即相邻两行的 baseline 的距离) 可以通过  bottom - top + leading
+- **bottom - top + leading 的结果是要大于 getFontSpacing() 的返回值的**。这是因为 getFontSpacing() 的结果并不是通过 FontMetrics 的标准值计算出来的，而是另外计算出来的一个值，它能够做到在两行文字不显得拥挤的前提下缩短行距，以此来得到更好的显示效果。
+- **所以如果你要对文字手动换行绘制，多数时候应该选取 getFontSpacing() 来得到行距，不但使用更简单，显示效果也会更好。**
+
+```java
+// 返回FontMetrics
+public FontMetrics getFontMetrics()
+// 计算结果直接填进传入的 FontMetrics 对象
+public float getFontMetrics(FontMetrics metrics)
+
+// int版本
+public FontMetricsInt getFontMetricsInt()
+public int getFontMetricsInt(FontMetricsInt fmi)
+```
+
+### getTextBounds
+
+```java
+public void getTextBounds(String text, int start, int end, Rect bounds)
+public void getTextBounds(char[] text, int index, int count, Rect bounds)
+```
+
+```java
+paint.setStyle(Paint.Style.FILL);
+canvas.drawText(text, offsetX, offsetY, paint);
+
+paint.getTextBounds(text, 0, text.length(), bounds);
+bounds.left += offsetX;
+bounds.top += offsetY;
+bounds.right += offsetX;
+bounds.bottom += offsetY;
+paint.setStyle(Paint.Style.STROKE);
+canvas.drawRect(bounds, paint);
+```
+
+![gettextbounds](./../../image-resources/customview/canvas/gettextbounds.jpg)
