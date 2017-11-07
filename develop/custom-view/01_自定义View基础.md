@@ -28,8 +28,6 @@
 
 ### PorterDuff.Mode
 
-- 用Paint.setXfermode，指定不同的PorterDuff.Mode。
-
 - PorterDuff.Mode混合计算公式：（D指原本在Canvas上的内容dst，S指绘制输入的内容src，a指alpha通道，c指RGB各个通道）
 
 ```java

@@ -30,6 +30,7 @@
  绘制完成后，可以将将生成的Bitmap在另一个需要用到Canvas的地方绘制出来Canvas.drawBitmap(...)
 
 ```java
+// 这种默认isMutable为true
 Bitmap b = Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888);
 Canvas c = new Canvas(b);
 // 完成绘制
