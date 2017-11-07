@@ -106,13 +106,89 @@ public void drawPosText(@NonNull char[] text, int index, int count,
 2    | 性能不佳，在大量使用的时候可能导致卡顿
 3    | 不支持emoji等特殊字符，不支持字形组合与分解
 
-- 绘制文字时，文字的位置由Canvas确定，但是文字的大小，字体等由Paint确定
+## StaticLayout
 
-标题 | 相关方法                  | 备注
------|---------------------------|-----------------------------------------------------
-色彩 | setColor setARGB setAlpha | 设置颜色，透明度
-大小 | setTextSize               | 设置文本字体大小
-字体 | setTypeface               | 设置或清除字体样式
-样式 | setStyle                  | 填充(FILL),描边(STROKE),填充加描边(FILL_AND_STROKE)
-对齐 | setTextAlign              | 左对齐(LEFT),居中对齐(CENTER),右对齐(RIGHT)
-测量 | measureText               | 测量文本大小(注意，请在设置完文本各项参数后调用)
+```java
+// width 是文字区域的宽度，文字到达这个宽度后就会自动换行
+// align 是文字的对齐方向
+// spacingmult 是行间距的倍数，通常情况下填 1 就好
+// spacingadd 是行间距的额外增加值，通常情况下填 0 就好
+// includeadd 是指是否在文字上下添加额外的空间，来避免某些过高的字符的绘制出现越界
+// TextView.setLineSpacing(float add, float mult)
+ public StaticLayout(CharSequence source, TextPaint paint,
+                        int width,Alignment align,
+                        float spacingmult, float spacingadd,
+                        boolean includepad)
+```
+
+- **相比Canvas.drawText，还支持自动换行，在换行符"\n"换行**
+
+## Paint对文字绘制的辅助类
+
+### 显示效果类
+
+```java
+//设置字体大小
+public void setTextSize(float textSize)
+
+//设置字体样式，可以是Typeface设置的样式，
+// 也可以通过Typeface的createFromAsset(AssetManager mgr, String path)方法加载样式
+public Typeface setTypeface(Typeface typeface)
+public static Typeface createFromAsset(AssetManager mgr, String path)
+
+// 是否使用伪粗体
+//之所以叫伪粗体（fake bold），因为它并不是通过选用更高weight的字体让文字变粗，而是通过程序在运行时把文字给「描粗」了
+public static final int FAKE_BOLD_TEXT_FLAG = 0x20
+public void setFakeBoldText(boolean fakeBoldText)
+
+// 是否使用删除线
+public static final int STRIKE_THRU_TEXT_FLAG = 0x10;
+public void setStrikeThruText(boolean strikeThruText)
+
+// 下滑线
+public static final int UNDERLINE_TEXT_FLAG = 0x08;
+public void setUnderlineText(boolean underlineText)
+
+// 水平斜切，默认为0，官方建议为-0.25
+public void setTextSkewX(float skewX)
+
+// 设置文字横向放缩。也就是文字变胖变瘦
+public void setTextScaleX(float scaleX)
+
+// 设置字符间距。默认值是 0
+// 如果要稍稍扩大间跑，官方建议是0.05
+public void setLetterSpacing(float letterSpacing)
+
+//用 CSS 的 font-feature-settings 的方式来设置文字
+// https://drafts.csswg.org/css-fonts/#propdef-font-feature-settings
+public void setFontFeatureSettings()
+
+// Align.LEFT,Align.CENTER,Align.RIGHT
+// 设置文字的对齐方式
+public void setTextAlign(Align align)
+
+//设置绘制所使用的 Locale
+//通过Paint.setTextLocale(Locale locale) 可以在不改变系统设置的情况下，直接修改绘制时的Locale
+public void setTextLocale(@NonNull Locale locale)
+public void setTextLocales(@NonNull @Size(min=1) LocaleList locales)
+
+//设置是否启用字体的 hinting （字体微调
+//通过向字体中加入 hinting 信息，让矢量字体在尺寸过小的时候得到针对性的修正，从而提高显示效果
+public static final int HINTING_OFF = 0x0;
+public static final int HINTING_ON = 0x1;
+public void setHinting(int mode)
+
+// 把「大高个」文字的高度恢复为原始高度
+// 增大每行文字的上下边界，来容纳被加高了的文字
+// 对中英文没什么效果
+public void setElegantTextHeight(boolean elegant)
+
+//是否开启次像素级的抗锯齿从而达到更好的抗锯齿效果
+public void setSubpixelText(boolean subpixelText)
+
+//这个是文本缓存，设置线性文本，如果设置为true就不需要缓存，
+public static final int LINEAR_TEXT_FLAG    = 0x40;
+public void setLinearText(boolean linearText)
+```
+
+## 文字测量尺寸类
