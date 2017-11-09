@@ -41,7 +41,7 @@ public static class FontMetrics {
 - **leading**: 这个词在上图中没有标记出来，因为它并不是指的某条线和 baseline 的相对位移。  **leading 指的是行的额外间距，即对于上下相邻的两行，上行的 bottom 线和下行的 top 线的距离**，也就是上图中第一行的红线和第二行的蓝线的距离
 - **因为坐标系的关系，baseline向下为正，向右为正，所以bottom与top之间的距离应当为bottom-top**
 
-## drawText
+## Canvas.drawText()
 
 - 将文字从位置(x,y)开始绘制，**其中x并不是第一个字符左侧的坐标，而是第一个字符左侧稍稍偏左的位置**，字符的左右两边会留出一部分空隙，用于文字之间的间隔，以及文字和边框的间隔
 - **而y是文字的基准线的坐标，并不是字符上面／下面的坐标**
@@ -191,7 +191,7 @@ public static final int LINEAR_TEXT_FLAG    = 0x40;
 public void setLinearText(boolean linearText)
 ```
 
-## 文字测量尺寸类
+## Paint文字测量尺寸类
 
 ### getFontSpacing()
 
@@ -241,3 +241,87 @@ canvas.drawRect(bounds, paint);
 ```
 
 ![gettextbounds](./../../image-resources/customview/canvas/gettextbounds.jpg)
+
+### measureText
+
+```java
+public float measureText(char[] text, int index, int count)
+public float measureText(String text, int start, int end)
+public float measureText(String text)
+public float measureText(CharSequence text, int start, int end)
+```
+
+- **getTextBounds**: 它测量的是文字的显示范围（关键词：显示）。形象点来说，你这段文字外放置一个可变的矩形，然后把矩形尽可能地缩小，一直小到这个矩形恰好紧紧包裹住文字，那么这个矩形的范围，就是这段文字的 bounds。
+- **measureText()**: 它测量的是文字绘制时所占用的宽度（关键词：占用）。前面已经讲过，一个文字在界面中，往往需要占用比他的实际显示宽度更多一点的宽度，以此来让文字和文字之间保留一些间距，不会显得过于拥挤。下面的这幅图，并没有设置 setLetterSpacing() ，这里的 letter spacing 是默认值 0，但你可以看到，图中每两个字母之间都是有空隙的。另外，下方那条用于表示文字宽度的横线，在左边超出了第一个字母 H 一段距离的，在右边也超出了最后一个字母 r（虽然右边这里用肉眼不太容易分辨），而就是两边的这两个「超出」，导致了 measureText() 比 getTextBounds() 测量出的宽度要大一些
+
+![measuretext](./../../image-resources/customview/canvas/measuretext.jpg)
+
+### getTextWidths
+
+- **获取字符串中每个字符的宽度，并把结果填入参数 widths**
+
+```java
+public int getTextWidths(char[] text, int index, int count,float[] widths)
+public int getTextWidths(CharSequence text, int start, int end,float[] widths)
+public int getTextWidths(String text, int start, int end, float[] widths)
+public int getTextWidths(String text, float[] widths)
+```
+
+### breakText
+
+- 和 measureText() 的区别是， **breakText() 是在给出宽度上限的前提下测量文字的宽度**。如果文字的宽度超出了上限，那么在临近超限的位置截断文字
+
+```java
+//返回值是截取的文字个数（如果宽度没有超限，则是文字的总个数)
+//text 是要测量的文字；
+//measureForwards 表示文字的测量方向，true 表示由左往右测量；
+//maxWidth 是给出的宽度上限；
+//measuredWidth,方法测量完成后会把截取的文字宽度（如果宽度没有超限，则为文字总宽度）赋值给 measuredWidth[0]
+public int breakText(String text, boolean measureForwards,
+    float maxWidth, float[] measuredWidth)
+public int breakText(char[] text, int index, int count,float maxWidth, float[] measuredWidth)
+public int breakText(CharSequence text, int start, int end,
+    boolean measureForwards,float maxWidth, float[] measuredWidth)
+
+```
+
+## Paint其它与文字相关
+
+### hasGlyph
+
+- **检查指定的字符串是否是一个单独的字形 (glyph)**
+
+```java
+public boolean hasGlyph(String string)
+```
+
+### 光标相关
+
+- 对于一段文字，计算出某个字符处光标的 x 坐标。
+
+```java
+//text要测量的文字
+//start end 是文字的起始和结束位置；
+//contextStart contextEnd 是上下文的起始和结束坐标；
+//isRtl 是文字的方向；
+//offset 是字数的偏移，即计算第几个字符处的光标。
+public float getRunAdvance(CharSequence text, int start, int end, int contextStart,
+            int contextEnd, boolean isRtl, int offset)
+public float getRunAdvance(char[] text, int start, int end, int contextStart, int contextEnd,
+            boolean isRtl, int offset)
+```
+
+- 给出一个位置的像素值，计算出文字中最接近这个位置的字符偏移量（即第几个字符最接近这个坐标）
+
+```java
+//text 是要测量的文字；
+//start end 是文字的起始和结束坐标；
+//contextStart contextEnd 是上下文的起始和结束坐标；
+//isRtl 是文字方向；
+//advance 是给出的位置的像素值。
+//填入参数，对应的字符偏移量将作为返回值返回
+public int getOffsetForAdvance(char[] text, int start, int end, int contextStart,
+            int contextEnd, boolean isRtl, float advance)
+```
+
+- **getOffsetForAdvance() 配合上 getRunAdvance() 一起使用，就可以实现「获取用户点击处的文字坐标」的需求**
