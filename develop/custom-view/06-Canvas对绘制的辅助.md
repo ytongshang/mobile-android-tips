@@ -97,6 +97,11 @@ canvas.restore();
 
 ## Canvas常见的二维变换
 
+### 使用总结
+
+- **使用 Canvas 来做常见的二维变换**
+- **使用 Matrix 来做常见和不常见的二维变换**
+- **使用 Camera 来做三维变换**
 - **在Canvas中如果有多个二维变换操作，代码顺序必须与实际的二维变化操作相关**
  **也就是如果想先移动后旋转，那么代码应当是先旋转后移动**
 
@@ -168,6 +173,40 @@ public void skew(float sx, float sy) {
 
 - float sx:将画布在x方向上倾斜相应的角度，sx倾斜角度的tan值，
 - float sy:将画布在y轴方向上倾斜相应的角度，sy为倾斜角度的tan值.
+
+## Matrix
+
+- 在使用Matrix，**一般情况下我们要通过创建一个新的Matrix，或者调用现在Matrix.reset()方法将其变为单位矩阵**
+- 使用Matrix的步骤
+    - 创建 Matrix 对象
+    - 调用 Matrix 的 pre/postTranslate/Rotate/Scale/Skew() 方法来设置几何变换；
+    - 使用 Canvas.setMatrix(matrix) 或 Canvas.concat(matrix) 来把几何变换应用到 Canvas，一般情况下使用Canvas.concat(matrix)
+
+### set pre post
+
+- 对于四种基本变换 平移(translate)、缩放(scale)、旋转(rotate)、 错切(skew) 它们每一种都三种操作方法，分别为 设置(set)、 前乘(pre) 和 后乘 (post)。
+- 而它们的基础是Concat，通过先构造出特殊矩阵然后用原始矩阵Concat特殊矩阵，达到变换的结果。
+
+方法 | 简介
+-----|---------------------------------------------------
+set  | 设置，会覆盖掉之前的数值，导致之前的操作失效。
+pre  | 前乘，相当于矩阵的右乘， M' = M * S (S指为特殊矩阵)
+post | 后乘，相当于矩阵的左乘，M' = S * M （S指为特殊矩阵）
+
+### setPolyToPoly
+
+### setRectToRect
+
+- - 简单来说就是将源矩形的内容填充到目标矩形中，然而在大多数的情况下，源矩形和目标矩形的长宽比是不一致的，到底该如何填充呢，这个填充的模式就由第三个参数 stf 来确定。
+
+```java
+```
+
+## Camera
+
+### 相关资料
+
+- [Matrix Camera](http://www.gcssloop.com/customview/matrix-3d-camera)
 
 ## SaveLayerXXX
 
