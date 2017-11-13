@@ -58,7 +58,7 @@ public void setARGB(int a, int r, int g, int b) {
 #### 设置Shader
 
 - **当设置了Shader后，原先设置的setColor()/setARGB()就不起作用了**
-- 使用Shader一般就是使用它的几个子类：LinearGradient,RadialGradient,SweepGradient,BitmapShader,CoposeShader
+- 使用Shader一般就是使用它的几个子类：LinearGradient,RadialGradient,SweepGradient,BitmapShader,ComposeShader
 
 ##### LinearGradient
 
@@ -479,7 +479,8 @@ public EmbossMaskFilter(float[] direction, float ambient, float specular, float 
 // 实际的path
 public boolean getFillPath(Path src, Path dst)
 
-getTextPath(String text, int start, int end, float x, float y, Path path) / getTextPath(char[] text, int index, int count, float x, float y, Path path)
+getTextPath(String text, int start, int end, float x, float y, Path path) 
+getTextPath(char[] text, int index, int count, float x, float y, Path path)
 ```
 
 ## 常用方法
