@@ -291,7 +291,7 @@ mObjectAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
 
 ### 条件
 
-- **Object必须提供setAbc方法，如果没有提供初始值，那么也必须提供getAbc方法**，如果没有不满足，
+- **Object必须提供setAbc方法，如果没有提供初始值，那么也必须提供getAbc方法**，如果不满足，
  程序直接crash
 - Object的setAbc对属性abc所作的改变，必须通过某种方法反应出来，比如带来UI的改变，如果不满足，
  动画无效果，但不会crash
