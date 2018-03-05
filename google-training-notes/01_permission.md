@@ -124,21 +124,3 @@ public void onResume() {
 ## permission与feature
 
 - 有些permission需要特定的feature支持，当使用对应特性时，需要要androidManifest.xml指定使用对应的feature
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

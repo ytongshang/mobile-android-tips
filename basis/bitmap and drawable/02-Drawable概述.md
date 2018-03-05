@@ -18,7 +18,7 @@
 
 ### ConstantState
 
-- 每个 Drawable 类对象类都关联有一个 ConstantState 类对象，这是为了保存 Drawable 类对象的一些恒定不变的数据，如果从同一个 res 中创建的 Drawable 类对象，为了节约内存，它们会共享同一个 ConstantState 类对象。比如一个 ColorDrawable 类对象，它会关联一个 ColorState 类对象，color 的颜色值是保存在 ColorState 类对象中的。如果修改 ColorDrawable 的颜色值，会修改到 ColorState 的值，会导致和 ColorState 关联的所有的 ColorDrawable 的颜色都改变。
+- 每个 Drawable 类对象类都关联有一个 ConstantState 类对象，这是为了保存 Drawable 类对象的一些恒定不变的数据，如果从同一个 res 中创建的 Drawable 类对象，为了节约内存，它们会共享同一个 ConstantState 类对象。比如一个 ColorDrawable 类对象，它会关联一个 ColorState 类对象，color 的颜色值是保存在 ColorState 类对象中的。如果修改 ColorDrawable 的颜色值，会修改到 ColorState 的值，会导致和该 ColorState 关联的所有的 ColorDrawable 的颜色都改变。
 
 ### Drawable mutate()
 

@@ -73,7 +73,7 @@
 
 - 没有处于foreground 的componet，但是仍然能够影响用户的所见
 - 以下情况的process被认为是visible process：
-    - 拥有一个activity对于用户来说是可见的，但是不处于onResume（）状态，而是处于onPause()状态，比如打开了一个dialog;
+    - 拥有一个activity对于用户来说是可见的，但是不处于onResume（）状态
     - 拥有一个与一个visible activity绑定的service
 - 一般情况下，visible procee也是不会被detroy的
 
