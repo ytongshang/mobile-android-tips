@@ -250,6 +250,8 @@ public static float lerp(float start, float stop, float amount) {
 
 ## RippleDrawable
 
+- [Material Design之RippleDrawable详解](http://blog.csdn.net/oqihaogongyuan/article/details/53102615)
+
 - 主要是在按下时提供一个涟漪效果的视觉反馈
 - 它本身继承于LayerDrawable
 
@@ -336,7 +338,4 @@ public void setId(int index, int id) {
 
 - ripple标签生成一个RippleDrawable,**如果没有指定mask layer， 也没有指定child layer,在按下时，涟漪效果是没有边界的，可能会超出drawable本身的范围**
 
-
 ## AnimatedListStateDrawable
-
-

@@ -45,7 +45,6 @@ https://github.com/zhonghanwen/AndroidProguardPlugin
 
 ```
 
-
 ## android stuido找不到源码
 
 - 升级as,下载了android 源码，但找不到源码解决办法，找到jdk.table.xml这个文件
@@ -64,10 +63,9 @@ Linix file location:
 
 ## 自定义BuildConfig变量
 
-- 比如app的引导页，只有在引导页的版本发生了变化，才要显示出来，一种简单的做法就是自定义BuildConfig变量
+- 比如app的引导页，只有在引导页的版本发生了变化，才要显示出来，一种简单的做法就是自定义BuildConfig变量
 
 ```java
-
 android {
     //...
 
@@ -86,7 +84,7 @@ if (BuildConfig.GUIDE_VERSION > SP_Manager.Instance().mGuideVersion) {
 
 ## v2SigningEnabled
 
-- Android 7.0 中新增了 APK Signature Scheme v2 签名方式,目前比较流行的2套 多渠道打包脚本,实质上都会在签名后修改APK文件,目前都会造成在7.0以上版本签名认证失败
+- Android 7.0 中新增了 APK Signature Scheme v2 签名方式,目前比较流行的2套多渠道打包脚本,实质上都会在签名后修改APK文件,目前都会造成在7.0以上版本签名认证失败
     - 在APK内注入${channel}.txt 文件
     - 在APK的zip info中写入 channel 信息
 
@@ -115,6 +113,7 @@ signingConfigs {
 
 - 一个android stuido工程有多个library project,在每个library project都定义了混淆配置，
  **最后还必须将library的混淆复制到主工程的混淆配置中**
+- 另外一种方法是，在Library指定混淆配置，然后
 
 ## adb查看最上层的activity
 

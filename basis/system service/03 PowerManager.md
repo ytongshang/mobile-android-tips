@@ -47,7 +47,7 @@ wakeLock.release();
 
 ### 具体实现
 
-- Step 1 设置flag
+- 设置flag
 
 ```java
 @Override
@@ -57,7 +57,7 @@ protected void onCreate(Bundle bundle) {
 }
 ```
 
-- Step 2 设置activity的根view的属性keepScreenOn为true,可以调用方法或在xml中指定
+- 设置activity的根view的属性keepScreenOn为true,可以调用方法或在xml中指定
 
 ```java
 @Override

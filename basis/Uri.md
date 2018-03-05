@@ -69,7 +69,6 @@ http://www.java2s.com:8080/yourpath/fileName.htm?stove=10&path=32&id=4#harvic
 
 - **port**:8080
 
-
 ## 代码提取
 
 ```html
@@ -87,7 +86,6 @@ http://www.java2s.com:8080/yourpath/fileName.htm?stove=10&path=32&id=4#harvic
 - **getPort()**:获取Authority中的Port字符串，即8080
 - **List< String> getPathSegments()**:上面我们的getPath()是把path部分整个获取下来：/yourpath/fileName.htm，getPathSegments()的作用就是依次提取出Path的各个部分的字符串，以字符串数组的形式输出
 - **getQueryParameter(String key)**:在上面我们通过getQuery()获取整个query字段：stove=10&path=32&id=4，getQueryParameter(String key)作用就是通过传进去path中某个Key的字符串，返回他对应的值
-
 
 ## 从scheme启动app
 
