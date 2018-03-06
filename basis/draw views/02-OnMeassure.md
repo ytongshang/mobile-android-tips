@@ -19,7 +19,6 @@
  **另一方面，如果该View对象是个ViewGroup，需要重写该onMeasure()方法，对其子视图进行遍历的measure()过程**。
 - 对每个子视图的measure()过程，是通过调用父类ViewGroup类里的measureChildWithMargins()来实现，该方法内部只是简单地调用了View对象的measure()方法。
 
-
 ## DecorView的MesaureSpec
 
 - View系统的绘制流程会从ViewRootImpl的performTraversals()方法中开始,按顺序执行了measure,layout,draw
@@ -395,7 +394,6 @@ protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
 - **View的高和宽，getWidth，getHeight是在经过layout之后才能够获取的**
 - **一般情况下，getMeasuredWidth=getWidth， getMeasuredHeight = getHeight，但是两者是可能不同的**
 
-
 ## measure还没执行完，获得MeasureWidth
 
 ### Activity/View#onWindowFocusChanged
@@ -445,7 +443,6 @@ protected void onStart() {
 
 ```
 
-
 ### View.measure(int widthMeasureSpec, int heightMeasureSpec)
 
 #### match_parent
@@ -467,11 +464,3 @@ int widthMeasureSpec = MeasureSpec.makeMeasureSpec((1<<30)-1, MeasureSpec.AT_MOS
 int heightMeasureSpec = MeasureSpec.makeMeasureSpec((1<<30)-1, MeasureSpec.AT_MOST);
 view.measure(widthMeasureSpec,heightMeasureSpec);
 ```
-
-
-
-
-
-
-
-

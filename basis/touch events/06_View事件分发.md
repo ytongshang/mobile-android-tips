@@ -67,9 +67,11 @@
 
 ### 事件分发顺序
 
-- 首先会尝试分发给onTouchListener, 首先如果View是Enabled的并且onTouchListener不为null，并且onTouchListener消耗了事件，直接返回true
+- 首先会尝试分发给onTouchListener
+    - 如果View是Enabled的
+    - onTouchListener不为null
+    - onTouchListener消耗了事件，直接返回true
 - 如果没有消耗触摸事件，尝试分发给onTouchEvent
-
 
 ### onFilterTouchEventForSecurity
 
@@ -192,11 +194,11 @@ public boolean onTouchEvent(MotionEvent event) {
                         }
                         mPendingCheckForTap.x = event.getX();
                         mPendingCheckForTap.y = event.getY();
-                        //!!!!精髓的用postDelayed
+                        // postDelayed
                         postDelayed(mPendingCheckForTap, ViewConfiguration.getTapTimeout());
                     } else {
                         // 如果不是在一个滑动容器内部，则直接设置按下状态和PFLAG_PREPRESSED标志
-                        //设置检验长按的Runnable
+                        // 设置检验长按的Runnable
                         setPressed(true, x, y);
                         checkForLongClick(0);
                     }
@@ -218,7 +220,6 @@ public boolean onTouchEvent(MotionEvent event) {
                         if ((mPrivateFlags & PFLAG_PRESSED) != 0) {
                             //如果已经是按下了，则不用继续检测是否是长按
                             removeLongPressCallback();
-
                             setPressed(false);
                         }
                     }
@@ -232,9 +233,11 @@ public boolean onTouchEvent(MotionEvent event) {
     }
 ```
 
-- 一个View如果是
-- 一个View如果是DISABLED的，则返回它是否可以点击。如果View是DISABLED的,但是它是CLICKABLE/LONG_CLICKABLE，它不会对事件有反应，但是它会消费掉触摸事件。
-- 当我们调用了setEnabled(false)时，View就被禁用了；默认情况下，View是可用的。当调用setClickable(true)或者android:clickable为true时，View就是可点击状态；默认情况下，一个View如是是不可点击的，也不能够长按
+### 第一步
+
+- **如果一个View如果是DISABLED的，则返回它是否可以点击**。如果View是DISABLED的,但是它是CLICKABLE/LONG_CLICKABLE，它不会对事件有反应，但是它会消费掉触摸事件。
+- 当我们调用了setEnabled(false)时，View就被禁用了；默认情况下，View是可用的。
+- 当调用setClickable(true)或者android:clickable为true时，View就是可点击状态；默认情况下，一个View如是是不可点击的，也不能够长按
 
   ```java
   public void setClickable(boolean clickable) {
@@ -246,46 +249,43 @@ public boolean onTouchEvent(MotionEvent event) {
     }
   ```
 
-- 如果该View的mTouchDelegate不为null的话，将触摸消息分发给mTouchDelegate。例如，假设有两个视图v1和v2，它们的布局相互之间不重叠；如果设置了v1.setTouchDelegate(v2)的话，v1的触摸事件就会分发给v2。
+### 第二步
+
+- **如果该View的mTouchDelegate不为null的话，将触摸消息分发给mTouchDelegate**。例如，假设有两个视图v1和v2，它们的布局相互之间不重叠；如果设置了v1.setTouchDelegate(v2)的话，v1的触摸事件就会分发给v2。
+
+### 第三步
 
 - 对于ACTION_DOWN事件，要根据容器是否可以滑动区分处理
-
 - 对于ACTION_MOVE事件，如果触摸点跑到了View的范围外，则要清除掉点击的标识，清除掉相应的视觉效果，当然也不用继续去测试是否是长按
-
 - 对于ACTION_UP事件，如果已经有PFLAG_PRESSED或PFLAG_PREPRESSED的标志，则尝试获取焦点，如果获取失败并且这次点击时长不足以当作一次长按事件（或者是长按事件，但是OnLongClickListener返回为false），才会去执行OnClickListener
-
 - 在这里最精髓的是使用Handler去判断是否是点击，是否是长按，去执行onClick,去执行onLongClick
-
 
 ## 总结
 
 ### 首先会判断是否设置了onTouchListener
 
-- **如果设置了onTouchListener,并且View是Enabled的，并且onTouchListener返回true**，事件分发结束，直接返回true
-
-- 否则会尝试分发给onTouchEvent
+- **如果设置了onTouchListener,并且View是Enabled的，并且onTouchListener返回true**，事件分发结束，直接返回true，否则会尝试分发给onTouchEvent
 
 ### 分发给onTouchEvent
 
 - **如果View是disabled的，则直接返回View是否是CLICKABLE或LONG_CLICKABLE或CONTEXT_CLICKABLE**,
  Disable但可以点击的View不会对事件有反应，但是会消耗事件
-
 - 然后如果View设置了TouchDelegate,并且TouchDelegate返回true，事件分发结束，返回true
-
 - 最后如果View是CLICKABLE或LONG_CLICKABLE或CONTEXT_CLICKABLE，继续执行事件分发
 
 ### ACTION_DOWN
 
 - 首先会判断是否在一个ScrollingContainer中，如果不在ScrollingContainer中，直接设置按下效果，
  并且通过runnable检查是否是长按事件
-
 - 如果在一个ScrollingContainer中，通过runnable检查是一个点击事件，还是一个滑动事件，按下的视觉反馈也会在runnable中执行
 
 ### ACTION_MOVE
 
 - 提供一下视觉反馈
-
 - 如果移动到了View的外部，那么取消按下效果，并且移除检查点击和长按检测的runnable
 
 ### ACTION_UP
 
+- 首先如果处于PFLAG_PREPRESSED或者PFLAG_PRESSED的状态，则尝试获取焦点，如果处于PFLAG_PREPRESSED，则设置成    PFLAG_PRESSED状态
+- 然后如果事件还没有被longClickListener消耗掉，那么移除长按检测，并且执行可能有的clickLister的事件
+- 最后重置PFLAG_PRESSED的状态

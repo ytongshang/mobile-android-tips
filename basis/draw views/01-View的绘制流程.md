@@ -24,7 +24,7 @@ final void attach(Context context, ActivityThread aThread,
      //初始化window
      mWindow = new PhoneWindow(this);
 
-    // 设置Window的回调,比如触摸事件分发等等
+     // 设置Window的回调,比如触摸事件分发等等
      mWindow.setCallback(this);
      //...
    }
@@ -42,7 +42,6 @@ final void attach(Context context, ActivityThread aThread,
     // This is the top-level view of the window, containing the window decor.
     private DecorView mDecor;
   ```
-
 
 ## setContentView
 
@@ -227,15 +226,14 @@ final void attach(Context context, ActivityThread aThread,
 - 进而执行了measure,layout,draw方法
 - 进而执行了onMeasure，onLayout,onDraw方法，完成了View的绘制
 
-
 ## 总结
 
 - 首先创建一个DecorView,该DecorView对象将作为整个应用窗口的根视图。
 
-- 创依据Feature等style theme选择不同的窗口修饰布局文件，并且通过findViewById获取Activity布局文件该存放的地方（窗口修饰布局文件中id为content的FrameLayout）。
+- 依据窗口的Feature等style theme选择不同的窗口修饰布局文件，并且通过findViewById获取Activity布局文件该存放的地方（窗口修饰布局文件中id为content的ViewGroup）。
 
-- 将Activity的布局文件添加至id为content的FrameLayout内。
+- 将Activity的布局文件添加至id为content的ViewGroup内。
 
 - 当setContentView设置显示完成后，回调到Activity的onContentChanged方法
 
-- 整个ActivityUI布局层次为:DecorView(FrameLayout)->DecorView 的mContentRoot(不确定ViewGroup类型) -> DecorView 的mContentParent(FrameLayout)->通过setContentView设置进来的View
+- 整个ActivityUI布局层次为:DecorView(FrameLayout)->DecorView 的mContentRoot(ViewGroup) -> DecorView 的mContentParent(ViewGroup)->通过setContentView设置进来的View

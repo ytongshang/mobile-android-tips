@@ -8,7 +8,6 @@
     - [同一个textview中设置字体大小不一样](#同一个textview中设置字体大小不一样)
 - [TextView阴影效果](#textview阴影效果)
 
-
 ## TextView 的跑马灯效果
 
 - 示例

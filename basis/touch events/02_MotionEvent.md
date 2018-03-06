@@ -26,6 +26,8 @@
     private float mPrimaryLastY = -1;
     private float mSecondaryLastX = -1;
     private float mSecondaryLastY = -1;
+
+    @Override
     public boolean onTouchEvent(MotionEvent event) {
         int action = MotionEventCompat.getActionMasked(event);
 
@@ -122,4 +124,3 @@ int touchSlop = ViewConfiguration.get(getContext()).getScaledTouchSlop();
 - 调用computeCurrentVelocity(int units, float maxVelocity)来初始化速率的单位
 - 使用getXVelocity() 或getXVelocity()获得横向和竖向的速率到速率时
 - 使用VelocityTracker.clear()和VelocityTracker.recycle()来释放资源
-

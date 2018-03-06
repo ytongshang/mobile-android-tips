@@ -36,8 +36,10 @@
         // 这里的情况状态包括：
         // (01) 清空mFirstTouchTarget链表，并设置mFirstTouchTarget为null。
         //      mFirstTouchTarget是"接受触摸事件的子View"所组成的单向链表
-        // (02) 将当前view的flags设置为~FLAG_DISALLOW_INTERCEPT，只要是一个新的触摸事件序列，那么就是允许拦截的
-        // 但实际上是否会拦截，要看onInterceptTouchEvent(ev)
+        // (02) 将当前view的flags设置为~FLAG_DISALLOW_INTERCEPT，
+        //      只要是一个新的触摸事件序列，那么就是允许拦截的
+        //      这也也说明如果要设置父容器不允许拦截必须每次触摸都主动调用
+        //      但实际上是否会拦截，要看onInterceptTouchEvent(ev)
         // (03) 清空mPrivateFlags的PFLAG_CANCEL_NEXT_UP_EVEN标记
         if (actionMasked == MotionEvent.ACTION_DOWN) {
             cancelAndClearTouchTargets(ev);
@@ -46,15 +48,18 @@
 
         // 第3步：检查当前ViewGroup是否想要拦截触摸事件
         //
-        // (01)如果是ACTION_DOWN,也就是一个事件序列的开始，当然要重新判断当前ViewGroup是否拦截了事件
-        // (02) 如果mFirstTouchTarget不为空，意味着ACTION_DOWN是由自身的某个子View处理,后续的的比如ACTION_MOVE,ACTION_UP事件
-        // 则要再一次进行判断是否拦截掉
+        // (01) 如果是ACTION_DOWN,也就是一个事件序列的开始，当然要重新判断当前ViewGroup是否拦截了事件
+        //      此时mFirstTouchTarget因为上面的重置一定为NULL
+        // (02) 如果mFirstTouchTarget不为空，此时的动作一定是ACTION_MOVE，ACTION_UP等非ACTION_DOWN事件
+        //      mFirstTouchTarget意味着ACTION_DOWN是由自身的某个子View处理,
+        //      后续的的比如ACTION_MOVE,ACTION_UP事件则要再一次进行判断是否拦截掉
         final boolean intercepted;
         if (actionMasked == MotionEvent.ACTION_DOWN || mFirstTouchTarget != null) {
             // 检查禁止拦截标记：FLAG_DISALLOW_INTERCEPT
             // (01)如果调用了requestDisallowInterceptTouchEvent()标记的话，则FLAG_DISALLOW_INTERCEPT会为true,不允许拦截
-            // 例如，ViewPager在处理scroll事件的时候，就会调用getParent().requestDisallowInterceptTouchEvent()，禁止它的父类对触摸事件进行拦截
-            // (02) 如果是ACTION_DOWN事件，该标识位肯定是~FLAG_DISALLOW_INTERCEPT，表示是允许拦截的，要根据onInterceptTouchEvent进行判断
+            //     例如，ViewPager在处理scroll事件的时候，就会调用getParent().requestDisallowInterceptTouchEvent()，禁止它的父 //     类对触 摸事件进行拦截
+            // (02) 如果是ACTION_DOWN事件，该标识位因为上面的重置的关系肯定是~FLAG_DISALLOW_INTERCEPT，是允许拦截的，
+            //      此时要根据onInterceptTouchEvent进行判断
             final boolean disallowIntercept = (mGroupFlags & FLAG_DISALLOW_INTERCEPT) != 0;
             if (!disallowIntercept) {
                 // 允许自身拦截的话，返回onInterceptTouchEvent()
@@ -106,7 +111,7 @@
                 // 获取该ViewGroup包含的View和ViewGroup的数目，
                 // 然后递归遍历ViewGroup的孩子，对触摸事件进行分发。
                 // 递归遍历ViewGroup的孩子：是指对于当前ViewGroup的所有孩子，都会逐个遍历，并分发触摸事件；
-                //   对于逐个遍历到的每一个孩子，若该孩子是ViewGroup类型的话，则会递归到调用该孩子的孩子，...
+                // 对于逐个遍历到的每一个孩子，若该孩子是ViewGroup类型的话，则会递归到调用该孩子的孩子，...
                 final int childrenCount = mChildrenCount;
                 if (newTouchTarget == null && childrenCount != 0) {
                     final float x = ev.getX(actionIndex);
@@ -168,8 +173,6 @@
         }
 
         // 第6步：进一步的对触摸事件进行分发,实际上是对拦截的了，取消了的，或其它非ACTION_DOWN事件的处理
-        //
-
         if (mFirstTouchTarget == null) {
             // 如果mFirstTouchTarget为null，意味着还没有任何View来接受该触摸事件；
             // 此时，将当前ViewGroup看作一个View；
@@ -245,7 +248,6 @@
   ```
 
 - 当ViewGroup拦截了down事件，或者没有子view去处理down事件，后续的up,move事件就不会调用 onInterceptTouchEvent()方法了，所以该方法并不是每次事件都会调用的
-
 
 ## requestDisallowInterceptTouchEvent
 

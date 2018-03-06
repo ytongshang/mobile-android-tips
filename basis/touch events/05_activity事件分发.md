@@ -26,10 +26,7 @@
 
 - onUserLeaveHint 当用户的操作使一个activity准备进入后台时，此 方法会像activity的生命周期的一部分一样被调用。
  例如，当用户按下 Home键， Activity#onUserLeaveHint()将会被回调。
-- **但是当来电导致来电activity自动占据前台，Activity#onUserLeaveHint()将不会被回调**。
-
-- onUserLeaveHint() 用户手动离开当前activity，会调用该方法，比如用户主动切换任务，短按home进入桌面等。系统自动切换activity不会调用此方法，如来电，灭屏等。
-
+- onUserLeaveHint() 用户手动离开当前activity，会调用该方法，比如用户主动切换任务，短按home进入桌面等。系统自动切换activity不会调用此方法，如**来电，灭屏**等。
 - onUserInteraction() activity在分发各种事件的时候会调用该方法，注意：启动另一个activity,Activity#onUserInteraction()会被调用两次，一次是activity捕获到事件，
  另一次是调用Activity#onUserLeaveHint()之前会调用Activity#onUserInteraction()。
 
@@ -66,5 +63,3 @@
     mWindow.setCloseOnTouchOutside(finish);
  }
 ```
-
-

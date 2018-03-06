@@ -75,8 +75,10 @@ Scroller mScroller = new Scroller(mContext);
 
 public void smoothScrollTo(int detX, int detY) {
     int scrollX = getScrollX();
-    int delta = destX - scrollX;
-    mScroller.startScroll(scrollx, 0, delta, 0, 1000);
+    int deltaX = destX - scrollX;
+    int scrollY = getScrollY();
+    int deltaY = destY - scollY();
+    mScroller.startScroll(scrollx, scrollY, delta, deltaY, 1000);
     invalidate();
 }
 

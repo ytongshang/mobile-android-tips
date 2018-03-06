@@ -18,12 +18,9 @@ Snackbar.make(view, "Snack comes out", Snackbar.LENGTH_SHORT)
 
 - Snackbar**可以设置多个Action**
 
-
 ## TextInputLayout
 
-- TextInputLayout作为一个父容器控件，包装了新的EditText。通常，单独的EditText会在用户输入第一个字母之后隐藏hint提示信息，
- 但是现在你可以使用TextInputLayout 来将EditText封装起来，提示信息会变成一个显示在EditText之上的floating label，
- 这样用户就始终知道他们现在输入的是什么。同时，如果给EditText增加监听，还可以给它增加更多的floating label
+- TextInputLayout作为一个父容器控件，包装了新的EditText。通常，单独的EditText会在用户输入第一个字母之后隐藏hint提示信息，但是现在你可以使用TextInputLayout 来将EditText封装起来，提示信息会变成一个显示在EditText之上的floating label，这样用户就始终知道他们现在输入的是什么。同时，如果给EditText增加监听，还可以给它增加更多的floating label
 
 - TextInputLayout**不能够单独使用，必须配使EditText一起使用**
 

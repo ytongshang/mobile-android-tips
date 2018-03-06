@@ -22,7 +22,7 @@
   public final void notifyItemRangeChanged(int positionStart, int itemCount)
   public final void notifyItemInserted(int position)
   public final void notifyItemMoved(int fromPosition, int toPosition)
-  public final void public final void notifyItemRangeInserted(int positionStart, int itemCount)
+  public final void notifyItemRangeInserted(int positionStart, int itemCount)
   public final void notifyItemRemoved(int position)
   public final void notifyItemRangeRemoved(int positionStart, int itemCount)
   ```
@@ -92,7 +92,6 @@
                     View anchor = null;
                     int x = (int) event.getX();
                     int y = (int) event.getY();
-                    //使用类变量,而不是每次都新建一个,可以减少变量的创建
                     if (mFrame == null) {
                         mFrame = new Rect();
                     }
