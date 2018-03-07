@@ -11,7 +11,7 @@
 
 - **从0x00到0xff表示从透明到不透明**
 
-### 颜色混合
+### 颜色混合
 
 - [安卓自定义View基础-颜色](http://www.gcssloop.com/customview/Color)
 

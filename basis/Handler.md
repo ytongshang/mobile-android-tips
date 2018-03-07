@@ -1,5 +1,11 @@
 # 总结
 
+## 相关文档
+
+- [聊一聊Android的消息机制](https://my.oschina.net/youranhongcha/blog/492591)
+
+## 消息循环基础
+
 ![Handler Looper MessageQueue](./../image-resources/handler.PNG)
 
 - **其中绿色的部分与蓝色可能在一个线程，也可能不在一个线程**
@@ -60,6 +66,8 @@
         return queue.enqueueMessage(msg, uptimeMillis);
     }
   ```
+
+## 消息循环
 
 - Looper不断的从消息队列中取出消息，然后调用消息的target去分发消息，也就是调用Handler去处理消息，处理完后，将Message放到Message对象池中，循环使用
 
@@ -124,7 +132,7 @@
     }
   ```
 
-- handler处理分发消息
+## Handler分发
 
 ```java
 public void dispatchMessage(Message msg) {
