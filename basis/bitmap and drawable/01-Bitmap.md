@@ -15,9 +15,9 @@
     * [注意](#注意)
   * [Bitmap其它常用函数](#bitmap其它常用函数)
 
-## BitmapOptions
+## 1. BitmapOptions
 
-### BitmapOptions参数
+### 1.1. BitmapOptions参数
 
 | Header One | Header Two |
 | :--- | :--- |
@@ -39,7 +39,7 @@
 | outMimeType | bitmap的mimeType,不设置或者解析出错时，该值为null |
 | mCancel | 解析bitmap是否被取消掉了，可以通过requestCancelDecode\(\)取消bitmap的解析 |
 
-### inBitmap
+### 1.2. inBitmap
 
 * 假如设置了Options.inBitmap的这个字段，在解码Bitmap的时候，系统会去重用inBitmap设置的Bitmap，减少内存的分配和释放，提高了应用的性能
 * **设置的inBitmap必须inMutable为true**
@@ -188,9 +188,9 @@ static int getBytesPerPixel(Config config) {
 }
 ```
 
-## BitmapFactory
+## 2. BitmapFactory
 
-### 解析方法
+### 2.1. 解析方法
 
 ```java
 Bitmap decodeFile(...)
@@ -204,7 +204,7 @@ Bitmap decodeFileDescriptor(...)
 
 * 每一个方法都被重载为可以传递一个BitmapOptions的参数，这样可以根据BitmapOptions来返回对应的bitmap
 
-### decodeResource
+### 2.2. decodeResource
 
 * decodeResouce会间接调用decodeResourceStream
 
@@ -300,7 +300,7 @@ public static Bitmap decodeStream(InputStream is, Rect outPadding, Options opts)
 }
 ```
 
-### setDensityFromOptions
+### 2.3. setDensityFromOptions
 
 * 图片解析完成后，只要解析传入的BitmapFactory.Options不为空，就会对图片可能做scale
 
@@ -333,7 +333,7 @@ private static void setDensityFromOptions(Bitmap outputBitmap, Options opts) {
 }
 ```
 
-### inDensity与inTargetDensity的应用
+### 2.4. inDensity与inTargetDensity的应用
 
 * 比如从文件中生成.9图,使用了开源库NinePatchDrawable
 
@@ -353,9 +353,9 @@ if (drawable == null) {
 }
 ```
 
-## Bitmap对图像进行操作
+## 3. Bitmap对图像进行操作
 
-### Bitmap裁剪, 缩放，旋转，移动
+### 3.1. Bitmap裁剪, 缩放，旋转，移动
 
 ```java
 Bitmap.createBitmap(Bitmap source, int x, int y, int width, int height,Matrix m, boolean filter);
@@ -367,12 +367,12 @@ Bitmap.createBitmap(Bitmap source, int x, int y, int width, int height) {
 Bitmap createScaledBitmap(Bitmap src, int dstWidth,int dstHeight, boolean filter)
 ```
 
-#### 裁剪
+#### 3.1.1. 裁剪
 
 * x,y分别代表裁剪时，x轴和y轴的第一个像素，width，height分别表示裁剪后的图像的宽度和高度。
 * 注意：x+width要小于等于source的宽度，y+height要小于等于source的高度。
 
-#### 缩放，旋转，移动
+#### 3.1.2. 缩放，旋转，移动
 
 * m是一个Matrix（矩阵）对象，可以进行缩放，旋转，移动等动作
 * filter为true时表示source会被过滤，仅仅当m操作不仅包含移动操作，还包含别的操作时才适用
@@ -389,9 +389,9 @@ matrix.postRotate(-45);
 Bitmap bitmap = Bitmap.createBitmap(source, 0, 0, source.getWidth(), source.getHeight(),   matrix, true);
 ```
 
-#### 注意
+#### 3.1.3. 注意
 
-* 这里的矩阵变换，并不是对bitmap的颜色进行矩阵变换，如果对bitmap的颜色  
+* 这里的矩阵变换，并不是对bitmap的颜色进行矩阵变换，如果对bitmap的颜色
   进行矩阵变化，是通过Paint来实现的
 
   ```java
@@ -404,9 +404,9 @@ Bitmap bitmap = Bitmap.createBitmap(source, 0, 0, source.getWidth(), source.getH
   c.drawBitmap(bitmap, 0, 0, paint);
   ```
 
-## Bitmap其它使用技能
+## 4. Bitmap其它使用技能
 
-### 部分函数
+### 4.1. 部分函数
 
 ```java
 // 将位图的压缩到指定的OutputStream，可以理解成将Bitmap保存到文件中！
@@ -434,19 +434,19 @@ int getScaledWidth(Canvas canvas)
 int getScaledHeight(Canvas canvas)
 ```
 
-### Bitmap的大小
+### 4.2. Bitmap的大小
 
-* 如果bitmap设置了inDensity并且也设置了inTargetDensity,那么这个bitmap的大小就应当是  
-    **它占用的内存 = width **_** height **_** nTargetDensity/inDensity **_** nTargetDensity/inDensity **_** 一个像素所占的内存**
+* 如果bitmap设置了inDensity并且也设置了inTargetDensity,那么这个bitmap的大小就应当是
+ **内存 = width *height *nTargetDensity/inDensity*TargetDensity/inDensity*一个像素所占的内存**
 
 * decodeResource方法会默认使用资源所处文件夹对应密度和手机系统密度进行缩放之外
 
-* 别的解码方法默认都不会。此时Bitmap默认占用的内存 = width _ height _ 一个像素所占的内存
+* 别的解码方法默认都不会。此时Bitmap默认占用的内存 = width*height*一个像素所占的内存
 
-### getByteCount\(\)
+### 4.3. getByteCount()
 
 * 在API12加入的，代表存储Bitmap的色素需要的最少内存
-* **在API19以后，看bitmap占用了多大的内存空间，应当调用getAllocationByteCount\(\)**
+* **在API19以后，看bitmap占用了多大的内存空间，应当调用getAllocationByteCount()**
 
 ```java
 public final int getByteCount() {
@@ -455,7 +455,7 @@ public final int getByteCount() {
 }
 ```
 
-### getAllocationByteCount\(\)
+### 4.4. getAllocationByteCount()
 
 * 在API19加入的，代表在内存中为Bitmap分配的内存大小。
 * 一般情况下，getByteCount与getAllocationByteCount大小是一致的，
@@ -475,6 +475,3 @@ public final int getAllocationByteCount() {
     return mBuffer.length;
 }
 ```
-
-
-

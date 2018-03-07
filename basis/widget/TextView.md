@@ -78,7 +78,7 @@ private void addUnderLineSpan() {
 // 设置中划线并加清晰
 textView.getPaint().setFlags(Paint.STRIKE_THRU_TEXT_FLAG | Paint.ANTI_ALIAS_FLAG);
 textView.getPaint().setFlags(Paint.UNDERLINE_TEXT_FLAG);
-//下划线
+// 去除下划线
 textView.getPaint().setFlags(0);
 ```
 
@@ -106,6 +106,18 @@ private void initGiftList() {
     coins[i].setText(coin);
         }
     }
+```
+
+### 多个TextView的属性
+
+- 使用TextAppearanceSpan
+- **TextAppearanceSpan也不是支持所有的TextView属性，如果要看支持哪些属性，查看它的源码**
+
+```java
+Spanny sp = new Spanny();
+sp.append(mContext.getString(R.string.qiandao))
+  .append(" " + days + " ", new TextAppearanceSpan(mContext, R.style.sign_top))
+  .append(mContext.getString(R.string.day));
 ```
 
 ## TextView阴影效果

@@ -14,10 +14,12 @@
 
 ## Measure的流程
 
-- ViewRootImpl根View,也就是DecorView通过调用measure()方法去计算View树的大小，从而回调ViewGroup对象的onMeasure()方法
-- **在onMeasure方法中一方面，通过调用setMeasuredDimension()方法去设置自身的测量宽高**，mMeasuredWidth和mMeasureHeight
- **另一方面，如果该View对象是个ViewGroup，需要重写该onMeasure()方法，对其子视图进行遍历的measure()过程**。
-- 对每个子视图的measure()过程，是通过调用父类ViewGroup类里的measureChildWithMargins()来实现，该方法内部只是简单地调用了View对象的measure()方法。
+- ViewRootImpl的performTraversals方法中调用performMeasure方法
+- performMeasure方法通过调用ViewRootImpl的根View,也就是DectorView的measure()方法去测量View树的大小
+- DectorView的measure()会调用其自身的onMeasure()方法，因为DectorView是FrameLayout，进而会调用FrameLayout
+ 的测量方法
+- **在onMeasure方法中，一方面需要通过调用setMeasuredDimension()方法去设置自身的测量宽高mMeasuredWidth和mMeasureHeight**，另一方面，如果该View对象是个ViewGroup，需要重写该onMeasure()方法，对其子视图进行遍历测量大小
+- 对每个子视图的measure()过程，可以调用父类ViewGroup类里的measureChild(),measureChildWithMargins(),measureChildren(),或本身的measure()方法进行测量。
 
 ## DecorView的MesaureSpec
 
@@ -57,54 +59,7 @@
 
 ## ViewGroup
 
-- ViewGroup是一个抽象类，它没有重写onMeasure方法，但是它提供了一个叫作measureChildren的方法
- 因此当我们直接继承ViewGroup时，必须重写onMeasure方法
-
-- 整个measure()过程就是个递归过程
-
-```java
-
-protected void onMeasure(int height , int width){
-    // 1. 测量View的大小，然后设置该view的测量宽(mMeasuredWidth)，测量高(mMeasuredHeight)
-    //setMeasuredDimension方法必须在onMeasure调用，否者报异常。
-    setMeasuredDimension(h , l) ;
-
-     //2、如果该View是ViewGroup，则对它的每个子View进行measure()
-    int childCount = getChildCount() ;
-
-    for(int i=0 ;i<childCount ;i++){
-        View child = getChildAt(i) ;
-        // 不测量Gone的
-        if (View.getVisibility != View.GONE) {
-            // 测量子View的大小,哪种方法都是可以的
-            measureChildWithMargins(child , h, i) ;
-            //measureChild(child , h, i) ;
-            //child.measure(h,l);
-        }
-    }
-}
-
-```
-
-### measureChildren
-
-- ViewGroup中定义了一个measureChildren()方法来去测量子视图的大小
-
-```java
-
-  protected void measureChildren(int widthMeasureSpec, int heightMeasureSpec) {
-        final int size = mChildrenCount;
-        final View[] children = mChildren;
-        for (int i = 0; i < size; ++i) {
-            final View child = children[i];
-            // GONE的View是不占大小的，而VISIBLE和INVISIBLE都是会占据空间的
-            if ((child.mViewFlags & VISIBILITY_MASK) != GONE) {
-                measureChild(child, widthMeasureSpec, heightMeasureSpec);
-            }
-        }
-    }
-
-```
+- ViewGroup是一个抽象类，它没有重写onMeasure方法，因此当我们直接继承ViewGroup时，必须重写onMeasure方法
 
 ### measureChild
 
@@ -114,50 +69,11 @@ protected void onMeasure(int height , int width){
 
   protected void measureChild(View child, int parentWidthMeasureSpec,int parentHeightMeasureSpec) {
         final LayoutParams lp = child.getLayoutParams();
-
         // 考虑了父ViewGroup的padding
         final int childWidthMeasureSpec = getChildMeasureSpec(parentWidthMeasureSpec,mPaddingLeft + mPaddingRight, lp.width);
         final int childHeightMeasureSpec = getChildMeasureSpec(parentHeightMeasureSpec,mPaddingTop + mPaddingBottom, lp.height);
         child.measure(childWidthMeasureSpec, childHeightMeasureSpec);
     }
-
-```
-
-### measureChildWithMargins
-
-- 有的时候，需要考虑margin，此时，应当调用measureChildWithMargins
-
-```java
-
-    protected void measureChildWithMargins(View child,int parentWidthMeasureSpec, int widthUsed,int parentHeightMeasureSpec, int heightUsed) {
-
-        //子视图的LayoutParams必须是MarginLayoutParams
-        final MarginLayoutParams lp = (MarginLayoutParams) child.getLayoutParams();
-
-        final int childWidthMeasureSpec = getChildMeasureSpec(parentWidthMeasureSpec,
-            mPaddingLeft + mPaddingRight + lp.leftMargin + lp.rightMargin + widthUsed, lp.width);
-        final int childHeightMeasureSpec = getChildMeasureSpec(parentHeightMeasureSpec,
-            mPaddingTop + mPaddingBottom + lp.topMargin + lp.bottomMargin+ heightUsed, lp.height);
-
-        child.measure(childWidthMeasureSpec, childHeightMeasureSpec);
-    }
-
-```
-
-- **使用measureChildWithMargins时,View的LayoutMargins必须是MarginLayoutParams**
-- 有时候，当我们继承ViewGroup实现自定义ViewGroup时，子View的LayoutParams不是MarginLayoutParams的时候，可以通过重写下面方法，生成MarginLayoutParams
-
-```java
-
-      @Override
-      protected LayoutParams generateLayoutParams(LayoutParams p) {
-          return new MarginLayoutParams(p);
-      }
-
-      @Override
-      public LayoutParams generateLayoutParams(AttributeSet attrs) {
-          return new MarginLayoutParams(getContext(), attrs);
-      }
 
 ```
 
@@ -238,6 +154,90 @@ protected void onMeasure(int height , int width){
            }
            return MeasureSpec.makeMeasureSpec(resultSize, resultMode);
        }
+
+```
+
+### measureChildWithMargins
+
+- 有的时候，需要考虑margin，此时，应当调用measureChildWithMargins
+
+```java
+
+    protected void measureChildWithMargins(View child,int parentWidthMeasureSpec, int widthUsed,int parentHeightMeasureSpec, int heightUsed) {
+
+        //子视图的LayoutParams必须是MarginLayoutParams
+        final MarginLayoutParams lp = (MarginLayoutParams) child.getLayoutParams();
+
+        final int childWidthMeasureSpec = getChildMeasureSpec(parentWidthMeasureSpec,
+            mPaddingLeft + mPaddingRight + lp.leftMargin + lp.rightMargin + widthUsed, lp.width);
+        final int childHeightMeasureSpec = getChildMeasureSpec(parentHeightMeasureSpec,
+            mPaddingTop + mPaddingBottom + lp.topMargin + lp.bottomMargin+ heightUsed, lp.height);
+
+        child.measure(childWidthMeasureSpec, childHeightMeasureSpec);
+    }
+
+```
+
+- **使用measureChildWithMargins时,View的LayoutMargins必须是MarginLayoutParams**
+- 有时候，当我们继承ViewGroup实现自定义ViewGroup时，子View的LayoutParams不是MarginLayoutParams的时候，可以通过重写下面方法，生成MarginLayoutParams
+
+```java
+
+      @Override
+      protected LayoutParams generateLayoutParams(LayoutParams p) {
+          return new MarginLayoutParams(p);
+      }
+
+      @Override
+      public LayoutParams generateLayoutParams(AttributeSet attrs) {
+          return new MarginLayoutParams(getContext(), attrs);
+      }
+
+```
+
+### measureChildren
+
+- ViewGroup中定义了一个measureChildren()方法来去测量子视图的大小
+
+```java
+
+  protected void measureChildren(int widthMeasureSpec, int heightMeasureSpec) {
+        final int size = mChildrenCount;
+        final View[] children = mChildren;
+        for (int i = 0; i < size; ++i) {
+            final View child = children[i];
+            // GONE的View是不占大小的，而VISIBLE和INVISIBLE都是会占据空间的
+            if ((child.mViewFlags & VISIBILITY_MASK) != GONE) {
+                measureChild(child, widthMeasureSpec, heightMeasureSpec);
+            }
+        }
+    }
+
+```
+
+### 自定义ViewGroup的onMeasure方法
+
+```java
+
+protected void onMeasure(int height , int width){
+    // 1. 测量本身的大小，然后设置测量宽(mMeasuredWidth)，测量高(mMeasuredHeight)
+    // 设置测量宽和测量高是能过setMeasuredDimension完成的
+    setMeasuredDimension(h , l) ;
+
+     //2、如果该View是ViewGroup，则对它的每个子View进行measure()
+    int childCount = getChildCount() ;
+
+    for(int i=0 ;i<childCount ;i++){
+        View child = getChildAt(i) ;
+        // Gone的
+        if (View.getVisibility != View.GONE) {
+            // 测量子View的大小,哪种方法都是可以的
+            measureChildWithMargins(child , h, i) ;
+            //measureChild(child , h, i) ;
+            //child.measure(h,l);
+        }
+    }
+}
 
 ```
 
@@ -447,7 +447,7 @@ protected void onStart() {
 
 #### match_parent
 
-- 无法获得，因为spec为父容器剩下的大小，而父容器大小还没有得到 
+- 无法获得，因为spec为父容器剩下的大小，而父容器大小还没有得到
 
 #### 具体的数值
 

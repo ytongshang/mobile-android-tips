@@ -262,9 +262,15 @@ public class HomeKeyReceiver extends BroadcastReceiver {
     }
 }
 
+
+mHomeKeyEventReceiver = new HomeKeyEventReceiver();
+registerReceiver(mHomeKeyEventReceiver, new IntentFilter(Intent.ACTION_CLOSE_SYSTEM_DIALOGS));
+
 ```
 
 ## 悬浮窗类型
+
+- [Android我还可以相信你多少系列文章四之悬浮窗](https://segmentfault.com/a/1190000009646627)
 
 - 悬浮窗也就是在WindowManager上加上view
 - 悬浮窗类型**WindowManager.LayoutParams.TYPE_TOAST与WindowManager.LayoutParams.TYPE_SYSTEM_ALERT**
@@ -274,10 +280,17 @@ public class HomeKeyReceiver extends BroadcastReceiver {
 
 ```java
 
-if (Build.VERSION.SDK_INT >= 19 && Build.VERSION.SDK_INT < 24) {
-    mWindowManagerParams.type = WindowManager.LayoutParams.TYPE_TOAST;
+int version = Build.VERSION.SDK_INT;
+if (version >= 26) {
+    return WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY;
+} else if (version >= 24) {
+    return WindowManager.LayoutParams.TYPE_SYSTEM_ALERT;
+} else if (version >= 19) {
+    // type toast不需要权限
+    return WindowManager.LayoutParams.TYPE_TOAST;
 } else {
-    mWindowManagerParams.type = WindowManager.LayoutParams.TYPE_SYSTEM_ALERT;
+    // type toast无法接收事件
+    return WindowManager.LayoutParams.TYPE_SYSTEM_ALERT;
 }
 
 ```
@@ -287,7 +300,7 @@ if (Build.VERSION.SDK_INT >= 19 && Build.VERSION.SDK_INT < 24) {
 [Android启动页黑屏及最优解决方案](https://juejin.im/post/58ad90518ac2472a2ad9b684)
 
 - 在启动的Activity的主题中设置windowBackground为具体的图片资源
-- 必须为图片资，也可以是可以解决为bitmap的资源
+- 必须为图片资，也可以是可以解析为bitmap的资源
 
 ```xml
 <style name="APPTheme" parent="@android:style/Theme.Holo.NoActionBar">

@@ -113,7 +113,35 @@ signingConfigs {
 
 - 一个android stuido工程有多个library project,在每个library project都定义了混淆配置，
  **最后还必须将library的混淆复制到主工程的混淆配置中**
-- 另外一种方法是，在Library指定混淆配置，然后
+- 另外一种方法是，在Library指定混淆配置，然后将混淆配置文件保留
+
+```groovy
+android {
+
+    compileSdkVersion rootProject.ext.compileSdkVersion
+    buildToolsVersion rootProject.ext.buildToolsVersion
+
+    defaultConfig {
+        minSdkVersion rootProject.ext.minSdkVersion
+        targetSdkVersion rootProject.ext.targetSdkVersion
+        versionCode 1
+        versionName "1.0.0"
+        // 保留混淆配置文件
+        consumerProguardFiles 'proguard-rules.pro'
+
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    lintOptions {
+        abortOnError false
+    }
+}
+```
 
 ## adb查看最上层的activity
 
