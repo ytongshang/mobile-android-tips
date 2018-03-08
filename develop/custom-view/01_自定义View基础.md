@@ -28,7 +28,7 @@
 
 ### PorterDuff.Mode
 
-- PorterDuff.Mode混合计算公式：（D指原本在Canvas上的内容dst，S指绘制输入的内容src，a指alpha通道，c指RGB各个通道）
+- PorterDuff.Mode混合计算公式：（**D指原本在Canvas上的内容dst，S指绘制输入的内容src**，a指alpha通道，c指RGB各个通道）
 
 ```java
 public enum Mode {
@@ -86,7 +86,7 @@ public enum Mode {
     - Alpha合成
     - 混合模式 DARKEN LIGHTEN MULTIPLY SCREEN OVERLAY
 
-- Alpha合成（src表示输入的图，dst表示原Canvas上的内容）：
+- Alpha合成（**src表示输入的图，dst表示原Canvas上的内容**）：
 
 ![PorterDuff.Mode](./../../image-resources/customview/alphacomposing.jpg)
 

@@ -94,7 +94,7 @@ canvas.drawCircle(300, 300, 200, paint);
     @NonNull TileMode tileMode)
 
  public RadialGradient(float centerX, float centerY, float radius,
-    @ColorInt int centerColor, @ColorInt int edgeColor, 
+    @ColorInt int centerColor, @ColorInt int edgeColor,
     @NonNull TileMode tileMode)
 ```
 
@@ -452,6 +452,8 @@ public void setShadowLayer(float radius, float dx, float dy, int shadowColor)
 
 ### setMastFilter
 
+- [详解Paint的setMaskFilter(MaskFilter maskfilter)](https://www.cnblogs.com/tianzhijiexian/p/4297734.html)
+
 - MaskFilter 和它相反，设置的是在绘制层上方的附加效果
 
 ```java
@@ -475,8 +477,8 @@ public EmbossMaskFilter(float[] direction, float ambient, float specular, float 
 - 所谓实际 Path ，指的就是 drawPath() 的绘制内容的轮廓，要算上线条宽度和设置的 PathEffect
 
 ```java
-// 源path
-// 实际的path
+// src 源path dst 实际的path
+// 使用本paint绘制src的效果与使用默认的paint绘制dst一样
 public boolean getFillPath(Path src, Path dst)
 
 getTextPath(String text, int start, int end, float x, float y, Path path) 
