@@ -12,7 +12,6 @@
 - 但不同于Canvas坐标系，绘图坐标系并不是一成不变的，可以通过调用Canvas的translate方法平移坐标系，可以通过Canvas的rotate方法旋转坐标系，还可以通过Canvas的scale方法缩放坐标系.
 - 需要注意的是，**translate、rotate、scale的操作都是基于当前绘图坐标系的，而不是基于Canvas坐标系**
 - **一旦通过以上方法对坐标系进行了操作之后，当前绘图坐标系就变化了，以后绘图都是基于更新的绘图坐标系了**。也就是说，真正对我们绘图有用的是绘图坐标系而非Canvas坐标系。
-
 - **所有的画布操作都只影响后续的绘制，对之前已经绘制过的内容没有影响**
 
 ## Save与Restore
@@ -61,6 +60,7 @@ canvas.restoreToCount(count);
 
 - 裁剪画布是利用Clip系列函数，通过与Rect、Path取交、并、差等集合运算来获得最新的画布形状。
 - **其中的坐标系都是采用的是local坐标系，也就是绘图坐标系**
+- 有Region.Op op参数的函数，都是将当前裁减的范围与参数中的Rect/Path进行集合运算，获得新的范围
 
 ```java
 boolean clipRect(Rect rect)
@@ -99,11 +99,10 @@ canvas.restore();
 
 ### 使用总结
 
-- **使用 Canvas 来做常见的二维变换**
+- **使用 Canvas 的方法来做常见的二维变换**
 - **使用 Matrix 来做常见和不常见的二维变换**
 - **使用 Camera 来做三维变换**
-- **在Canvas中如果有多个二维变换操作，代码顺序必须与实际的二维变化操作相关**
- **也就是如果想先移动后旋转，那么代码应当是先旋转后移动**
+- **在Canvas中如果有多个二维变换操作，代码顺序必须与想要的二维变化操作顺序相反，比如我们想先平移然后旋转，代码则应当写作先旋转后平移**
 
 ### Translate
 
@@ -176,6 +175,8 @@ public void skew(float sx, float sy) {
 
 ## Matrix
 
+- [android matrix 最全方法详解与进阶（完整篇）](http://blog.csdn.net/cquwentao/article/details/51445269)
+
 - 在使用Matrix，**一般情况下我们要通过创建一个新的Matrix，或者调用现在Matrix.reset()方法将其变为单位矩阵**
 - 使用Matrix的步骤
     - 创建 Matrix 对象
@@ -190,17 +191,14 @@ public void skew(float sx, float sy) {
 方法 | 简介
 -----|---------------------------------------------------
 set  | 设置，会覆盖掉之前的数值，导致之前的操作失效。
-pre  | 前乘，相当于矩阵的右乘， M' = M * S (S指为特殊矩阵)
-post | 后乘，相当于矩阵的左乘，M' = S * M （S指为特殊矩阵）
+pre  | **前乘，相当于矩阵的右乘**， M' = M * S (S指为特殊矩阵)
+post | **后乘，相当于矩阵的左乘**，M' = S * M （S指为特殊矩阵）
 
 ### setPolyToPoly
 
 ### setRectToRect
 
 - - 简单来说就是将源矩形的内容填充到目标矩形中，然而在大多数的情况下，源矩形和目标矩形的长宽比是不一致的，到底该如何填充呢，这个填充的模式就由第三个参数 stf 来确定。
-
-```java
-```
 
 ## Camera
 
