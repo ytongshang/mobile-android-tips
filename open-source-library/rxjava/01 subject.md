@@ -6,6 +6,16 @@
 - [BehaviorSubject](#behaviorsubject)
 - [AsyncSubject](#asyncsubject)
 
+## Rxjava2中的接口与类
+
+接口              | 实现        | 订阅者              | 订阅
+------------------|-------------|---------------------|--------------
+Publisher         | Flowable    | Subscriber          | Subscription
+ObservableSource  | Observable  | Observer            | Disposable
+SingleSource      | Single      | SingleObserver      | Disposable
+MaybeSource       | Maybe       | MaybeObserver       | Disposable
+CompletableSource | Completable | CompletableObserver | Disposable
+
 ## Rxjava2
 
 - 在Rxjava2中对应着Processor

@@ -44,4 +44,3 @@ Single.just("").subscribe(new SingleObserver<String>() {
 | timeout               | Single     | 它给原有的Single添加超时控制，如果超时了就发射一个错误通知                                           |
 | toSingle              | Single     | 将一个发射单个值的Observable转换为一个Single                                                         |
 | zip and zipWith       | Single     | 将多个Single转换为一个，后者发射的数据是对前者应用一个函数后的结果                                   |
-
