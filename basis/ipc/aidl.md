@@ -40,7 +40,7 @@ sourceSets {
 
 ## 自定义Parcelable
 
-- **即使在对应的package中定义Parcelable Java对象，也必须在aidl中再次声明**,并且两者的package要一样
+- **即使在对应的package中定义Parcelable Java对象，也必须在aidl中再次声明**,并且两者的package要一样
 
 ```java
 // Book.java
