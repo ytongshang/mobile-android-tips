@@ -4,21 +4,11 @@
 
 - 《Android开发艺术探索》
 - [Android：学习AIDL，这一篇文章就够了(上)](https://blog.csdn.net/luoyanglizi/article/details/51980630)
+- [学习AIDL源码示例](https://github.com/ytongshang/AndroidLearning)
 
 ## Android Studio中的AIDL工程结构
 
 ![AIDL工程目录](./../../image-resources/ipc/android_studio_aidl工程结构.png)
-
-- android{}结构下
-
-```groovy
-// 指定源集，Android Studio 3.1默认就是这样
-sourceSets {
-    main {
-        java.srcDirs = ['src/main/java', 'src/main/aidl']
-    }
-}
-```
 
 ## AIDL中支持的数据类型
 
@@ -326,15 +316,245 @@ public interface IBookManager extends android.os.IInterface {
 ### Proxy.getBookList 和 Proxy.addBook
 
 - **这两个方法运行在客户端**
-- 创建方法调用的_data,返回值_reply，将方法参数写入_data
+- 创建方法调用需要的_data,返回值_reply，然后将方法调用参数写入_data
 - **通过transact发起RPC请求，同时将当前线程挂起**
 - 服务端的onTransact方法会被调用，直到RPC过程返回，从_reply中取出返回结果，并且当前线程继续执行
 - **所以客户端发起请求到返回实际上是一个阻塞的过程**
 
+## Binder死亡
+
+### linkToDeath和unlinkToDeath
+
+- Binder是工作在服务器进程的，如果，由于某种原因，服务端出现故障停止了，那么该返回的Binder对象也将消失，这时，如果我们在客户端使用Binder对象进行某些函数调用将会出现错误
+- 为Binder对象设置死亡代理，当出现和服务端连接故障时，系统将自动调用死亡代理函数binderDied()，我们处理相关逻辑，并且重新和服务端建立连接
+- **linkToDeath()为Binder对象设置死亡代理，一般在ServiceConnection的onServiceConnected中调用注册，unlinkToDeath()将设置的死亡代理标志清除，一般在binderDied中调用**
+- **IBinder.DeathRecipient的binderDied运行在客户端的Binder线程池中，不在主线程**
+
+```java
+public class MainActivity extends Activity {
+    private IAidlCall mIAidlCall;
+
+    private IBinder.DeathRecipient mDeathRecipient = new IBinder.DeathRecipient() {
+        @Override
+        public void binderDied() {
+            // TODO Auto-generated method stub
+            if (mIAidlCall == null) {
+                return;
+            }
+            // 断开连接后，清除死亡代理
+            mIAidlCall.asBinder().unlinkToDeath(mDeathRecipient, 0);
+            mIAidlCall = null;
+            // 重新绑定远程服务
+　　　　　　　bindService(new Intent("demo.action.aidl.IAidlCall").
+　　　　　　　　　　setPackage("com.example.severdemo"), conn, BIND_AUTO_CREATE);
+        }
+    };
+
+    private ServiceConnection conn = new ServiceConnection() {
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+        }
+
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            mIAidlCall = IAidlCall.Stub.asInterface(service);
+            try {
+                // 服务端连接成功后，设置死亡代理
+                service.linkToDeath(mDeathRecipient, 0);
+            } catch (RemoteException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }
+    };
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+        // "demo.action.aidl.IAidlCall" 是远程服务的action
+        bindService(new Intent("demo.action.aidl.IAidlCall")
+　　　　　　.setPackage("com.example.severdemo"), conn, BIND_AUTO_CREATE);
+    }
+}
+```
+
+### onServiceDisconnected
+
+- **ServiceConnection的onServiceConnected和onServiceDisconnected都是运行在客户端的UI线程的，不能在其中执行耗时的方法**
+
+### DeathRecipient与onServiceDisconnected
+
+- 两者都可以监听到服务端的意外死亡，**但是DeathRecipient的binderDied运行在客户端的Binder的线程池中，而onServiceDisconnected则运行在客户端的主线程中**
+
+## 服务端的实现
+
+- 实现一个Service
+- Service的onBind()方法返回AIDL编译生成的Stub的实现类对象
+- **注意AIDL的方法是在服务端的Binder线程池中执行的，所以在注重线程同步**
+
+```java
+public class BookManagerService extends Service {
+
+    // 因为Binder方法运行在线程池中，这里使用CopyOnWriteArrayList进行同步
+    private final CopyOnWriteArrayList<Book> mBooks = new CopyOnWriteArrayList<>();
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        mBooks.add(new Book("1", "Effective Java"));
+        mBooks.add(new Book("2", "Go In Action"));
+    }
+
+    @Nullable
+    @Override
+    public IBinder onBind(Intent intent) {
+        // 直接返回Stub的实现类
+        return mBinder;
+    }
+
+    private final IBinder mBinder = new IBookManager.Stub() {
+        @Override
+        public void add(Book book) throws RemoteException {
+            mBooks.add(book);
+        }
+
+        @Override
+        public List<Book> getBookList() throws RemoteException {
+            return mBooks;
+        }
+    };
+}
+```
+
+## 客户端的实现
+
+- bindService,在onServiceConnected中将Binder转为AIDL接口，并绑定死亡代理
+
+```java
+public class MainActivity extends AppCompatActivity {
+
+    private static final String TAG = "MainActivity";
+
+    private IBookManager mBookManager;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+        Intent intent = new Intent(this,BookManagerService.class);
+        bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (mBookManager != null) {
+            try {
+                List<Book> list = mBookManager.getBookList();
+                Log.d(TAG, list.getClass().getName());
+                Log.d(TAG, String.valueOf(list));
+            } catch (RemoteException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        unbindService(mConnection);
+        super.onDestroy();
+    }
+
+    private final ServiceConnection mConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            mBookManager = IBookManager.Stub.asInterface(service);
+            try {
+                service.linkToDeath(mDeathRecipient, 0);
+            } catch (RemoteException e) {
+                e.printStackTrace();
+            }
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+
+        }
+    };
+
+    private final IBinder.DeathRecipient mDeathRecipient = new IBinder.DeathRecipient() {
+        @Override
+        public void binderDied() {
+            if (mBookManager == null) {
+                return;
+            }
+            mBookManager.asBinder().unlinkToDeath(mDeathRecipient, 0);
+            mBookManager = null;
+        }
+    };
+}
+
+```
+
+## 跨进程Listener
+
+- 在客户端定义listener,然后注册到服务端，服务端根据业务需求回调listener
+- **服务端和客户端如果在不同的进程，由于对象不能跨进程传输，它们实际是通过序列化与反序列化完成的，所以服务端和客户端里面的listener其实不是同一个对象**
+
+### RemoteCallbackList
+
+- **跨进程注册的listener必须是AIDL接口**
+- **服务端管理listener必须使用RemoteCallbackList管理**
+- **RemoteCallbackList内部保证了线程同步，不需要我们手动同步**
+- **当客户端进程终止时，RemoteCallbackList能够自动移除客户端注册的listener**
+- 调用RemoteCallbackList的方法时，即使是获取size,也必须与beginBroadcast和finishBroadcast配合使用
+
+```java
+private final RemoteCallbackList<IOnNewBookArrivedListener> mListeners = new RemoteCallbackList<>();
+
+private final IBinder mBinder = new IBookManager.Stub() {
+        @Override
+        public void add(Book book) throws RemoteException {
+            mBooks.add(book);
+            onNewBookArrived(book);
+        }
+
+        @Override
+        public List<Book> getBookList() throws RemoteException {
+            return mBooks;
+        }
+
+        @Override
+        public void registerListener(IOnNewBookArrivedListener listener) throws RemoteException {
+            mListeners.register(listener);
+        }
+
+        @Override
+        public void unregisterListener(IOnNewBookArrivedListener listener) throws RemoteException {
+            mListeners.unregister(listener);
+        }
+    };
+
+    private void onNewBookArrived(Book book) {
+        int size = mListeners.beginBroadcast();
+        for (int i = 0; i < size; ++i) {
+            IOnNewBookArrivedListener listener = mListeners.getBroadcastItem(i);
+            try {
+                listener.onNewBookArrived(book);
+            } catch (RemoteException e) {
+                e.printStackTrace();
+            }
+        }
+        mListeners.finishBroadcast();
+    }
+```
+
 ## AIDL RPC请求流程
 
-- 客户端在线程A发起请求的话，线程A会被挂起，**如果请求是一个耗时的，所以不能在主线程发起请求**
-- **由于服务端的Binder方法运行在Binder线程池中，所以Binder方法不管是否耗时都应当采用同步的方法去实现**
-- **由于Binder方法会从不同线程发起，所以服务端方法要注意同步**
+- **客户端在线程A发起请求的话，线程A会被挂起直到服务端方法结果返回，如果服务端方法执行比较耗时的，就会导致客户端线程长时间的阻塞在这里，如果线程A是主线程的话，就会ANR,类似于于网络请求，所以当我们知道某个远程方法是耗时的话，就不应当在主线程去调用它。**
+- **服务端通过RemoteCallbackList管理回调listener的时候，这些listener是运行在客户端的线程池的**，如果客户端的listener回调是一个耗时操作，并且我们在服务端的主线程回调listener，会导致服务端的ANR,所以也**不应当在服务端的主线程调用客户端的耗时方法。**
+- **客户端调用服务端的Binder方法，这些方法是运行在服务端Binder线程池中，所以Binder方法不管是否耗时都应当注意数据的同步**
+- **服务端的方法是运行在服务端的Binder线程池中的，本身就可以执行大量耗时操作，我们只需要保证数据同步，所以一般情况下，我们不需要要服务端开启线程执行方法。**
 
 ![Binder工作流程](./../../image-resources/ipc/Binder工作机制.png)
