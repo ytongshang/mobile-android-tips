@@ -54,7 +54,7 @@
 
 - 子进程可以分担主进程的内存压力
 - 在主进程Crash时，子进程中的功能不受影响
-- 子进程的Application#onCreate中可以跳过一些不必要的初始化
+- **子进程的Application#onCreate中可以跳过一些不必要的初始化**
 
 ## Process 分类
 
@@ -79,7 +79,7 @@
 
 ### Service process
 
-- 一个正运行service的process(调用了service 的startService()方法),比如下载东西，播放音乐
+- 一个正在运行的service的process(调用了service 的startService()方法),比如下载东西，播放音乐
 - service process也被认为是很重要的，除非内存不足，也不会被destroy
 
 ### Background process
@@ -97,13 +97,8 @@
 
 - android 系统总是尽可能的保存所有的process，但是有时候有可能需要回收内存，
  根据process的状态和运行在 process中的component,形成了一个优先级序列，当需要回收内存时，最低优先级的被remove掉
-
 - android 总是将一个process标注为它能达到的最高级，比如有一个onResume（）的activity,同时也有正在播放音乐的service,
  这时这个process被认为是foreground process
-
 - process的优先级也会与其它process有关，比如process A 中的content provider为process B中提供数据，
  那么A被认为优先级比B高，至少是和B一样高
-
 - service process的优先级比background proces的优先级要高，所以需要消耗很长时间的操作一般被放在service中，而不是放在一个back thread中，比如上传图片等等，所以在broadcastreceiver中，如果要启动一个长时间操作，也应当启用一个service，而不是用back thread
-
-## 跨进程通信

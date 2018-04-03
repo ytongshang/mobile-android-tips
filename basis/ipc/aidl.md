@@ -4,7 +4,7 @@
 
 - 《Android开发艺术探索》
 - [Android：学习AIDL，这一篇文章就够了(上)](https://blog.csdn.net/luoyanglizi/article/details/51980630)
-- [学习AIDL源码示例](https://github.com/ytongshang/AndroidLearning)
+- [AIDL示例工程](https://github.com/ytongshang/AndroidLearning)
 
 ## Android Studio中的AIDL工程结构
 
@@ -16,15 +16,15 @@
 - String和CharSequence
 - List,只支持ArrayList,里面每个元素都必须能够被AIDL支持
 - Map,只持持HashMap,里面的每个元素都必须被AIDL支持，包括key和value
-- Parcelable,所以实现了Parcelable接口的对象
+- Parcelable,所有实现了Parcelable接口的对象
 - AIDL，所有的AIDL接口本身也可以在AIDL中使用
 
 ## 定向Tag
 
 - AIDL中的定向tag表示了在跨进程通信中数据的流向，**其中 in 表示数据只能由客户端流向服务端， out 表示数据只能由服务端流向客户端，而 inout 则表示数据可在服务端与客户端之间双向流通**。其中，数据流向是针对在客户端中的那个传入方法的对象而言的。
-- in为定向tag的话表现为服务端将会接收到一个那个对象的完整数据，**但是客户端的那个对象不会因为服务端对传参的修改而发生变动**；
-- out的话表现为服务端将会接收到那个对象的的空对象，但是**在服务端对接收到的空对象有任何修改之后客户端将会同步变动；
-- inout为定向tag的情况下，**服务端将会接收到客户端传来对象的完整信息，并且客户端将会同步服务端对该对象的任何变动**
+- 定向tag为in的话表现为服务端将会接收到一个对象的完整数据，**但是客户端的那个对象不会因为服务端对传参的修改而发生变动**；
+- 定向tag为out话表现为服务端将会接收到那个对象的的空对象，但是**在服务端对接收到的空对象有任何修改之后客户端将会同步变动；**
+- 定向tag为inout的情况下，**服务端将会接收到客户端传来对象的完整信息，并且客户端将会同步服务端对该对象的任何变动**
 - **Java中的基本类型和String ，CharSequence 的定向tag默认且只能是in**
 - **传参时除了基本类型与String,CharSequence,其它的类型必须加上定向Tag**
 
@@ -119,7 +119,7 @@ public void readFromParcel(Parcel in) {
 
 ## 显示引入
 
-- **即使不同的aidl类在同一个包中，在使用时也必须要显示引入**
+- **即使定义的不同的aidl类在同一个包中，在使用时也必须要显示引入**
 
 ```java
 // IBookManager.aidl
@@ -345,8 +345,8 @@ public class MainActivity extends Activity {
             mIAidlCall.asBinder().unlinkToDeath(mDeathRecipient, 0);
             mIAidlCall = null;
             // 重新绑定远程服务
-　　　　　　　bindService(new Intent("demo.action.aidl.IAidlCall").
-　　　　　　　　　　setPackage("com.example.severdemo"), conn, BIND_AUTO_CREATE);
+　　　bindService(new Intent("demo.action.aidl.IAidlCall").
+　　　　setPackage("com.example.severdemo"), conn, BIND_AUTO_CREATE);
         }
     };
 
