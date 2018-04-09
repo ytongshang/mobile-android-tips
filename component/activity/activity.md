@@ -42,7 +42,6 @@ onDestroy() | Called before the activity is destroyed. This is the final call th
 - 一旦activity停止了，系统会在需要内存空间时摧毁它的实例。极端情况下，系统会直接杀死我们的app进程，并不执行activity的onDestroy()回调方法,
  因此我们需要使用onStop()来释放资源，从而避免内存泄漏。我们在onStop里面做了哪些清除的操作，就该在onStart里面重新把那些清除掉的资源重新创建出来，
 
-
 ## 重新创建activity
 
 ### restore activity

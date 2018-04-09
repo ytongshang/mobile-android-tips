@@ -153,3 +153,7 @@ public void dispatchMessage(Message msg) {
     }
 }
 ```
+
+## 异步消息
+
+- [Android Asynchronous Message（异步消息）](http://www.paincker.com/android-async-message)
