@@ -157,3 +157,7 @@ public void dispatchMessage(Message msg) {
 ## 异步消息
 
 - [Android Asynchronous Message（异步消息）](http://www.paincker.com/android-async-message)
+- [关于Handler的SyncBarrier解析](https://www.colabug.com/195754.html)
+
+- SyncBarrier是指target为空的Message
+- Asynchronous指的是标识位为1的消息
