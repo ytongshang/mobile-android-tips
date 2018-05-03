@@ -128,12 +128,6 @@ public void unscheduleDrawable(Drawable who, Runnable what) {
         mContent.removeCallbacks(what);
     }
 }
-
-@Override
-protected void setupBaseListeners() {
-    super.setupBaseListeners();
-    mContent.setOnLongClickListener(this);
-}
 ```
 
 ## setLevel
