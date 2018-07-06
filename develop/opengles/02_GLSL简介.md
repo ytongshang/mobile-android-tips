@@ -1,5 +1,10 @@
 # GLSL
 
+## 参考资料
+
+- [GLSL](https://learnopengl-cn.github.io/01%20Getting%20started/05%20Shaders/)
+- [GLSL 中文手册](https://github.com/wshxbqq/GLSL-Card)
+
 ## 简介
 
 - 着色器是使用一种叫GLSL的类C语言写成的
@@ -28,21 +33,38 @@ int main()
 
 ## 数据类型
 
-- GLSL中包含C等其它语言大部分的默认基础数据类型：int、float、double、uint和bool
-- 两种容器类型，Vector与Matrix
+- GLSL中包含C等其它语言大部分的默认基础数据类型：void, bool,int、float
+- 数组，但是只支持1维数组,float foo[3]
+- 结构体与C语言一样,struct type-name{}
+- 两种容器类型，向量与矩阵
+- sampler2D 2D纹理
+- samplerCube  盒纹理 cube mapped texture
+
+## 浮点精度
+
+- 与顶点着色器不同的是，**在片元着色器中使用浮点型时，必须指定浮点类型的精度**，否则编译会报错。精度有三种，分别为
+    - lowp：低精度。8位。
+    - mediump：中精度。10位。
+    - highp：高精度。16位。
+
+- 不仅仅是float可以制定精度，其他（除了bool相关）类型也同样可以，但是int、采样器类型并不一定要求指定精度。加精度的定义如下：
+
+```glsl
+uniform lowp float a=1.0;
+varying mediump vec4 c;
+```
 
 ### 向量
 
 - 向量是一个可以包含有1、2、3或者4个分量的容器
-- 分量的类型可以是前面默认基础类型的任意一个
+- 分量存储的类型可以bool,int,float中的一种
+- GLSL中的向量表示竖向量，所以与矩阵相乘进行变换时，矩阵在前，向量在后（与DirectX正好相反）
 
 类型  | 含义
 ------|-------------------------------
 vecn  | 包含n个float分量的默认向量
 bvecn | 包含n个bool分量的向量
 ivecn | 包含n个int分量的向量
-uvecn | 包含n个unsigned int分量的向量
-dvecn | 包含n个double分量的向量
 
 - 一个向量的分量可以通过vec.x这种方式获取，这里x是指这个向量的第一个分量。可以分别使用.x、.y、.z和.w来获取它们的第1、2、3、4个分量。
 - GLSL也允许你对颜色使用rgba，或是对纹理坐标使用stpq访问相同的分量。
@@ -58,37 +80,20 @@ vec4 result = vec4(vect, 0.0, 0.0);
 vec4 otherResult = vec4(result.xyz, 1.0);
 ```
 
-## 输入与输出
+## 类型转换
 
-- 每个着色器都有输入和输出，这样才能进行数据交流和传递。GLSL定义了in和out关键字专门来实现这个目的
-- 每个着色器使用这两个关键字设定输入和输出，只要一个输出变量与下一个着色器阶段的输入匹配，它就会传递下去。但在顶点和片段着色器中会有点不同
-- 在下面的例子中，在顶点着色器中声明了一个vertexColor变量作为vec4输出，并在片段着色器中声明了一个类似的vertexColor。
- **由于它们名字相同且类型相同，片段着色器中的vertexColor就和顶点着色器中的vertexColor链接了**
+- **GLSL的类型转换与C不同。在GLSL中类型不可以自动提升**，比如float a=1;就是一种错误的写法，必须严格的写成float a=1.0，也不可以强制转换，即float a=(float)1;也是错误的写法，
+- **可以用内置函数来进行转换**，如float a=float(1);还有float a=float(true);（true为1.0，false为0.0）等，值得注意的是，低精度的int不能转换为低精度的float。。
 
-```glsl
-#version 330 core
-layout (location = 0) in vec3 aPos; // Vertex
+## 变量限定符
 
-out vec4 vertexColor; // 为片段着色器指定一个颜色输出
-
-void main()
-{
-    gl_Position = vec4(aPos, 1.0); // 注意我们如何把一个vec3作为vec4的构造器的参数
-    vertexColor = vec4(0.5, 0.0, 0.0, 1.0); // 把输出变量设置为暗红色
-}
-```
-
-```glsl
-#version 330 core
-out vec4 FragColor;
-
-in vec4 vertexColor; // 从顶点着色器传来的输入变量（名称相同、类型相同）
-
-void main()
-{
-    FragColor = vertexColor;
-}
-```
+修饰符    | 说明
+----------|----------------------------------------------------------------------------------------------
+none      | (默认的可省略)本地变量,可读可写,函数的输入参数既是这种类型
+const     | 声明变量或函数的参数为只读类型
+attribute | 只能存在于vertex shader中,一般用于保存顶点或法线数据,它可以在数据缓冲区中读取数据
+uniform   | 在运行时shader无法改变uniform变量, 一般用来放置程序传递给shader的变换矩阵，材质，光照参数等等.
+varying   | 主要负责在vertex 和 fragment 之间传递变量
 
 ## Attribute
 
@@ -122,19 +127,6 @@ public int getAttributeLocation(String name) {
 
 int index = getAttributeLocation(program, "aPos");
 ```
-
-### glVertexAttribPointer
-
-```java
-void glVertexAttribPointer( GLuint index, GLint size, GLenum type,GLboolean normalized, GLsizei stride,const GLvoid * pointer);
-```
-
-- **index**:指定要修改的顶点属性的索引值
-- **size**,指定每个顶点属性的组件数量。必须为1、2、3或者4。初始值为4。（如position是由3个（x,y,z）组成，而颜色是4个（r,g,b,a））
-- **type**,指定数组中每个组件的数据类型。可用的符号常量有GL_BYTE, GL_UNSIGNED_BYTE, GL_SHORT,GL_UNSIGNED_SHORT, GL_FIXED, 和 GL_FLOAT，初始值为GL_FLOAT。
-- **normalized**,指定当被访问时，固定点数据值是否应该被归一化（GL_TRUE）或者直接转换为固定点值（GL_FALSE）。
-- **stride**,指定连续顶点属性之间的偏移量。如果为0，那么顶点属性会被理解为：它们是紧密排列在一起的。初始值为0。
-- **pointer**,指定第一个组件在数组的第一个顶点属性中的偏移量。该数组与GL_ARRAY_BUFFER绑定，储存于缓冲区中。初始值为0；
 
 ## varying变量
 
@@ -232,23 +224,21 @@ public class Triangle {
 }
 ```
 
-## glDrawArrays(GLenum mode, GLint first, GLsizei count)
+## 顶点着色器的内建变量
 
-- 第一个参数表示绘制mode
+### 输入变量：
 
-mode                  | 描述
-----------------------|------------------------------------------------------------------
-int GL_POINTS         | 将传入的顶点坐标作为单独的点绘制
-int GL_LINES          | 将传入的坐标作为单独线条绘制，ABCDEFG六个顶点，绘制AB、CD、EF三条线
-int GL_LINE_STRIP     | 将传入的顶点作为折线绘制，ABCD四个顶点，绘制AB、BC、CD三条线
-int GL_LINE_LOOP      | 将传入的顶点作为闭合折线绘制，ABCD四个顶点，绘制AB、BC、CD、DA四条线。
+- **gl_Position**：顶点坐标
+- **gl_PointSize**：点的大小，没有赋值则为默认值1，通常设置绘图为点绘制才有意义。
 
-- **GL_TRIANGLES**：每三个顶点绘制一个三角形。第一个三角形使用顶点v0,v1,v2,第二个使用v3,v4,v5,以此类推。如果顶点的个数n不是3的倍数，那么最后的1个或者2个顶点会被忽略
-- **GL_TRIANGLE_STRIP**：假设起始点的坐标序列号是0，新增的点依次往后增加，那么转换的算法如下：
-    - 当所有点数量小于或者等于2时，无法构成三角条带
-    - 点号从0开始，(点号n)是偶数时，构成的三角形是 [ n, n+1, n+2]
-    - 点号从0开始，(点号n)是奇数时，构成的三角形是 [n, n+2, n+1]
-- **GL_TRIANGLE_FAN**：将传入的顶点作为扇面绘制，ABCDEF绘制ABC、ACD、ADE、AEF四个三角形
+## 片元着色器的内建变量
 
-- first，从数组缓存中的哪一位开始绘制，一般为0。
-- count，数组中顶点的数量
+### 输入变量
+
+- **gl_FragCoord**：当前片元相对窗口位置所处的坐标。
+- **gl_FragFacing**：bool型，表示是否为属于光栅化生成此片元的对应图元的正面。
+
+### 输出变量
+
+- **gl_FragColor**：当前片元颜色
+- **gl_FragData**：vec4类型的数组。向其写入的信息，供渲染管线的后继过程使用。
