@@ -367,7 +367,7 @@ int startActivityLocked(IApplicationThread caller, Intent intent, Intent ephemer
 
 ### Step8:ActivityStarter.startActivityUnchecked
 
-这个方法的一开始，进行了一些初始化与更新标志值的过程,setInitialState更新要启动的Activity到全局常量mStartActivity等。
+- 这个方法的一开始，进行了一些初始化与更新标志值的过程,setInitialState更新要启动的Activity到全局常量mStartActivity等。
 
 ```java
 // ActivityStarter.java 1015
@@ -459,7 +459,7 @@ if (reusedActivity != null) {
 
 ```
 
-- 判断是否需要创建一个新的TaskRecord,如果从Launcher点击，就会执行创建一个新的任务栈TaskRecord
+- 判断是我们启动的Activity的任务栈的归属
 
 ```java
     // ActivityStarter.java 1169
@@ -468,16 +468,17 @@ if (reusedActivity != null) {
                 ? mSourceRecord.getTask() : null;
 
         // Should this be considered a new task?
-        //下面的一段代码 实际上就是找到我们将要启动的activity应当放到哪一个任务栈中
+        //下面的一段代码 实际上就是判断我们启动的activity应当放到哪一个任务栈中
         int result = START_SUCCESS;
         if (mStartActivity.resultTo == null && mInTask == null && !mAddingToTask
                 && (mLaunchFlags & FLAG_ACTIVITY_NEW_TASK) != 0) {
-            // 处理SingleTask的情况，复用原来的Task或创建新的Task
+            // SingleTask的情况
+            // 我们从Lanucher启动一个应用，一般就是这种情况
             newTask = true;
             result = setTaskFromReuseOrCreateNewTask(
                     taskToAffiliate, preferredLaunchStackId, topStack);
         } else if (mSourceRecord != null) {
-            // 如果调用startActivity方法的Context也是一个Activity,复用Context的Task
+            //  与调用startActivity相同的Task
             result = setTaskFromSourceRecord();
         } else if (mInTask != null) {
              // 如果我们设置了希望将启动的Activity放到哪个task中，一般指使用了taskaffiiliate
@@ -492,62 +493,66 @@ if (reusedActivity != null) {
             return result;
         }
 
-        mService.grantUriPermissionFromIntentLocked(mCallingUid, mStartActivity.packageName,
-                mIntent, mStartActivity.getUriPermissionsLocked(), mStartActivity.userId);
-        mService.grantEphemeralAccessLocked(mStartActivity.userId, mIntent,
-                mStartActivity.appInfo.uid, UserHandle.getAppId(mCallingUid));
-        if (mSourceRecord != null) {
-            mStartActivity.getTask().setTaskToReturnTo(mSourceRecord);
-        }
-        if (newTask) {
-            EventLog.writeEvent(
-                    EventLogTags.AM_CREATE_TASK, mStartActivity.userId,
-                    mStartActivity.getTask().taskId);
-        }
-        ActivityStack.logStartActivity(
-                EventLogTags.AM_CREATE_ACTIVITY, mStartActivity, mStartActivity.getTask());
-        mTargetStack.mLastPausedActivity = null;
+    ...
+    //省略若干行
+```
 
-        sendPowerHintForLaunchStartIfNeeded(false /* forceSend */, mStartActivity);
+- setTaskFromReuseOrCreateNewTask
 
-        // 调用ActivityStack,也就是任务栈的启动Activity的方法
-        mTargetStack.startActivityLocked(mStartActivity, topFocused, newTask, mKeepCurTransition,
-                mOptions);
-        if (mDoResume) {
-            final ActivityRecord topTaskActivity =
-                    mStartActivity.getTask().topRunningActivityLocked();
-            if (!mTargetStack.isFocusable()
-                    || (topTaskActivity != null && topTaskActivity.mTaskOverlay
-                    && mStartActivity != topTaskActivity)) {
-                // If the activity is not focusable, we can't resume it, but still would like to
-                // make sure it becomes visible as it starts (this will also trigger entry
-                // animation). An example of this are PIP activities.
-                // Also, we don't want to resume activities in a task that currently has an overlay
-                // as the starting activity just needs to be in the visible paused state until the
-                // over is removed.
-                mTargetStack.ensureActivitiesVisibleLocked(null, 0, !PRESERVE_WINDOWS);
-                // Go ahead and tell window manager to execute app transition for this activity
-                // since the app transition will not be triggered through the resume channel.
-                mWindowManager.executeAppTransition();
-            } else {
-                // If the target stack was not previously focusable (previous top running activity
-                // on that stack was not visible) then any prior calls to move the stack to the
-                // will not update the focused stack.  If starting the new activity now allows the
-                // task stack to be focusable, then ensure that we now update the focused stack
-                // accordingly.
-                if (mTargetStack.isFocusable() && !mSupervisor.isFocusedStack(mTargetStack)) {
-                    mTargetStack.moveToFront("startActivityUnchecked");
+```java
+private int setTaskFromReuseOrCreateNewTask(
+            TaskRecord taskToAffiliate, int preferredLaunchStackId, ActivityStack topStack) {
+                // computeStackFocus返回一个mTargetStack，
+                // 这个ActivityStack是为即将启动的Activity的容器所在的Activity任务栈
+        mTargetStack = computeStackFocus(
+                mStartActivity, true, mLaunchBounds, mLaunchFlags, mOptions);
+
+        // Do no move the target stack to front yet, as we might bail if
+        // isLockTaskModeViolation fails below.
+
+        // Task复用
+        if (mReuseTask == null) {
+            final TaskRecord task = mTargetStack.createTaskRecord(
+                    mSupervisor.getNextTaskIdForUserLocked(mStartActivity.userId),
+                    mNewTaskInfo != null ? mNewTaskInfo : mStartActivity.info,
+                    mNewTaskIntent != null ? mNewTaskIntent : mIntent, mVoiceSession,
+                    mVoiceInteractor, !mLaunchTaskBehind /* toTop */, mStartActivity.mActivityType);
+            addOrReparentStartingActivity(task, "setTaskFromReuseOrCreateNewTask - mReuseTask");
+            if (mLaunchBounds != null) {
+                final int stackId = mTargetStack.mStackId;
+                if (StackId.resizeStackWithLaunchBounds(stackId)) {
+                    mService.resizeStack(
+                            stackId, mLaunchBounds, true, !PRESERVE_WINDOWS, ANIMATE, -1);
+                } else {
+                    mStartActivity.getTask().updateOverrideConfiguration(mLaunchBounds);
                 }
-                mSupervisor.resumeFocusedStackTopActivityLocked(mTargetStack, mStartActivity,
-                        mOptions);
             }
+            if (DEBUG_TASKS) Slog.v(TAG_TASKS, "Starting new activity " + mStartActivity
+                    + " in new task " + mStartActivity.getTask());
         } else {
-            mTargetStack.addRecentActivityLocked(mStartActivity);
+            addOrReparentStartingActivity(mReuseTask, "setTaskFromReuseOrCreateNewTask");
         }
-        mSupervisor.updateUserStackLocked(mStartActivity.userId, mTargetStack);
 
-        mSupervisor.handleNonResizableTaskIfNeeded(mStartActivity.getTask(), preferredLaunchStackId,
-                preferredLaunchDisplayId, mTargetStack.mStackId);
+        // TaskAffiliate的设置
+        if (taskToAffiliate != null) {
+            mStartActivity.setTaskToAffiliateWith(taskToAffiliate);
+        }
 
+        if (mSupervisor.isLockTaskModeViolation(mStartActivity.getTask())) {
+            Slog.e(TAG, "Attempted Lock Task Mode violation mStartActivity=" + mStartActivity);
+            return START_RETURN_LOCK_TASK_MODE_VIOLATION;
+        }
+
+        if (!mMovedOtherTask) {
+            // If stack id is specified in activity options, usually it means that activity is
+            // launched not from currently focused stack (e.g. from SysUI or from shell) - in
+            // that case we check the target stack.
+            updateTaskReturnToType(mStartActivity.getTask(), mLaunchFlags,
+                    preferredLaunchStackId != INVALID_STACK_ID ? mTargetStack : topStack);
+        }
+        if (mDoResume) {
+            mTargetStack.moveToFront("reuseOrNewTask");
+        }
         return START_SUCCESS;
+    }
 ```
