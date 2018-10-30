@@ -16,6 +16,8 @@ public class JniUtils {
 
 ## 生成头文件
 
+### javah生成头文件
+
 - 编译项目，生成class文件
 
 - 利用javah生成.h文件
@@ -62,6 +64,14 @@ JNIEXPORT jstring JNICALL Java_cradle_rancune_ndktest_jni_JniUtils_encrypt
 #endif
 
 ```
+
+### Android studio 新增快捷键
+
+- ![javah](./../../image-resources/jni/javah.png)
+
+- Program: $JDKPath$/bin/javah
+- Arguments: -classpath $OutputPath$ -d $SourcepathEntry$/../cpp -jni $FileClass$
+- Working directory: $ProjectFileDir$
 
 ## 创建对应的source文件
 
