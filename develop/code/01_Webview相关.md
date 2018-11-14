@@ -980,8 +980,7 @@ private void initHttpClient(Builder builder) {
     }
 ```
 
-- 缓存header主要包括request与response两个部分，其中request主要代码如下，其中html文件request头使用
- no-cache
+- 缓存header主要包括request与response两个部分，其中request主要代码如下
 
 ```java
 private WebResourceResponse interceptRequest(String url, Map<String, String> headers) {
@@ -1008,16 +1007,12 @@ private WebResourceResponse interceptRequest(String url, Map<String, String> hea
         if (TextUtils.isEmpty(extension)) {
             return null;
         }
+        if (mCacheExtensionConfig.isHtml(url)) {
+            return null;
+        }
         try {
-            Request.Builder reqBuilder = new Request.Builder().url(url);
+            Request.Builder reqBuilder = new Request.Builder().get().url(url);
             addHeader(reqBuilder, headers);
-            boolean isHtml = mCacheExtensionConfig.isHtml(url);
-            if (isHtml) {
-                reqBuilder.addHeader(HEADER_CACHE_STRAGETY, CacheType.NOCACHE.ordinal() + "");
-                reqBuilder.removeHeader("pragma")
-                        .removeHeader("Cache-Control")
-                        .addHeader("Cache-Control", "no-cache");
-            }
             Request request = reqBuilder.build();
             Response response = mHttpClient.newCall(request).execute();
             Response cacheRes = response.cacheResponse();
@@ -1039,7 +1034,8 @@ private WebResourceResponse interceptRequest(String url, Map<String, String> hea
     }
 ```
 
-- 对于response部分，对于html强制设置为no-cahce不缓存。而对于其它静态资源，目前我们保证对于每一个资源变化了，其url都会变化，而缓存的key是由整个url生成的，所以我们可以强制更改其缓存头，加上max-age来进行缓存
+- 对于response部分，如果我们在request中手动设置了不缓存，那么可以强制更改response不缓存,这样我们就可以针对单独一个请求做一些特殊处理
+- 而对于其它静态资源，目前服务端暂时还没有完全支持http缓存相关header,但是可以保证每一个资源变化了，其url一定会变化，所以我们可以不用管header,通过对于每一个静态资源强制更改其缓存header，来实现缓存
 
 ```java
     public Response intercept(Chain chain) throws IOException {
@@ -1105,7 +1101,7 @@ private WebResourceResponse interceptRequest(String url, Map<String, String> hea
 - marven引入
 
 ```groovy
-cachewebviewlib = '1.0.0'
+cachewebviewlib = '1.0.1'
 
 implementation "tv.chushou.widget:cachewebviewlib:$rootProject.cachewebviewlib" + "@aar"
 ```
@@ -1164,11 +1160,41 @@ implementation "tv.chushou.widget:cachewebviewlib:$rootProject.cachewebviewlib" 
     }
 ```
 
+#### 目前发现的一个坑
+
+- **对于我们的项目，htm/html一定不要使用缓存**，原因在于有些请求也会被拦截掉，而这个本身竟然是个post请求！！！
+
+```js
+//  活动中心
+// 来自于m_information_remix.js
+$(document).on("click", ".becombooked", function(a) {
+        a.stopPropagation();
+        var b = $(this).parents(".time-col").find(".info_list").data("roomid")
+          , c = $(this).parents(".time-col").find(".reserveNumText")
+          , d = c.text();
+        $.ajax({
+            url: CONTEXT_PATH + "/m/subscriber/subscribe.htm",
+            type: "POST",
+            data: {
+                roomId: b,
+                token: k
+            },
+            dataType: "json",
+            success: function(b) {
+                var e = b;
+                0 == e.code ? ($(a.target).attr("src", "https://kascdn.kascend.com/jellyfish/uiupload/recruit_m/recruit_m_schedule/booked.png").removeClass("becombooked").addClass("becombook"),
+                toastModal.mshow("已预定成功"),
+                -1 == d.indexOf("万") && c.text(parseInt(d) + 1 + "人预定")) : toastModal.mshow(e.message)
+            }
+        })
+    }),
+```
+
 ### 缓存注意事项
 
 - 现阶段，我们是强制使用缓存，这样要保证，每换一个资源，我们必须保证其资源的url必须变化
-- 但是对于第三方，比如游戏，我们不能保证第三方会这么做，而且即使这么做了，不同游戏也可能会出现相同url,所以对于游戏必须每一个游戏必须用一个缓存目录
-- 注意游戏页面关闭时，我们需要关闭cache的DiskLruCache
+- 但是对于第三方，比如游戏，我们不能保证第三方会这么做，而且即使这么做了，不同游戏也可能会出现相同url,所以对于游戏必须每一个游戏的每一个版本都必须用一个缓存目录
+- 注意游戏页面关闭时，我们需要关闭DiskLruCache
 
 ```java
 public class GameWebviewClient extends WebViewClient {
