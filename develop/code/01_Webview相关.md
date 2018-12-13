@@ -862,6 +862,7 @@ webview.resumeTimers();
 
 - [Android：手把手教你构建 全面的WebView 缓存机制 & 资源加载方案](https://www.jianshu.com/p/5e7075f4875f)
 - [彻底弄懂HTTP缓存机制及原理](https://www.cnblogs.com/chenqf/p/6386163.html)
+- [HTTP 缓存](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Caching_FAQ)
 
 ### 缓存原理
 
@@ -1160,7 +1161,7 @@ implementation "tv.chushou.widget:cachewebviewlib:$rootProject.cachewebviewlib" 
     }
 ```
 
-#### 目前发现的一个坑
+#### 坑
 
 - **对于我们的项目，htm/html一定不要使用缓存**，原因在于有些请求也会被拦截掉，而这个本身竟然是个post请求！！！
 
@@ -1189,6 +1190,8 @@ $(document).on("click", ".becombooked", function(a) {
         })
     }),
 ```
+
+- Cache的matches方法
 
 ### 缓存注意事项
 
