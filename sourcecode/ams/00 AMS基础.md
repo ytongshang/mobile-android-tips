@@ -1,5 +1,17 @@
 # AMS
 
+- [相关文章](#相关文章)
+- [相关类](#相关类)
+    - [ActivityManagerService](#activitymanagerservice)
+    - [ActivityThread](#activitythread)
+    - [Instrumentation](#instrumentation)
+    - [ActivityManager](#activitymanager)
+    - [ActivityRecord,TaskRecord,ProcessRecord](#activityrecordtaskrecordprocessrecord)
+    - [ActivityStack,ActivityStackSupervisor](#activitystackactivitystacksupervisor)
+    - [ActivityRecord、TaskRecord、ActivityStack](#activityrecordtaskrecordactivitystack)
+
+## 相关文章
+
 - [深入理解ActivityManagerService](https://blog.csdn.net/Innost/article/details/47254381?utm_source=app)
 
 ## 相关类
@@ -28,8 +40,13 @@
 
 - AMS进程中的概念
 - AMS提供了一个ArrayList mHistory来管理所有的activity，activity在AMS中的形式是ActivityRecord，task在AMS中的形式为TaskRecord，进程在AMS中的管理形式为ProcessRecord
+- [ActivityRecord TaskRecord和ProcessRecord之间的关系](https://blog.csdn.net/mwq384807683/article/details/72529285)
 
 ### ActivityStack,ActivityStackSupervisor
 
 - ActivityStack负责单个Activity栈的状态和管理
 - ActivityStackSupervisor负责所有Activity栈的管理
+
+### ActivityRecord、TaskRecord、ActivityStack
+
+- [ActivityRecord、TaskRecord、ActivityStack](https://blog.csdn.net/kebelzc24/article/details/53747506)

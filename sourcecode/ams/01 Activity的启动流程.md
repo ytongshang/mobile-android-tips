@@ -1,6 +1,27 @@
 # Activity启动过程
 
-- [Android 9.0）Activity启动流程源码分析](https://www.jianshu.com/p/89fd44083c1c)
+- [相关文章](#相关文章)
+- [Activity启动流程图](#activity启动流程图)
+- [Activity的启动流程](#activity的启动流程)
+    - [总结](#总结)
+    - [Step 1: Launcher.startActivitySafely](#step-1-launcherstartactivitysafely)
+    - [Step2: Activity.startActivity](#step2-activitystartactivity)
+    - [Step3: Instrumentation.execStartActivity](#step3-instrumentationexecstartactivity)
+    - [Step4: ActivityManager.getService().startActivity](#step4-activitymanagergetservicestartactivity)
+    - [Step5:ActivityManagerService.startActivity,ActivityManagerService.startActivityAsUser](#step5activitymanagerservicestartactivityactivitymanagerservicestartactivityasuser)
+    - [Step6:ActivityStarter.execute(),ActivityStarter.startActivityMayWait](#step6activitystarterexecuteactivitystarterstartactivitymaywait)
+    - [Step7:一系列ActivityStarter.startActivity](#step7一系列activitystarterstartactivity)
+    - [Step8:ActivityStarter.startActivityUnchecked](#step8activitystarterstartactivityunchecked)
+    - [Step9:ActivityStackSupervisor.resumeFocusedStackTopActivityLocked](#step9activitystacksupervisorresumefocusedstacktopactivitylocked)
+    - [Step10:栈顶Activity执行onPause方法](#step10栈顶activity执行onpause方法)
+    - [Step11 Activity所在的应用进程启动过程](#step11-activity所在的应用进程启动过程)
+    - [Step11 ActivityThread的初始化](#step11-activitythread的初始化)
+    - [Step12 Activity在应用进程的启动](#step12-activity在应用进程的启动)
+    - [Step13 栈顶Activity执行onStop](#step13-栈顶activity执行onstop)
+
+## 相关文章
+
+- [Android 9.0 Activity启动流程源码分析](https://www.jianshu.com/p/89fd44083c1c)
 - [Android源码解析之（十四）-->Activity启动流程](https://blog.csdn.net/qq_23547831/article/details/51224992)
 - [Android系统启动流程图 —— 源码执行流程（android 6.0）](https://blog.csdn.net/wgheng2011/article/details/79420451)
 
