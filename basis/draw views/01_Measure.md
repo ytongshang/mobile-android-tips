@@ -16,28 +16,112 @@
 
 - ViewRootImpl的performTraversals方法中调用performMeasure方法
 - performMeasure方法通过调用ViewRootImpl的根View,也就是DectorView的measure()方法去测量View树的大小
-- DectorView的measure()会调用其自身的onMeasure()方法，因为DectorView是FrameLayout，进而会调用FrameLayout
- 的测量方法
+- DectorView的measure()会调用其自身的onMeasure()方法，因为DectorView是FrameLayout，进而会调用FrameLayout的测量方法
 - **在onMeasure方法中，一方面需要通过调用setMeasuredDimension()方法去设置自身的测量宽高mMeasuredWidth和mMeasureHeight**，另一方面，如果该View对象是个ViewGroup，需要重写该onMeasure()方法，对其子视图进行遍历测量大小
 - 对每个子视图的measure()过程，可以调用父类ViewGroup类里的measureChild(),measureChildWithMargins(),measureChildren(),或本身的measure()方法进行测量。
 
-## DecorView的MesaureSpec
-
-- View系统的绘制流程会从ViewRootImpl的performTraversals()方法中开始,按顺序执行了measure,layout,draw
-
-- 对于DecorView来说，由Window的大小,以及它的的ViewGroup.LayoutParams共同决定,
- 它的MeasureSpec在ViewRootImpl中的measureHierarchy()中创建
-
 ```java
-    // ViewRootImpl.java
-    childWidthMeasureSpec = getRootMeasureSpec(desiredWindowWidth, lp.width);
-    childHeightMeasureSpec = getRootMeasureSpec(desiredWindowHeight, lp.height);
-    performMeasure(childWidthMeasureSpec, childHeightMeasureSpec);
-```
+        // android/view/ViewRootImpl.java
+        private void performTraversals() {
+            ...
+            if (!mStopped || mReportNextDraw) {
+                boolean focusChangedDueToTouchMode = ensureTouchModeLocally(
+                        (relayoutResult&WindowManagerGlobal.RELAYOUT_RES_IN_TOUCH_MODE) != 0);
+                if (focusChangedDueToTouchMode || mWidth != host.getMeasuredWidth()
+                        || mHeight != host.getMeasuredHeight() || contentInsetsChanged ||
+                        updatedConfiguration) {
+                    int childWidthMeasureSpec = getRootMeasureSpec(mWidth, lp.width);
+                    int childHeightMeasureSpec = getRootMeasureSpec(mHeight, lp.height);
 
-``` java
+                    if (DEBUG_LAYOUT) Log.v(mTag, "Ooops, something changed!  mWidth="
+                            + mWidth + " measuredWidth=" + host.getMeasuredWidth()
+                            + " mHeight=" + mHeight
+                            + " measuredHeight=" + host.getMeasuredHeight()
+                            + " coveredInsetsChanged=" + contentInsetsChanged);
 
-  private static int getRootMeasureSpec(int windowSize, int rootDimension) {
+                     // Ask host how big it wants to be
+                     // 执行Measure
+                    performMeasure(childWidthMeasureSpec, childHeightMeasureSpec);
+
+                    // Implementation of weights from WindowManager.LayoutParams
+                    // We just grow the dimensions as needed and re-measure if
+                    // needs be
+                    int width = host.getMeasuredWidth();
+                    int height = host.getMeasuredHeight();
+                    boolean measureAgain = false;
+
+                    // 如果View水平需要占用剩下的空间
+                    if (lp.horizontalWeight > 0.0f) {
+                        width += (int) ((mWidth - width) * lp.horizontalWeight);
+                        childWidthMeasureSpec = MeasureSpec.makeMeasureSpec(width,
+                                MeasureSpec.EXACTLY);
+                        measureAgain = true;
+                    }
+                     // 如果View竖直需要占用剩下的空间
+                    if (lp.verticalWeight > 0.0f) {
+                        height += (int) ((mHeight - height) * lp.verticalWeight);
+                        childHeightMeasureSpec = MeasureSpec.makeMeasureSpec(height,
+                                MeasureSpec.EXACTLY);
+                        measureAgain = true;
+                    }
+
+                    if (measureAgain) {
+                        if (DEBUG_LAYOUT) Log.v(mTag,
+                                "And hey let's measure once more: width=" + width
+                                + " height=" + height);
+                        // 重新进行Measure
+                        performMeasure(childWidthMeasureSpec, childHeightMeasureSpec);
+                    }
+
+                    layoutRequested = true;
+                }
+            }
+        } else {
+            // Not the first pass and no window/insets/visibility change but the window
+            // may have moved and we need check that and if so to update the left and right
+            // in the attach info. We translate only the window frame since on window move
+            // the window manager tells us only for the new frame but the insets are the
+            // same and we do not want to translate them more than once.
+            maybeHandleWindowMove(frame);
+        }
+
+        final boolean didLayout = layoutRequested && (!mStopped || mReportNextDraw);
+        boolean triggerGlobalLayoutListener = didLayout
+                || mAttachInfo.mRecomputeGlobalAttributes;
+        if (didLayout) {
+            // 进行Layout
+            performLayout(lp, mWidth, mHeight);
+            ...
+        }
+        ...
+        boolean cancelDraw = mAttachInfo.mTreeObserver.dispatchOnPreDraw() || !isViewVisible;
+
+        if (!cancelDraw && !newSurface) {
+            if (mPendingTransitions != null && mPendingTransitions.size() > 0) {
+                for (int i = 0; i < mPendingTransitions.size(); ++i) {
+                    mPendingTransitions.get(i).startChangingAnimations();
+                }
+                mPendingTransitions.clear();
+            }
+            // 进行绘制
+            performDraw();
+        } else {
+            if (isViewVisible) {
+                // Try again
+                scheduleTraversals();
+            } else if (mPendingTransitions != null && mPendingTransitions.size() > 0) {
+                for (int i = 0; i < mPendingTransitions.size(); ++i) {
+                    mPendingTransitions.get(i).endChangingAnimations();
+                }
+                mPendingTransitions.clear();
+            }
+        }
+
+        mIsInTraversal = false;
+    }
+
+    // DecorView的MesaureSpec
+    private static int getRootMeasureSpec(int windowSize, int rootDimension) {
         int measureSpec;
         switch (rootDimension) {
         case ViewGroup.LayoutParams.MATCH_PARENT:
@@ -55,7 +139,91 @@
         }
         return measureSpec;
     }
-  ```
+
+    // android/view/ViewRootImpl.java
+    private void performMeasure(int childWidthMeasureSpec, int childHeightMeasureSpec) {
+        if (mView == null) {
+            return;
+        }
+        Trace.traceBegin(Trace.TRACE_TAG_VIEW, "measure");
+        try {
+            mView.measure(childWidthMeasureSpec, childHeightMeasureSpec);
+        } finally {
+            Trace.traceEnd(Trace.TRACE_TAG_VIEW);
+        }
+    }
+```
+
+```java
+// android/view/View.java
+public final void measure(int widthMeasureSpec, int heightMeasureSpec) {
+        boolean optical = isLayoutModeOptical(this);
+        if (optical != isLayoutModeOptical(mParent)) {
+            Insets insets = getOpticalInsets();
+            int oWidth  = insets.left + insets.right;
+            int oHeight = insets.top  + insets.bottom;
+            widthMeasureSpec  = MeasureSpec.adjust(widthMeasureSpec,  optical ? -oWidth  : oWidth);
+            heightMeasureSpec = MeasureSpec.adjust(heightMeasureSpec, optical ? -oHeight : oHeight);
+        }
+
+        // Suppress sign extension for the low bytes
+        long key = (long) widthMeasureSpec << 32 | (long) heightMeasureSpec & 0xffffffffL;
+        if (mMeasureCache == null) mMeasureCache = new LongSparseLongArray(2);
+
+        final boolean forceLayout = (mPrivateFlags & PFLAG_FORCE_LAYOUT) == PFLAG_FORCE_LAYOUT;
+
+        // Optimize layout by avoiding an extra EXACTLY pass when the view is
+        // already measured as the correct size. In API 23 and below, this
+        // extra pass is required to make LinearLayout re-distribute weight.
+        // 如果传进来是exactly并且当前的大小已经是这么大了，那么可以减少测量的次数
+        final boolean specChanged = widthMeasureSpec != mOldWidthMeasureSpec
+                || heightMeasureSpec != mOldHeightMeasureSpec;
+        final boolean isSpecExactly = MeasureSpec.getMode(widthMeasureSpec) == MeasureSpec.EXACTLY
+                && MeasureSpec.getMode(heightMeasureSpec) == MeasureSpec.EXACTLY;
+        final boolean matchesSpecSize = getMeasuredWidth() == MeasureSpec.getSize(widthMeasureSpec)
+                && getMeasuredHeight() == MeasureSpec.getSize(heightMeasureSpec);
+        final boolean needsLayout = specChanged
+                && (sAlwaysRemeasureExactly || !isSpecExactly || !matchesSpecSize);
+
+        if (forceLayout || needsLayout) {
+            // first clears the measured dimension flag
+            mPrivateFlags &= ~PFLAG_MEASURED_DIMENSION_SET;
+
+            resolveRtlPropertiesIfNeeded();
+
+            int cacheIndex = forceLayout ? -1 : mMeasureCache.indexOfKey(key);
+            if (cacheIndex < 0 || sIgnoreMeasureCache) {
+                // onMeasure进行测试
+                // measure ourselves, this should set the measured dimension flag back
+                onMeasure(widthMeasureSpec, heightMeasureSpec);
+                mPrivateFlags3 &= ~PFLAG3_MEASURE_NEEDED_BEFORE_LAYOUT;
+            } else {
+                // 使用缓存
+                long value = mMeasureCache.valueAt(cacheIndex);
+                // Casting a long to int drops the high 32 bits, no mask needed
+                setMeasuredDimensionRaw((int) (value >> 32), (int) value);
+                mPrivateFlags3 |= PFLAG3_MEASURE_NEEDED_BEFORE_LAYOUT;
+            }
+
+            // flag not set, setMeasuredDimension() was not invoked, we raise
+            // an exception to warn the developer
+            if ((mPrivateFlags & PFLAG_MEASURED_DIMENSION_SET) != PFLAG_MEASURED_DIMENSION_SET) {
+                throw new IllegalStateException("View with id " + getId() + ": "
+                        + getClass().getName() + "#onMeasure() did not set the"
+                        + " measured dimension by calling"
+                        + " setMeasuredDimension()");
+            }
+
+            mPrivateFlags |= PFLAG_LAYOUT_REQUIRED;
+        }
+
+        mOldWidthMeasureSpec = widthMeasureSpec;
+        mOldHeightMeasureSpec = heightMeasureSpec;
+
+        mMeasureCache.put(key, ((long) mMeasuredWidth) << 32 |
+                (long) mMeasuredHeight & 0xffffffffL); // suppress sign extension
+    }
+```
 
 ## ViewGroup
 
@@ -154,7 +322,6 @@
            }
            return MeasureSpec.makeMeasureSpec(resultSize, resultMode);
        }
-
 ```
 
 ### measureChildWithMargins
