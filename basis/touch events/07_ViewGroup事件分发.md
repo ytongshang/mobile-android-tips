@@ -1,6 +1,7 @@
 # 参考文档
 
 - [Android View 事件分发机制源码详解(ViewGroup篇)](http://blog.csdn.net/a553181867/article/details/51287844)
+- ![viewgroup事件分发](./../../image-resources/touchevent/viewgroup.png)
 
 ## API
 
@@ -255,10 +256,6 @@
 - 在ACTION_DOWN事件中，会重置这个标识位
 - 对于ACTION_DOWN事件，ViewGroup总会调用自己的onInterceptTouchEvent询问自己是否要拦截事件
 - **子View调用requestDisallowInterceptTouchEvent并不能影响ViewGroup对ACTION_DOWN的处理**
-
-## 图解
-
-![viewgroup事件分发](./../../image-resources/touchevent/viewgroup.png)
 
 ## 总结
 
