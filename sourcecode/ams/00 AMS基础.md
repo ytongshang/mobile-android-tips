@@ -34,7 +34,7 @@
 
 ### ActivityManager
 
-- 客户端使用ActivityManager类
+- 客户端使用ActivityManager类与ActivityManagerService通信
 
 ### ActivityRecord,TaskRecord,ProcessRecord
 
