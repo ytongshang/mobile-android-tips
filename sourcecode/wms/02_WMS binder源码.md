@@ -12,8 +12,8 @@
 - ![Session](./../../image-resources/sourcecode/wms/wms_session.webp)
 
 ```java
-// com/android/server/wm/WindowManagerService.java
-public class WindowManagerService extends IWindowManager.Stub
+    // com/android/server/wm/WindowManagerService.java
+    public class WindowManagerService extends IWindowManager.Stub
         implements Watchdog.Monitor, WindowManagerPolicy.WindowManagerFuncs {
         /**
          * All currently active sessions with clients.
@@ -29,8 +29,8 @@ public class WindowManagerService extends IWindowManager.Stub
             if (inputContext == null) throw new IllegalArgumentException("null inputContext");
             Session session = new Session(this, callback, client, inputContext);
             return session;
+        }
     }
-}
 
     // android/view/ViewRootImpl.java
     public ViewRootImpl(Context context, Display display) {
@@ -82,9 +82,9 @@ public class WindowManagerService extends IWindowManager.Stub
 ```
 
 - WindowState 是 WMS 中一个重要的概念，在 WMS 中的一个 WindowState 对象就对应着一个应用进程中的 Window 对象
-- 在调用WindowManagerGlobal.addView 方法时，经过一系列的方法调用，最后走到了 WindowManagerService.addWindow 方法中，在 WindowManagerService.addWindow 方法中，会创建一个与 Window 对象对应的 WindowState 对象并调用 WindowState.attach 方法，然后将该 WindowState 对象添加到 WMS 的 mWindowMap Map 中
+- 在调用WindowManagerGlobal.addView 方法时，经过一系列的方法调用，最后走到了 WindowManagerService.addWindow 方法中，在 WindowManagerService.addWindow 方法中，会创建一个与 Window 对象对应的 WindowState 对象并调用 WindowState.attach 方法，然后将该 WindowState 对象添加到 WMS 的 mWindowMap中
 
-- ![addToWindow]](./../../image-resources/sourcecode/wms/wms_addtowindow.webp)
+- ![addtowindow](./../../image-resources/sourcecode/wms/wms_addtowindow.webp)
 
 - IWindow服务端在应用进程，实现类是ViewRootImpl中的W，客户端是Wms，在ViewRootImpl的setView方法中通过IWindowSession.Stub.Proxy传递给了Wms
 
