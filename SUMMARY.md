@@ -95,6 +95,7 @@
     -   [ANR](develop/performance/03_ANR.md)
     -   [启动优化](develop/performance/04_启动优化.md)
 -   video
+    -   [cdn](develop/video/cdn.md)
     -   [live](develop/video/live.md)
     -   [mediacodec](develop/video/mediacodec.md)
     -   [mediaplayer](develop/video/Mediaplayer.md)
