@@ -1,15 +1,15 @@
 # 参考文档
 
-- [Android View 事件分发机制源码详解(ViewGroup篇)](http://blog.csdn.net/a553181867/article/details/51287844)
-- ![viewgroup事件分发](./../../image-resources/touchevent/viewgroup.png)
+-   [Android View 事件分发机制源码详解(ViewGroup 篇)](http://blog.csdn.net/a553181867/article/details/51287844)
+-   ![viewgroup事件分发](./../../image-resources/touchevent/viewgroup.png)
 
 ## API
 
-- ViewGroup的触摸事件处理，很多继承于view,一方面它重载了dispatchTouchEvent,另外一个主要的区别在于新添加了函数onInterceptTouchEvent
+-   ViewGroup 的触摸事件处理，很多继承于 view,一方面它重载了 dispatchTouchEvent,另外一个主要的区别在于新添加了函数 onInterceptTouchEvent
 
 ## dispatchTouchEvent
 
-- 如果ViewGroup的某个孩子没有接受ACTION_DOWN事件；那么，ACTION_MOVE和ACTION_UP等事件也一定不会分发给这个孩子
+-   如果 ViewGroup 的某个孩子没有接受 ACTION_DOWN 事件；那么，ACTION_MOVE 和 ACTION_UP 等事件也一定不会分发给这个孩子
 
 ```java
   @Override
@@ -188,10 +188,11 @@
             TouchTarget target = mFirstTouchTarget;
             while (target != null) {
                 final TouchTarget next = target.next;
-                // 这里实际上区分开了ACTION_DOWN与其它类型的事件
                 if (alreadyDispatchedToNewTouchTarget && target == newTouchTarget) {
+                    // 前面的down事件被分发了
                     handled = true;
                 } else {
+                    // detached 或者 事件被拦截，那么给子view分发cancel事件
                     final boolean cancelChild = resetCancelNextUpFlag(target.child)
                             || intercepted;
                     // 如果正在detchView 或都viewGroup拦截了事件,则发送cancel事件给子View
@@ -199,6 +200,7 @@
                             target.child, target.pointerIdBits)) {
                         handled = true;
                     }
+                    // 如果child的事件被拦截或者不接受，那么将这个child从mFirstTouchTarget移除
                     if (cancelChild) {
                         if (predecessor == null) {
                             mFirstTouchTarget = next;
@@ -221,6 +223,7 @@
         if (canceled
                 || actionMasked == MotionEvent.ACTION_UP
                 || actionMasked == MotionEvent.ACTION_HOVER_MOVE) {
+            // cancel或者事件的结束，up事件，重置状态
             resetTouchState();
         } else if (split && actionMasked == MotionEvent.ACTION_POINTER_UP) {
             final int actionIndex = ev.getActionIndex();
@@ -239,28 +242,28 @@
 
 ## onInterceptTouchEvent
 
-- onInterceptTouchEvent是否拦截触摸事件，默认情况下是不拦截的
-- 常见的例子就是ViewPager,当发生滑动事件的时候，ViewPager拦截了事件，用来左右滑动item
+-   onInterceptTouchEvent 是否拦截触摸事件，默认情况下是不拦截的
+-   常见的例子就是 ViewPager,当发生滑动事件的时候，ViewPager 拦截了事件，用来左右滑动 item
 
-  ```java
-  public boolean onInterceptTouchEvent(MotionEvent ev) {
-    return false;
-  }
-  ```
+    ```java
+    public boolean onInterceptTouchEvent(MotionEvent ev) {
+      return false;
+    }
+    ```
 
-- 当ViewGroup拦截了down事件，或者没有子view去处理down事件，后续的up,move事件就不会调用 onInterceptTouchEvent()方法了，所以该方法并不是每次事件都会调用的
+-   当 ViewGroup 拦截了 down 事件，或者没有子 view 去处理 down 事件，后续的 up,move 事件就不会调用 onInterceptTouchEvent()方法了，所以该方法并不是每次事件都会调用的
 
 ## requestDisallowInterceptTouchEvent
 
-- 如果FLAG_DISALLOW_INTERCEPT设置后，ViewGroup将无法拦截除了ACTION_DOWN以外的其它点击事件
-- 在ACTION_DOWN事件中，会重置这个标识位
-- 对于ACTION_DOWN事件，ViewGroup总会调用自己的onInterceptTouchEvent询问自己是否要拦截事件
-- **子View调用requestDisallowInterceptTouchEvent并不能影响ViewGroup对ACTION_DOWN的处理**
+-   如果 FLAG_DISALLOW_INTERCEPT 设置后，ViewGroup 将无法拦截除了 ACTION_DOWN 以外的其它点击事件
+-   在 ACTION_DOWN 事件中，会重置这个标识位
+-   对于 ACTION_DOWN 事件，ViewGroup 总会调用自己的 onInterceptTouchEvent 询问自己是否要拦截事件
+-   **子 View 调用 requestDisallowInterceptTouchEvent 并不能影响 ViewGroup 对 ACTION_DOWN 的处理**
 
 ## 总结
 
-- ViewGroup默认不拦截任何事件，所以事件能正常分发到子View处（如果子View符合条件的话）
-- 如果ViewGroup的onInterceptTouchEvent为true,并且允许拦截事件（allowInterceptTouchEvent），那么事件直接由ViewGroup处理
-- 如果没有合适的子View或者子View不消耗ACTION_DOWN事件，那么接着事件会交由ViewGroup处理，并且同一事件序列之后的事件不会再分发给子View了。
-- 如果ViewGroup的onTouchEvent也返回false，即ViewGroup也不消耗事件的话，那么最后事件会交由Activity处理。即：逐层分发事件下去，如果都没有处理事件的View，那么事件会逐层向上返回。
-- 如果某一个View拦截了事件，那么同一个事件序列的其他所有事件都会交由这个View处理，此时不再调用View(ViewGroup)的onIntercept()方法去询问是否要拦截了
+-   ViewGroup 默认不拦截任何事件，所以事件能正常分发到子 View 处（如果子 View 符合条件的话）
+-   如果 ViewGroup 的 onInterceptTouchEvent 为 true,并且允许拦截事件（allowInterceptTouchEvent），那么事件直接由 ViewGroup 处理
+-   如果没有合适的子 View 或者子 View 不消耗 ACTION_DOWN 事件，那么接着事件会交由 ViewGroup 处理，并且同一事件序列之后的事件不会再分发给子 View 了。
+-   如果 ViewGroup 的 onTouchEvent 也返回 false，即 ViewGroup 也不消耗事件的话，那么最后事件会交由 Activity 处理。即：逐层分发事件下去，如果都没有处理事件的 View，那么事件会逐层向上返回。
+-   如果某一个 View 拦截了事件，那么同一个事件序列的其他所有事件都会交由这个 View 处理，此时不再调用 View(ViewGroup)的 onIntercept()方法去询问是否要拦截了

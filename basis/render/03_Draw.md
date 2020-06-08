@@ -2,12 +2,12 @@
 
 ## Surface
 
-- **原始图像缓冲区（raw buffer）**:用来保存当前窗口的像素数据
-- Surface 充当句柄的角色，用来获取原始图像缓冲区以及其中的内容
+-   **原始图像缓冲区（raw buffer）**:用来保存当前窗口的像素数据
+-   Surface 充当句柄的角色，用来获取原始图像缓冲区以及其中的内容
 
 ## 流程
 
-- ViewRootImpl中的performDraw,draw
+-   ViewRootImpl 中的 performDraw,draw
 
 ```java
 // android/view/ViewRootImpl.java
@@ -41,7 +41,7 @@ private void performDraw() {
     }
 ```
 
-- drawSoftware,整个流程就是surface.lockCanvas, view.draw(canvas),surface.unlockCanvasAndPost(canvas);
+-   drawSoftware,整个流程就是 surface.lockCanvas, view.draw(canvas),surface.unlockCanvasAndPost(canvas);
 
 ```java
 private boolean drawSoftware(Surface surface, AttachInfo attachInfo, int xoff, int yoff,
@@ -98,11 +98,11 @@ private boolean drawSoftware(Surface surface, AttachInfo attachInfo, int xoff, i
     }
 ```
 
-- View的绘制，主要步骤
-    - 绘制背景 drawBackground(canvas)
-    - 绘制自己onDraw(canvas)
-    - 绘制childrendispatchDraw(canvas)
-    - 绘制装饰(foreground, scrollbars) onDrawForeground(canvas)
+-   View 的绘制，主要步骤
+    -   绘制背景 drawBackground(canvas)
+    -   绘制自己 onDraw(canvas)
+    -   绘制 children,dispatchDraw(canvas)
+    -   绘制装饰(foreground, scrollbars) onDrawForeground(canvas)
 
 ```java
  public void draw(Canvas canvas) {
@@ -312,4 +312,3 @@ private boolean drawSoftware(Surface surface, AttachInfo attachInfo, int xoff, i
         }
     }
 ```
-
