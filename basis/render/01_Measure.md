@@ -526,8 +526,7 @@ public final void measure(int widthMeasureSpec, int heightMeasureSpec) {
 
 ```
 
-- **也就是说直接继承View的控件，它的wrap_content属性是无效的**，
- 解决办法是直接继承View的控件，当我们使用wrap_content，去给它指定一个固定的宽和高
+- **也就是说直接继承View的控件，它的wrap_content属性是无效的**，解决办法是直接继承View的控件，当我们使用wrap_content，去给它指定一个固定的宽和高
 
 ```java
 

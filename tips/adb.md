@@ -3,4 +3,3 @@
 ## taskRecord
 
 - adb shell dumpsys activity | grep TaskRecord
-

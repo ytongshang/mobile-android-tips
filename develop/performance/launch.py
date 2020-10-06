@@ -10,8 +10,8 @@ class MobileQQTest(object):
     def __init__(self, num):
         self.data = []
         self.num = num
-        self.app = 'com.seeneuro.medical'
-        self.activity = 'com.seeneuro.medical.view.SplashActivity'
+        self.app = 'com.guang.client'
+        self.activity = 'com.guang.client.SplashActivity'
 
     def check_devices(self):
         '''检查设备是否连接成功，如果成功返回True，否则返回False'''
