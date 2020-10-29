@@ -108,8 +108,6 @@ typedef jint     jsize;
 
 ### String
 
-[关于 Java 到 Native 层 String 的转换以及 isCopy 参数的解释 ](http://blog.sina.com.cn/s/blog_78eb91cd0102uzv6.html)
-
 -   Java 层的字符串到了 JNI 就成了 jstring 类型的，但 jstring 指向的是 JVM 内部的一个字符串，它不是 C 风格的字符串 char\*，所以不能像使用 C 风格字符串一样来使用 jstring
     -   GetStringUTFChars 将 jstring 转换成为 UTF-8 格式的 char\*
     -   GetStringChars 将 jstring 转换成为 Unicode 格式的 char\*
@@ -117,7 +115,7 @@ typedef jint     jsize;
     -   ReleaseStringChars 释放指向 Unicode 格式的 char\*的指针
     -   NewStringUTF 创建一个 UTF-8 格式的 String 对象
     -   NewString 创建一个 Unicode 格式的 String 对象
-    -   GetStringUTFLengt 获取 UTF-8 格式的 char\*的长
+    -   GetStringUTFLength 获取 UTF-8 格式的 char\*的长
     -   GetStringLength 获取 Unicode 格式的 char\*的长度
 
 ```java
