@@ -71,7 +71,6 @@ Intent.CATEGORY_LAUNCHER
 //启动
 ```
 
-
 ## 隐式Intent
 
 - 对于隐式intent，可能没有任何应用可以处理,需要先判断是否有应用可以处理
