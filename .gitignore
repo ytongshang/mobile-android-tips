@@ -1,25 +1,26 @@
 # Operating system
 .DS_Store
 Thumbs.db
+.obsidian/
 
-# Built application files 
-*.apk 
-*.ap_ 
+# Built application files
+*.apk
+*.ap_
 
-# Files for the Dalvik VM 
-*.dex 
+# Files for the Dalvik VM
+*.dex
 
-# Java class files 
+# Java class files
 *.class
 
-# Generated files 
+# Generated files
 bin/
 gen/
 
 # Log Files
 *.log
 
-# Gradle files 
+# Gradle files
 .gradle/
 build/
 
@@ -36,7 +37,7 @@ build/
 /.idea/tasks.xml
 
 # Local configuration file (sdk path, etc)
-local.properties 
+local.properties
 
 # Android Studio Navigation editor temp files
 .navigation/
