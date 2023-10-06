@@ -100,16 +100,25 @@ mat4 myMat4 = mat4(1.0)
 
 - const编译期就确定的常量
 
-| 修饰符  | 说明                                                                                           |
-|---------|------------------------------------------------------------------------------------------------|
-| const   | 声明变量或函数的参数为只读类型                                                                 |
-| uniform | 在运行时shader无法改变uniform变量, 一般用来放置程序传递给shader的变换矩阵，材质，光照参数等等. |
+| 修饰符    | 说明                                                                                           |
+|-----------|------------------------------------------------------------------------------------------------|
+| none      | (默认的可省略)本地变量,可读可写,函数的输入参数既是这种类型                                     |
+| const     | 声明变量或函数的参数为只读类型                                                                 |
+| attribute | 只能存在于vertex shader中,一般用于保存顶点或法线数据,它可以在数据缓冲区中读取数据              |
+| uniform   | 在运行时shader无法改变uniform变量, 一般用来放置程序传递给shader的变换矩阵，材质，光照参数等等. |
+| varying   | 主要负责在vertex 和 fragment 之间传递量                                                        |
+
 
 ```glsl
 const float zero = 0.0
 ```
 
 ## Struct
+
+- 当我们谈论到顶点着色器的时候，每个输入变量也叫顶点属性(Vertex Attribute)。
+- 我们能声明的顶点属性是有上限的，它一般由硬件来决定。OpenGL确保至少有16个包含4分量的顶点属性可用，但是有些硬件或许允许更多的顶点属性,可以通过以下方法查明
+- **attribute变量是只能在vertex shader中使用的变量**。一般用attribute变量来表示一些顶点的数据，如：顶点坐标，法线，纹理坐标，顶点颜色等,**不能在fragment shader中声明attribute变量，也不能被fragment shader中使用**
+- glGetAttribLocation获得vertex shader中attribute变量的index, 使用glVertexAttribPointer为每个attribute变量赋值
 
 ```glsl
 struct fogStruct {
